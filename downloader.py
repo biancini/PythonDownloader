@@ -4,7 +4,8 @@
 import twitter
 import MySQLdb
 import pprint
-import urllib, urllib2
+import urllib
+import urllib2
 import base64
 from datetime import datetime
 from secrets import consumer_key, consumer_secret, auth_type, access_token_key, access_token_secret
@@ -83,26 +84,31 @@ class DownloadFrenchTweets(TwitterApiCall):
                                     since_id = firstid)
       if (len(statuses) == 0): break
       print "Number of tweets downloaded:\t%d." % len(statuses)
+
       for s in statuses:
         if (firstid is None): break
 	
         date_object = datetime.strptime(s.created_at, '%a %b %d %H:%M:%S +0000 %Y')
+	text = s.text.encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+
         sql_vals = (s.id,
                     date_object.strftime('%Y-%m-%d %H:%M:%S'),
-                    s.text.replace('\'', '\\\''),
+                    text.replace('\'', '\\\''),
                     ', '.join([h.text for h in s.hashtags]))
-        sql  = "INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`) "
-        sql += "VALUES ('%s', '%s', '%s', '%s')" % sql_vals
-        #print s.text
+
+        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`)'
+        sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals
 
         try:
           cur.execute(sql)
           self.con.commit()
           inserted += 1
         except Exception as e:
+          #print sql
           code, msg = e
           if code == 1062: break
           else: print "Exception while inserting tweet %s: %s" % (s.id, e)
+
           self.con.rollback()
 
       print "Numer of tweets inserted:\t%d." % inserted
