@@ -109,7 +109,9 @@ class DownloadFrenchTweets(TwitterApiCall):
           self.con.commit()
           inserted += 1
         except Exception as e:
-          print "Exception while inserting tweet %s: %s" % (s.id, e)
+          code, msg = e
+          if code == 1062: break
+          else: print "Exception while inserting tweet %s: %s" % (s.id, e)
           self.con.rollback()
 
       sys.stdout.write('.')
@@ -127,5 +129,6 @@ class DownloadFrenchTweets(TwitterApiCall):
 if __name__ == "__main__":
   engine = DownloadFrenchTweets()
   #engine.SelectMaxTweetId()
-  print engine.GetCurrentLimit()
-  #engine.InsertTweetsIntoDb()
+  #print engine.GetCurrentLimit()
+  #print engine.PrintRateLimit()
+  engine.InsertTweetsIntoDb()
