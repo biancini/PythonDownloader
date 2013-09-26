@@ -7,6 +7,7 @@ import pprint
 import urllib
 import urllib2
 import base64
+import sys
 from datetime import datetime
 from secrets import consumer_key, consumer_secret, auth_type, access_token_key, access_token_secret
 from secrets import dbhost, dbuser, dbpass, dbname
@@ -57,36 +58,40 @@ class DownloadFrenchTweets(TwitterApiCall):
     return firstid
 
   def InsertTweetsIntoDb(self):
-    lat = 45.776665
-    lng = 3.07723
-    radius = '400km'
-    count = 100
-    lang = 'fr'
+    lat    = 45.776665 # Latitude and longitude of Clermont-Ferrand
+    lng    = 3.07723
+    radius = '400km'   # Radius of France territory
+    count  = 100       # Number of tweets to retrieve (max. 100)
+    lang   = 'fr'      # French language
 
-    count = 0
+    calls     = 0
+    twits     = []
     ratelimit = self.GetCurrentLimit()
-    firstid = self.SelectMaxTweetId()
-    lastid = None
+    max_id    = None
+    since_id  = self.SelectMaxTweetId()
+
+    sys.stdout.write('Executing Twitter API calls ')
+    sys.stdout.flush()
 
     cur = self.con.cursor()
 
     while True:
-      count += 1
+      calls += 1
       inserted = 0
-      if count >= ratelimit: break
+      if calls >= ratelimit - 2: break
 
       statuses = self.api.GetSearch(geocode = (lat, lng, radius),
                                     count = count,
                                     lang = lang,
                                     result_type = 'recent',
                                     include_entities = False,
-                                    max_id = lastid,
-                                    since_id = firstid)
+                                    max_id = max_id,
+                                    since_id = since_id)
       if (len(statuses) == 0): break
-      print "Number of tweets downloaded:\t%d." % len(statuses)
+      #print "Number of tweets downloaded:\t%d." % len(statuses)
 
       for s in statuses:
-        if (firstid is None): break
+        if (since_id is None): break
 	
         date_object = datetime.strptime(s.created_at, '%a %b %d %H:%M:%S +0000 %Y')
 	text = s.text.encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
@@ -104,18 +109,23 @@ class DownloadFrenchTweets(TwitterApiCall):
           self.con.commit()
           inserted += 1
         except Exception as e:
-          #print sql
-          code, msg = e
-          if code == 1062: break
-          else: print "Exception while inserting tweet %s: %s" % (s.id, e)
-
+          print "Exception while inserting tweet %s: %s" % (s.id, e)
           self.con.rollback()
 
-      print "Numer of tweets inserted:\t%d." % inserted
-      lastid = min([s.id for s in statuses]) - 1
+      sys.stdout.write('.')
+      sys.stdout.flush()
+
+      twits.append(inserted)
+      #print "Numer of tweets inserted:\t%d." % inserted
+      max_id = min([s.id for s in statuses]) - 1
+
+    print ""
+    print "Executed %d calls to insert a total number of %d tweets." % (calls, sum(twits))
+    for i in range(0, len(twits)):
+      print "Call %d inserted %d tweets." % (i+1, twits[i])
 
 if __name__ == "__main__":
   engine = DownloadFrenchTweets()
   #engine.SelectMaxTweetId()
-  #print engine.GetCurrentLimit()
-  engine.InsertTweetsIntoDb()
+  print engine.GetCurrentLimit()
+  #engine.InsertTweetsIntoDb()
