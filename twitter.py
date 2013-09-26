@@ -35,6 +35,7 @@ import gzip
 import StringIO
 import re
 import requests
+import base64
 from requests_oauthlib import OAuth1
 from calendar import timegm
 from datetime import datetime
@@ -2203,6 +2204,41 @@ class Url(object):
     return Url(url=data.get('url', None),
                expanded_url=data.get('expanded_url', None))
 
+class BearerAuth(requests.auth.AuthBase):
+  def __init__(self, token_url, consumer_key, consumer_secret):
+    self._token_url = token_url
+    self._consumer_key = consumer_key
+    self._consumer_secret = consumer_secret
+    self._bearer_token = self.GetAccessToken()
+
+  def GetAccessToken(self):
+    b64_bearer_token_creds = base64.b64encode(self._consumer_key + ':' + self._consumer_secret)
+    header = {}
+    values = {}
+    header['User-Agent'] = 'Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1'
+    header['Authorization'] = 'Basic ' + b64_bearer_token_creds
+    header['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+    #header['Accept-Encoding'] = 'gzip'
+    values['grant_type'] = 'client_credentials'
+
+    data = urllib.urlencode(values)
+    req = urllib2.Request(self._token_url, data, header)
+    try:
+      response = urllib2.urlopen(req)
+      data = data = simplejson.loads(response.read())
+      return data['access_token']
+    except urllib2.HTTPError as e:
+      print >> sys.stderr, 'Error while requesting bearer access token: %s' % e
+      raise TwitterError('Twitter error in retrieving bearer access token')
+
+  def __call__(self, r):
+    auth_list = [self._consumer_key, self._consumer_secret, self._bearer_token]
+    if all(auth_list):
+      r.headers['Authorization'] = "Bearer %s" % self._bearer_token
+      return r
+    else:
+      raise TwitterError('No enough keys passed to Bearer token manager.')
+
 class Api(object):
   '''A python interface into the Twitter API
 
@@ -2269,6 +2305,7 @@ class Api(object):
   def __init__(self,
                consumer_key=None,
                consumer_secret=None,
+               auth_type=None,
                access_token_key=None,
                access_token_secret=None,
                input_encoding=None,
@@ -2277,6 +2314,7 @@ class Api(object):
                shortner=None,
                base_url=None,
                stream_url=None,
+               token_url=None,
                use_gzip_compression=False,
                debugHTTP=False,
                requests_timeout=None):
@@ -2287,6 +2325,9 @@ class Api(object):
         Your Twitter user's consumer_key.
       consumer_secret:
         Your Twitter user's consumer_secret.
+      auth_type:
+        The oAuth type of authentication. Default is "oAuth1". The other
+        valid option is "oAuth2". [Optional]
       access_token_key:
         The oAuth access token key value you retrieved
         from running get_access_token.py.
@@ -2305,7 +2346,13 @@ class Api(object):
         See shorten_url.py for an example shortner. [Optional]
       base_url:
         The base URL to use to contact the Twitter API.
-        Defaults to https://api.twitter.com. [Optional]
+        Defaults to https://api.twitter.com/1.1 [Optional]
+      stream_url:
+        The base URL to use to contact the Twitter stream API.
+        Defaults to https://stream.twitter.com/1.1 [Optional]
+      token_url:
+        The base URL to use to contact the Twitter token API.
+        Defaults to https://api.twitter.com/oauth2/token [Optional]
       use_gzip_compression:
         Set to True to tell enable gzip compression for any call
         made to Twitter.  Defaults to False. [Optional]
@@ -2329,6 +2376,9 @@ class Api(object):
     self._InitializeUserAgent()
     self._InitializeDefaultParameters()
 
+    if auth_type is None:
+      auth_type = 'oAuth1'
+
     if base_url is None:
       self.base_url = 'https://api.twitter.com/1.1'
     else:
@@ -2339,17 +2389,24 @@ class Api(object):
     else:
       self.stream_url = stream_url
 
-    if consumer_key is not None and (access_token_key is None or
-                                     access_token_secret is None):
+    if token_url is None:
+      self.token_url = 'https://api.twitter.com/oauth2/token'
+    else:
+      self.token_url = token_url
+
+    if consumer_key is not None and (auth_type is 'oAuth1' and
+                                     (access_token_key is None or
+                                      access_token_secret is None)):
       print >> sys.stderr, 'Twitter now requires an oAuth Access Token for API calls.'
       print >> sys.stderr, 'If your using this library from a command line utility, please'
       print >> sys.stderr, 'run the included get_access_token.py tool to generate one.'
 
       raise TwitterError('Twitter requires oAuth Access Token for all API access')
 
-    self.SetCredentials(consumer_key, consumer_secret, access_token_key, access_token_secret)
+    self.SetCredentials(auth_type, consumer_key, consumer_secret, access_token_key, access_token_secret)
 
   def SetCredentials(self,
+                     auth_type,
                      consumer_key,
                      consumer_secret,
                      access_token_key=None,
@@ -2357,6 +2414,9 @@ class Api(object):
     '''Set the consumer_key and consumer_secret for this instance
 
     Args:
+      auth_type:
+        The oAuth type of authentication. The valid options are
+        "oAuth1" or "oAuth2".
       consumer_key:
         The consumer_key of the twitter account.
       consumer_secret:
@@ -2370,14 +2430,23 @@ class Api(object):
     '''
     self._consumer_key        = consumer_key
     self._consumer_secret     = consumer_secret
-    self._access_token_key    = access_token_key
-    self._access_token_secret = access_token_secret
-    auth_list = [consumer_key, consumer_secret,
-                 access_token_key, access_token_secret]
 
-    if all(auth_list):
-      self.__auth = OAuth1(consumer_key, consumer_secret,  
-              access_token_key, access_token_secret)
+    if auth_type is "oAuth1":
+      self._access_token_key    = access_token_key
+      self._access_token_secret = access_token_secret
+      auth_list = [consumer_key, consumer_secret,
+                   access_token_key, access_token_secret]
+
+      if all(auth_list):
+        self.__auth = OAuth1(consumer_key, consumer_secret,  
+                access_token_key, access_token_secret)
+    elif auth_type is "oAuth2":
+      auth_list = [consumer_key, consumer_secret]
+
+      if all(auth_list):
+        self.__auth = BearerAuth(self.token_url, consumer_key, consumer_secret)
+    else:
+      raise Exception('Wrong value for parameter oAuth')
 
     self._config = self.GetHelpConfiguration()
 
@@ -2400,6 +2469,7 @@ class Api(object):
     self._consumer_secret     = None
     self._access_token_key    = None
     self._access_token_secret = None
+    self._bearer_token        = None
     self.__auth               = None  # for request upgrade
 
   def GetSearch(self,
