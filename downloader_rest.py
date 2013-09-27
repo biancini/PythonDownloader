@@ -79,7 +79,9 @@ class DownloadFrenchTweets(TwitterApiCall):
     while True:
       calls += 1
       inserted = 0
-      if calls >= ratelimit - 2: break
+      if calls >= ratelimit - 2:
+        print "Exiting because reached ratelimit."
+        break
 
       params = { 'geocode':     ','.join(map(str, (lat, lng, radius))),
                  'count':       count,
@@ -90,7 +92,9 @@ class DownloadFrenchTweets(TwitterApiCall):
       response = self.api.request('search/tweets', params)
       statuses = json.loads(response.text)['statuses']
 
-      if (len(statuses) == 0): break
+      if (len(statuses) == 0):
+        print "Exiting because API returned no tweet."
+        break
       #print "Number of tweets downloaded:\t%d." % len(statuses)
 
       for s in statuses:
@@ -101,7 +105,7 @@ class DownloadFrenchTweets(TwitterApiCall):
         sql_vals = (s['id'],
                     date_object.strftime('%Y-%m-%d %H:%M:%S'),
                     text.replace('\'', '\\\''),
-                    ', '.join([h.text for h in s['entities']['hashtags']]))
+                    ', '.join([h['text'] for h in s['entities']['hashtags']]))
 
         sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`) '
         sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals
@@ -112,13 +116,17 @@ class DownloadFrenchTweets(TwitterApiCall):
           inserted += 1
         except Exception as e:
           code, msg = e
-          if code == 1062: break
+          if code == 1062:
+            print "Exiting because tried to insert a tweet already present in the DB."
+            break
           else: print "Exception while inserting tweet %s: %s" % (s['id'], e)
           self.con.rollback()
 
       sys.stdout.write('.')
       sys.stdout.flush()
-      if (since_id is None): break
+      if (since_id is None):
+        print "Exiting because performing only one call to initialize DB."
+        break
 
       twits.append(inserted)
       #print "Numer of tweets inserted:\t%d." % inserted

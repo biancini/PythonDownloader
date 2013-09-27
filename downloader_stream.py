@@ -57,7 +57,7 @@ class DownloadFrenchTweets(TwitterApiCall):
       sql_vals = (item['id'],
                   date_object.strftime('%Y-%m-%d %H:%M:%S'),
                   text.replace('\'', '\\\''),
-                  ', '.join([h.text for h in s['entities']['hashtags']]]))
+                  ', '.join([h['text'] for h in s['entities']['hashtags']]]))
 
       sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`)'
       sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals
