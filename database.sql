@@ -27,7 +27,10 @@ CREATE TABLE `tweets` (
   `timestamp` datetime DEFAULT NULL,
   `text` varchar(500) DEFAULT NULL,
   `hashtags` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`tweetid`)
+  `latitude` float(11,9) DEFAULT NULL,
+  `longitude` float(11,9) DEFAULT NULL,
+  PRIMARY KEY (`tweetid`),
+  FULLTEXT KEY `text` (`text`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -40,4 +43,4 @@ CREATE TABLE `tweets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-09-24 16:15:55
+-- Dump completed on 2013-09-27 15:11:02

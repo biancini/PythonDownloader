@@ -56,20 +56,26 @@ class DownloadFrenchTweets(TwitterApiCall):
       #print item['text']
       date_object = datetime.strptime(item['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
       text = item['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+      if item['coordinates'] and item['coordinates']['type'] == 'Point':
+        coordinates = item['coordinates']['coordinates']
+      else:
+        coordinates = ['NULL', 'NULL']
 
       sql_vals = (item['id'],
                   date_object.strftime('%Y-%m-%d %H:%M:%S'),
                   text.replace('\\', '\\\\').replace('\'', '\\\''),
-                  ', '.join([h['text'] for h in item['entities']['hashtags']]))
+                  ', '.join([h['text'] for h in item['entities']['hashtags']]),
+                  coordinates[0],
+                  coordinates[1])
 
-      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`)'
-      sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals
+      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `latitude`, `longitude`)'
+      sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
 
       try:
         cur.execute(sql)
         self.con.commit()
       except Exception as e:
-        print "Error while executing query for tweet %s." % item['id']
+        print "Error while executing query for tweet %s: %s" % (item['id'], e)
         self.con.rollback()
 
 if __name__ == "__main__":

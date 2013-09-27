@@ -101,14 +101,20 @@ class DownloadFrenchTweets(TwitterApiCall):
 	#print s
         date_object = datetime.strptime(s['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
 	text = s['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+        if s['coordinates'] and s['coordinates']['type'] == 'Point':
+          coordinates = s['coordinates']['coordinates']
+        else:
+          coordinates = ['NULL', 'NULL']
 
         sql_vals = (s['id'],
                     date_object.strftime('%Y-%m-%d %H:%M:%S'),
-                    text.replace('\'', '\\\''),
-                    ', '.join([h['text'] for h in s['entities']['hashtags']]))
+                    text.replace('\\', '\\\\').replace('\'', '\\\''),
+                    ', '.join([h['text'] for h in s['entities']['hashtags']]),
+                    coordinates[0],
+                    coordinates[1])
 
-        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`) '
-        sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals
+        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `latitude`, `longitude`) '
+        sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
 
         try:
           cur.execute(sql)
