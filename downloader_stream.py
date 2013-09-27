@@ -42,14 +42,17 @@ class DownloadFrenchTweets(TwitterApiCall):
     return firstid
 
   def InsertTweetsIntoDb(self):
+    squares = ['-5.1,43.1,7.3,50.1'] # Rectangle covering all French territory
+    lang    = 'fr'                   # French language
     print 'Executing Twitter API calls '
 
     cur = self.con.cursor()
 
-    params = {'locations':'-5.1,43.1,7.3,50.1'}
+    params = {'locations':','.join(squares)}
     r = self.api.request('statuses/filter', params)
 
     for item in r.get_iterator():
+      if lang and item['lang'] != lang: continue
       #print item['text']
       date_object = datetime.strptime(item['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
       text = item['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
