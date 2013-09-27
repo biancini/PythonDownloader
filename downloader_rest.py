@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import twitter
+from TwitterAPI import TwitterAPI
 import MySQLdb
 import pprint
-import urllib
-import urllib2
-import base64
 import sys
+import json
 from datetime import datetime
 from secrets import consumer_key, consumer_secret, auth_type, access_token_key, access_token_secret
 from secrets import dbhost, dbuser, dbpass, dbname
 
 class TwitterApiCall(object):
-  api = twitter.Api(consumer_key = consumer_key,
-                    consumer_secret = consumer_secret,
-                    auth_type = auth_type)
-                    #access_token_key = access_token_key,
-                    #access_token_secret = access_token_secret)
+  api = TwitterAPI(consumer_key = consumer_key,
+                   consumer_secret = consumer_secret,
+                   auth_type = auth_type)
+                   #access_token_key = access_token_key,
+                   #access_token_secret = access_token_secret)
 
   def GetRateLimits(self):
-    return self.api.GetRateLimitStatus()
+    params = {}
+    response = self.api.request('application/rate_limit_status', params)
+    return json.loads(response.text)
 
   def PrintRateLimit(self):
     pp = pprint.PrettyPrinter(depth=6)
@@ -68,40 +68,42 @@ class DownloadFrenchTweets(TwitterApiCall):
     twits     = []
     ratelimit = self.GetCurrentLimit()
     max_id    = None
-    since_id  = self.SelectMaxTweetId()
+    since_id  = None
+    if self.con: since_id = self.SelectMaxTweetId()
 
     sys.stdout.write('Executing Twitter API calls ')
     sys.stdout.flush()
 
-    cur = self.con.cursor()
+    if self.con: cur = self.con.cursor()
 
     while True:
       calls += 1
       inserted = 0
       if calls >= ratelimit - 2: break
 
-      statuses = self.api.GetSearch(geocode = (lat, lng, radius),
-                                    count = count,
-                                    lang = lang,
-                                    result_type = 'recent',
-                                    include_entities = False,
-                                    max_id = max_id,
-                                    since_id = since_id)
+      params = { 'geocode':     ','.join(map(str, (lat, lng, radius))),
+                 'count':       count,
+                 'lang':        lang,
+                 'result_type': 'recent',
+                 'max_id':      max_id,
+                 'since_id':    since_id }
+      response = self.api.request('search/tweets', params)
+      statuses = json.loads(response.text)['statuses']
+
       if (len(statuses) == 0): break
       #print "Number of tweets downloaded:\t%d." % len(statuses)
 
       for s in statuses:
-        if (since_id is None): break
-	
-        date_object = datetime.strptime(s.created_at, '%a %b %d %H:%M:%S +0000 %Y')
-	text = s.text.encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+	#print s
+        date_object = datetime.strptime(s['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+	text = s['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
 
-        sql_vals = (s.id,
+        sql_vals = (s['id'],
                     date_object.strftime('%Y-%m-%d %H:%M:%S'),
                     text.replace('\'', '\\\''),
-                    ', '.join([h.text for h in s.hashtags]))
+                    ', '.join([h.text for h in s['entities']['hashtags']]))
 
-        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`)'
+        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`) '
         sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals
 
         try:
@@ -111,15 +113,16 @@ class DownloadFrenchTweets(TwitterApiCall):
         except Exception as e:
           code, msg = e
           if code == 1062: break
-          else: print "Exception while inserting tweet %s: %s" % (s.id, e)
+          else: print "Exception while inserting tweet %s: %s" % (s['id'], e)
           self.con.rollback()
 
       sys.stdout.write('.')
       sys.stdout.flush()
+      if (since_id is None): break
 
       twits.append(inserted)
       #print "Numer of tweets inserted:\t%d." % inserted
-      max_id = min([s.id for s in statuses]) - 1
+      max_id = min([s['id'] for s in statuses]) - 1
 
     print ""
     print "Executed %d calls to insert a total number of %d tweets." % (calls, sum(twits))

@@ -8,10 +8,11 @@ from secrets import consumer_key, consumer_secret, auth_type, access_token_key, 
 from secrets import dbhost, dbuser, dbpass, dbname
 
 class TwitterApiCall(object):
-  api = TwitterApi(consumer_key = consumer_key,
+  api = TwitterAPI(consumer_key = consumer_key,
                    consumer_secret = consumer_secret,
-                   access_token_key = access_token_key,
-                   access_token_secret = access_token_secret)
+                   auth_type = auth_type)
+                   #access_token_key = access_token_key,
+                   #access_token_secret = access_token_secret)
 
 class DownloadFrenchTweets(TwitterApiCall):
   con = None
@@ -45,16 +46,18 @@ class DownloadFrenchTweets(TwitterApiCall):
 
     cur = self.con.cursor()
 
-    r = self.api.request('statuses/filter', {'locations':'-5.141602,43.612217,7.77832,43.707594'})
+    params = {'locations':'-5.141602,43.612217,7.77832,43.707594'}
+    r = self.api.request('statuses/filter', params)
+
     for item in r.get_iterator():
-      print item['text']
+      #print item['text']
       date_object = datetime.strptime(item['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
       text = item['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
 
       sql_vals = (item['id'],
                   date_object.strftime('%Y-%m-%d %H:%M:%S'),
                   text.replace('\'', '\\\''),
-                  ', '.join([h.text for h in s.hashtags]))
+                  ', '.join([h.text for h in s['entities']['hashtags']]]))
 
       sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`)'
       sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\')' % sql_vals

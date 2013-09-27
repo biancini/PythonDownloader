@@ -1,6 +1,5 @@
-__author__ = "Jonas Geduldig"
-__date__ = "June 8, 2013"
-__license__ = "MIT"
+__author__ = "Andrea Biancini"
+__date__ = "September 27, 2013"
 
 import time
 	

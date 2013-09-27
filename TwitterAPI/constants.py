@@ -10,18 +10,16 @@
 	The Streaming API endpoints use either POST (with parameters) or GET (without parameters).
 """
 
-__author__ = "Jonas Geduldig"
-__date__ = "February 3, 2012"
-__license__ = "MIT"
-
+__author__ = "Andrea Biacnini"
+__date__ = "September 27, 2013"
 
 PROTOCOL = 'https'
-
 DOMAIN = 'twitter.com'
-
 VERSION = '1.1'
-
 USER_AGENT = 'python-TwitterAPI.cli.py'
+
+TOKEN_SUBDOMAIN = 'api'
+TOKEN_ENDPOINT = 'oauth2/token'
 
 STREAMING_SOCKET_TIMEOUT = 90 # 90 seconds per Twitter's recommendation
 
@@ -36,7 +34,6 @@ STREAMING_ENDPOINTS = {
 }
 
 REST_SUBDOMAIN = 'api'
-
 REST_SOCKET_TIMEOUT = 5
 
 REST_ENDPOINTS = {

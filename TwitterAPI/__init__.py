@@ -1,8 +1,7 @@
 __title__ = 'TwitterAPI'
 __version__ = '2.1.1'
-__author__ = 'Jonas Geduldig'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2013 Jonas Geduldig'
+__author__ = 'Andrea Biancini'
+__copyright__ = 'Copyright 2013 Andrea Biancini'
 
 
 from .TwitterOAuth import TwitterOAuth

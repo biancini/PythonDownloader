@@ -21,9 +21,8 @@
 		https://dev.twitter.com/docs/api/1.1
 """
 
-__author__ = "Jonas Geduldig"
-__date__ = "June 7, 2013"
-__license__ = "MIT"
+__author__ = "Andrea Biancini"
+__date__ = "September 27, 2013"
 
 import argparse
 from pprint import PrettyPrinter

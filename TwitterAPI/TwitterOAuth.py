@@ -11,9 +11,8 @@
 		access_token_secret=YOUR_ACCESS_TOKEN_SECRET
 """
 
-__author__ = "Jonas Geduldig"
-__date__ = "February 7, 2013"
-__license__ = "MIT"
+__author__ = "Andrea Biancini"
+__date__ = "September 27, 2013"
 
 import os
 
