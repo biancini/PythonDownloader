@@ -46,7 +46,7 @@ class DownloadFrenchTweets(TwitterApiCall):
 
     cur = self.con.cursor()
 
-    params = {'locations':'-5.141602,43.612217,7.294922,50.115735'}
+    params = {'locations':'-5.1,43.1,7.3,50.1'}
     r = self.api.request('statuses/filter', params)
 
     for item in r.get_iterator():
@@ -66,7 +66,7 @@ class DownloadFrenchTweets(TwitterApiCall):
         cur.execute(sql)
         self.con.commit()
       except Exception as e:
-        print "Error while executing query for tweet %s." % idem['id']
+        print "Error while executing query for tweet %s." % item['id']
         self.con.rollback()
 
 if __name__ == "__main__":
