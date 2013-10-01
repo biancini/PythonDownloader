@@ -117,14 +117,15 @@ class DownloadFrenchTweets(TwitterApiCall):
 	#print s
         date_object = datetime.strptime(s['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
 	text = s['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+        location = s['user']['location']
         if s['coordinates'] and s['coordinates']['type'] == 'Point':
           coordinates = s['coordinates']['coordinates']
         else:
           coordinates = ['NULL', 'NULL']
 	  try:
-            for place, (lat, lng) in g.geocode(statuses[0]['user']['location'], exactly_one=False):
+            for place, (lat, lng) in g.geocode(location, exactly_one=False):
               if coordinates[0] is 'NULL' or coordinates[1] is 'NULL':
-                #print "Computed coordinates for %s: %s, %s." % (statuses[0]['user']['location'], lat, lng)
+                #print "Computed coordinates for %s: %s, %s." % (location, lat, lng)
                 coordinates[0] = str(lat)
                 coordinates[1] = str(lng)
           except Exception as e:
@@ -135,11 +136,12 @@ class DownloadFrenchTweets(TwitterApiCall):
                     date_object.strftime('%Y-%m-%d %H:%M:%S'),
                     text.replace('\\', '\\\\').replace('\'', '\\\''),
                     ', '.join([h['text'] for h in s['entities']['hashtags']]),
+                    location,
                     coordinates[0],
                     coordinates[1])
 
-        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `latitude`, `longitude`) '
-        sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
+        sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
+        sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
 
         try:
           cur.execute(sql)

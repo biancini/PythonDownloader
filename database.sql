@@ -27,6 +27,7 @@ CREATE TABLE `tweets` (
   `timestamp` datetime DEFAULT NULL,
   `text` varchar(500) DEFAULT NULL,
   `hashtags` varchar(150) DEFAULT NULL,
+  `user_location` varchar(50) DEFAULT NULL,
   `latitude` float(11,9) DEFAULT NULL,
   `longitude` float(11,9) DEFAULT NULL,
   PRIMARY KEY (`tweetid`),
