@@ -6,9 +6,13 @@ import MySQLdb
 import pprint
 import sys
 import json
+
 from datetime import datetime
+from geopy import geocoders
+
 from secrets import consumer_key, consumer_secret, auth_type, access_token_key, access_token_secret
 from secrets import dbhost, dbuser, dbpass, dbname
+
 
 class TwitterApiCall(object):
   api = TwitterAPI(consumer_key = consumer_key,
@@ -74,6 +78,10 @@ class DownloadFrenchTweets(TwitterApiCall):
     sys.stdout.write('Executing Twitter API calls ')
     sys.stdout.flush()
 
+    #g = geocoders.GoogleV3(google_clientid, google_secret)
+    #g = geocoders.MapQuest(api_key=mapquest_appid)
+    g = geocoders.GeoNames()
+
     if self.con: cur = self.con.cursor()
 
     while True:
@@ -90,12 +98,20 @@ class DownloadFrenchTweets(TwitterApiCall):
                  'max_id':      max_id,
                  'since_id':    since_id }
       response = self.api.request('search/tweets', params)
-      statuses = json.loads(response.text)['statuses']
+      jsonresp = json.loads(response.text)
+      if not 'statuses' in jsonresp:
+        print "Exiting because call did not return expected results.\n%s" % jsonresp
+        break
 
+      statuses = jsonresp['statuses']
       if (len(statuses) == 0):
         print "Exiting because API returned no tweet."
         break
       #print "Number of tweets downloaded:\t%d." % len(statuses)
+
+      #pp = pprint.PrettyPrinter(depth=6)
+      #pp.pprint(statuses[0])
+      #break
 
       for s in statuses:
 	#print s
@@ -105,6 +121,15 @@ class DownloadFrenchTweets(TwitterApiCall):
           coordinates = s['coordinates']['coordinates']
         else:
           coordinates = ['NULL', 'NULL']
+	  try:
+            for place, (lat, lng) in g.geocode(statuses[0]['user']['location'], exactly_one=False):
+              if coordinates[0] is 'NULL' or coordinates[1] is 'NULL':
+                #print "Computed coordinates for %s: %s, %s." % (statuses[0]['user']['location'], lat, lng)
+                coordinates[0] = str(lat)
+                coordinates[1] = str(lng)
+          except Exception as e:
+            print "Error while geocoding: %s" % e
+            coordinates = ['NULL', 'NULL']
 
         sql_vals = (s['id'],
                     date_object.strftime('%Y-%m-%d %H:%M:%S'),
@@ -138,10 +163,9 @@ class DownloadFrenchTweets(TwitterApiCall):
       #print "Numer of tweets inserted:\t%d." % inserted
       max_id = min([s['id'] for s in statuses]) - 1
 
-    print ""
-    print "Executed %d calls to insert a total number of %d tweets." % (calls, sum(twits))
-    for i in range(0, len(twits)):
-      print "Call %d inserted %d tweets." % (i+1, twits[i])
+    print "\nExecuted %d calls to insert a total number of %d tweets." % (calls, sum(twits))
+    #for i in range(0, len(twits)):
+    #  print "Call %d inserted %d tweets." % (i+1, twits[i])
 
 if __name__ == "__main__":
   engine = DownloadFrenchTweets()
