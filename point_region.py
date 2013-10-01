@@ -2,12 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import keytree
 import json
 import MySQLdb
 
-from xml.etree import ElementTree
-from shapely.geometry import Point, shape
+from shapely.geometry import shape, Point
 from secrets import dbhost, dbuser, dbpass, dbname
 
 def CheckPointInKml(kml_db, lat, lng):
