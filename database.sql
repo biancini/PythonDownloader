@@ -16,6 +16,26 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `french_deps`
+--
+
+DROP TABLE IF EXISTS `french_deps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `french_deps` (
+  `ID_GEOFLA` int(11) NOT NULL,
+  `CODE_DEPT` varchar(3) DEFAULT NULL,
+  `NOM_DEPT` varchar(50) DEFAULT NULL,
+  `CODE_CHF` varchar(3) DEFAULT NULL,
+  `NOM_CHF` varchar(50) DEFAULT NULL,
+  `CODE_REG` varchar(2) DEFAULT NULL,
+  `NOM_REG` varchar(50) DEFAULT NULL,
+  `kml` text,
+  PRIMARY KEY (`ID_GEOFLA`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `tweets`
 --
 
@@ -27,9 +47,9 @@ CREATE TABLE `tweets` (
   `timestamp` datetime DEFAULT NULL,
   `text` varchar(500) DEFAULT NULL,
   `hashtags` varchar(150) DEFAULT NULL,
-  `user_location` varchar(50) DEFAULT NULL,
   `latitude` float(11,9) DEFAULT NULL,
   `longitude` float(11,9) DEFAULT NULL,
+  `user_location` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`tweetid`),
   FULLTEXT KEY `text` (`text`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -44,4 +64,4 @@ CREATE TABLE `tweets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-09-27 15:11:02
+-- Dump completed on 2013-10-01 17:10:15

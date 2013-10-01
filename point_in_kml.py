@@ -3,32 +3,48 @@
 
 import sys
 import keytree
+import json
+import MySQLdb
 
 from xml.etree import ElementTree
 from shapely.geometry import Point, shape
+from secrets import dbhost, dbuser, dbpass, dbname
 
-# Parse the KML doc
-doc = open("paris.kml").read()
-tree = ElementTree.fromstring(doc)
-kmlns = tree.tag.split('}')[0][1:]
+def CheckPointInKml(kml_db, lat, lng):
+  p = Point(lng, lat)
 
-# Find all Polygon elements anywhere in the doc
-elems = tree.findall(".//{%s}Polygon" % kmlns)
+  if 'geometry' in kml_db:
+    kml_json = json.loads(json.dumps(kml_db['geometry']))
+    return shape(kml_json).contains(p)
+  elif 'geometries' in kml_db:
+    kml_jsons = json.loads(json.dumps(kml_db['geometries']))
+    for kml_json in kml_jsons:
+      if shape(kml_json).contains(p): return True
 
-# Here's our point of interest
-#lat = 37.707799701548467
-#lng = 28.722144580890763
-lat = 48.822768
-lng = 2.345388
+  return False
 
-p = Point(lng, lat)
+if __name__ == "__main__":
+  lat = 48.822768
+  lng = 2.345388
 
-# Filter polygon elements using this lambda (anonymous function)
-# keytree.geometry() makes a GeoJSON-like geometry object from an
-# element and shape() makes a Shapely object of that.
-hits = filter(lambda e: shape(keytree.geometry(e)).contains(p), elems)
+  con = MySQLdb.connect(host = dbhost,
+                        user = dbuser,
+                        passwd = dbpass,
+                        db = dbname,
+                        charset = 'utf8')
+  print "Connected to MySQL db %s:%s." % (dbhost, dbname)
+  cur = con.cursor()
 
-if len(hits) > 0:
-  print "Point is at Paris"
-else:
-  print "Point is NOT at Paris"
+  cur.execute("SELECT NOM_REG, KML FROM french_deps")
+  rows = cur.fetchall()
+  con.close()
+
+  inside = False
+  for row in rows:
+    inside = CheckPointInKml(eval(row[1]), lat, lng)
+    if inside:
+      print "Point [%s,%s] is in region %s." % (lat, lng, row[0])
+      break
+
+  if not inside:
+    print "Point [%s,%s] is NOT part of any French department." % (lat, lng)
