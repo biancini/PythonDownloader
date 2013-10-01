@@ -4,3 +4,5 @@ oauth2==1.5.211
 wsgiref==0.1.2
 requests
 requests_oauthlib
+shapely
+http://pypi.python.org/packages/source/k/keytree/keytree-0.2.1.tar.gz
