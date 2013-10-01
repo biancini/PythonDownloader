@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from twitterengine import DownloadTweetsREST
-from twitterengine import DownloadTweetsStream
+from TwittErengine import DownloadTweetsREST, DownloadTweetsStream
 
 if __name__ == "__main__":
   mechanism = 'rest'
