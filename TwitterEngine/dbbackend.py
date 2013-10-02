@@ -55,12 +55,24 @@ class DatabaseBackend(object):
       code, msg = e
       if code == 1062:
         print "Exiting because tried to insert a tweet already present in the DB."
+        self.conn.rollback()
         return False, 0
       else:
         print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
+        self.conn.commit()
         return True, 0
 
+    self.conn.commit()
     return True, 1
 
-  def Commit(self):
-    if self.con: self.con.commit()
+  def GetKmls(self):
+    if not self.cur: return None
+
+    self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
+    rows = self.cur.fetchall()
+
+    kmls = []
+    for row in rows:
+      kmls.append((row[0], row[1]));
+
+    return kmls

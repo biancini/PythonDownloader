@@ -19,6 +19,7 @@ from secrets import consumer_key, consumer_secret, access_token_key, access_toke
 
 class TwitterApiCall(object):
   api = None
+  backend = None
 
   def __init__(self, auth_type='oAuth2'):
     if auth_type == 'oAuth2':
@@ -56,10 +57,30 @@ class TwitterApiCall(object):
 
     return coordinates
 
-  def FromTweetToSQLVals(self, tweet, geolocate=True, exclude_outs=True):
+  def CheckPointInKml(self, kmls, lat, lng):
+    p = Point(lng, lat)
+    found = False
+
+    for (name, kml) in kmls:
+      if 'geometry' in kmd:
+        kml_json = json.loads(json.dumps(kml['geometry']))
+        found = shape(kml_json).contains(p)
+        if found: return name
+      elif 'geometries' in kml:
+        kml_jsons = json.loads(json.dumps(kml['geometries']))
+        for kml_json in kml_jsons:
+          if shape(kml_json).contains(p): return name
+    
+    return None
+
+  def FromTweetToSQLVals(self, tweet, geolocate=True, exclude_out=True):
     date_object = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
     text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
     location = tweet['user']['location']
+
+    kmls = None
+    if exclude_out: kmls = self.backend.GetKmls()
+    if kmls and not self.CheckPointInKml(self, kmls, lat, lng): return None
 
     if tweet['coordinates'] and tweet['coordinates']['type'] == 'Point':
       coordinates = tweet['coordinates']['coordinates']

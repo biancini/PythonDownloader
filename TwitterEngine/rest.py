@@ -12,11 +12,11 @@ from twitterapi import TwitterApiCall
 from dbbackend import DatabaseBackend
 
 
-class DownloadTweetsREST(TwitterApiCall):
-  backend = DatabaseBackend()
+class DownloadTweetsREST(TwitterApiCall): 
 
   def __init__(self, auth_type):
     super(DownloadTweetsREST, self).__init__(auth_type)
+    self.backend = DatabaseBackend()
 
   def GetCurrentLimit(self):
     limits = self.GetRateLimits()['resources']['search']['/search/tweets']
@@ -70,9 +70,14 @@ class DownloadTweetsREST(TwitterApiCall):
 
       for s in statuses:
 	#print s
-        sql_vals = self.FromTweetToSQLVals(s, False, False)
+        sql_vals = self.FromTweetToSQLVals(s, True, True)
+        if not sql_vals:
+          print "Exiting because point in not within any valid KML region."
+          break
+
         cycle, newins = self.backend.InsertTweetIntoDb(sql_vals)
         inserted += newins
+
         if not cycle:
           print "Exiting as requested by backend."
           break
@@ -87,7 +92,6 @@ class DownloadTweetsREST(TwitterApiCall):
       #print "Numer of tweets inserted:\t%d." % inserted
       max_id = min([s['id'] for s in statuses]) - 1
 
-    self.backend.Commit()
     print "\nExecuted %d calls to insert a total number of %d tweets." % (calls, sum(twits))
     #for i in range(0, len(twits)):
     #  print "Call %d inserted %d tweets." % (i+1, twits[i])

@@ -10,10 +10,10 @@ from dbbackend import DatabaseBackend
 
 
 class DownloadTweetsStream(TwitterApiCall):
-  backend = DatabaseBackend()
 
   def __init__(self, auth_type):
     super(DownloadTweetsStream, self).__init__(auth_type)
+    self.backend = DatabaseBackend()
 
   def ProcessTweets(self):
     squares = ['-5.1,43.1,7.3,50.1'] # Rectangle covering all French territory
@@ -27,6 +27,6 @@ class DownloadTweetsStream(TwitterApiCall):
       if lang and item['lang'] != lang: continue
       #print item['text']
 
-      sql_vals = self.FromTweetToSQLVals(item, False, False)
+      sql_vals = self.FromTweetToSQLVals(item, True, True)
+      if not sql_vals: continue
       cycle, newins = self.backend.InsertTweetIntoDb(sql_vals)
-      self.backend.Commit()
