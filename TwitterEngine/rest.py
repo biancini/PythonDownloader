@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+__author__ = "Andrea Biancini"
+__date__ = "October 2, 2013"
 
 import MySQLdb
 import pprint

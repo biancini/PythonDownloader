@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 	This command line script can be run with any Twitter endpoint.  The json-formatted
 	response is printed to the console.  The script works with both Streaming API and
