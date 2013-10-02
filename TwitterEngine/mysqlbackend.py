@@ -8,10 +8,11 @@ import json
 
 from datetime import datetime
 
+from backend import Backend, BackendError
 from secrets import dbhost, dbuser, dbpass, dbname
 
 
-class DatabaseBackend(object):
+class MySQLBackend(Backend):
   con = None
   cur = None
 
@@ -24,55 +25,53 @@ class DatabaseBackend(object):
                                  charset = 'utf8')
       print "Connected to MySQL db %s:%s." % (dbhost, dbname)
       self.cur = self.con.cursor()
-    except Exception, e:
-      print "Error connecting to MySQL db %s:%s: %s" % (dbhost, dbname, e)
+    except Exception as e:
+      raise BackendError("Error connecting to MySQL db %s:%s: %s" % (dbhost, dbname, e))
 
   def __del__(self):
     if self.con: self.con.close()
 
   def SelectMaxTweetId(self):
-    if not self.cur: return None
-
     try:
       self.cur.execute("SELECT MAX(`tweetid`) FROM tweets")
       firstid = self.cur.fetchone()[0]
+
       print "The last tweetid in table is %s." % firstid
-    except Exception, e:
-      firstid = None
-    return firstid
+      return firstid
+    except Exception as e:
+      raise BackendError("Error while retrieving firstid: %s" % e)
 
   def InsertTweetIntoDb(self, sql_vals):
-    if not self.cur:
-      print "Not inserting into DB because connection is not valid."
-      return False, 0
-
-    sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
-    sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
-
     try:
+      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
+      sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
+
       self.cur.execute(sql)
+      self.conn.commit()
+      return 1
     except Exception as e:
-      code, msg = e
+      if type(e) is tuple: code, msg = e
+      else:
+        code = 0
+        msg = str(e)
+
       if code == 1062:
-        print "Exiting because tried to insert a tweet already present in the DB."
         self.conn.rollback()
-        return False, 0
+        raise BackendError("Exiting because tried to insert a tweet already present in the DB.")
       else:
         print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
-        self.conn.commit()
-        return True, 0
-
-    self.conn.commit()
-    return True, 1
+        self.conn.rollback()
+	return 0
 
   def GetKmls(self):
-    if not self.cur: return None
+    try:
+      self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
+      rows = self.cur.fetchall()
 
-    self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
-    rows = self.cur.fetchall()
+      kmls = []
+      for row in rows:
+        kmls.append((row[0], row[1]));
 
-    kmls = []
-    for row in rows:
-      kmls.append((row[0], row[1]));
-
-    return kmls
+      return kmls
+    except Exception as e:
+      raise BackendError("Error while retrieving kmls from DB: %s" % e)

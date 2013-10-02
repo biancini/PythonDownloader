@@ -9,14 +9,15 @@ import json
 from datetime import datetime
 
 from twitterapi import TwitterApiCall
-from dbbackend import DatabaseBackend
+from backend import BackendError
+from mysqlbackend import MySQLBackend
 
 
 class DownloadTweetsREST(TwitterApiCall): 
 
   def __init__(self, auth_type):
     super(DownloadTweetsREST, self).__init__(auth_type)
-    self.backend = DatabaseBackend()
+    self.backend = MySQLBackend()
 
   def GetCurrentLimit(self):
     limits = self.GetRateLimits()['resources']['search']['/search/tweets']
@@ -33,8 +34,10 @@ class DownloadTweetsREST(TwitterApiCall):
     twits     = []
     ratelimit = self.GetCurrentLimit()
     max_id    = None
-    since_id  = None
-    since_id = self.backend.SelectMaxTweetId()
+    try:
+      since_id = self.backend.SelectMaxTweetId()
+    except BackendError as be:
+      since_id = None
 
     sys.stdout.write('Executing Twitter API calls ')
     sys.stdout.flush()
@@ -75,11 +78,11 @@ class DownloadTweetsREST(TwitterApiCall):
           print "Exiting because point in not within any valid KML region."
           break
 
-        cycle, newins = self.backend.InsertTweetIntoDb(sql_vals)
-        inserted += newins
-
-        if not cycle:
-          print "Exiting as requested by backend."
+        try:
+          newins = self.backend.InsertTweetIntoDb(sql_vals)
+          inserted += newins
+        except BackendError as be:
+          print "Exiting as requested by backend: %s" % be
           break
 
       sys.stdout.write('.')
@@ -95,4 +98,3 @@ class DownloadTweetsREST(TwitterApiCall):
     print "\nExecuted %d calls to insert a total number of %d tweets." % (calls, sum(twits))
     #for i in range(0, len(twits)):
     #  print "Call %d inserted %d tweets." % (i+1, twits[i])
-

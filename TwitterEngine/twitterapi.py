@@ -33,6 +33,9 @@ class TwitterApiCall(object):
                             access_token_key = access_token_key,
                             access_token_secret = access_token_secret)
 
+  def ProcessTweets(self):
+    raise NotImplementedError
+
   def GetRateLimits(self):
     params = {}
     response = self.api.request('application/rate_limit_status', params)
