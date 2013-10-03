@@ -83,12 +83,15 @@ class TwitterApiCall(object):
     text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
     location = tweet['user']['location']
 
+    coordinates = ['NULL', 'NULL']
     if tweet['coordinates'] and tweet['coordinates']['type'] == 'Point':
       coordinates = tweet['coordinates']['coordinates']
-    elif geolocate:
+    elif tweet['place'] and tweet['place']['bounding_box']:
+        kml_json = json.loads(json.dumps(tweet['place']['bounding_box']))
+        coordinates = [shape(kml_json).centroid.y, shape(kml_json).centroid.x]
+      
+    if (coordinates[0] == 'NULL' or coordinates[1] == 'NULL') and geolocate:
       coordinates = self.Geolocate(location)
-    else:
-      coordinates = ['NULL', 'NULL']
 
     kmls = None
     if exclude_out:
