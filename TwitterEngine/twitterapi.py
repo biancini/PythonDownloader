@@ -93,6 +93,9 @@ class TwitterApiCall(object):
     if (coordinates[0] == 'NULL' or coordinates[1] == 'NULL') and geolocate:
       coordinates = self.Geolocate(location)
 
+    #if (coordinates[0] == 'NULL' or coordinates[1] == 'NULL') and location == '':
+    #   print tweet
+
     kmls = None
     if exclude_out:
       if coordinates[0] == 'NULL' or coordinates[1] == 'NULL': return None

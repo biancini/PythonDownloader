@@ -117,4 +117,4 @@ class DownloadTweetsREST(TwitterApiCall):
 
     print "Executing call with max_id = %s and since_id = %s" % (max_ids[1], since_ids[1])
     ret = self.PartialProcessTweets(params, max_ids[1], since_ids[1])
-    self.backend.UpdateLatCallIds(ret[0], ret[1])
+    self.backend.UpdateLastCallIds(ret[0], ret[1])

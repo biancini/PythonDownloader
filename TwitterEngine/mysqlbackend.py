@@ -87,7 +87,8 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from DB: %s" % e)
 
-  def UpdateLatCallIds(self, max_id = None, since_id = None):
+  def UpdateLastCallIds(self, max_id = None, since_id = None):
+    print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
     try:
       if max_id:
         sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'max_id'" % max_id

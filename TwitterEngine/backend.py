@@ -14,7 +14,7 @@ class Backend(object):
   def GetLastCallIds(self):
     raise NotImplementedError
 
-  def UpdateLatCallIds(self, max_id = None, since_id = None):
+  def UpdateLastCallIds(self, max_id = None, since_id = None):
     raise NotImplementedError
 
 class BackendError(Exception):
