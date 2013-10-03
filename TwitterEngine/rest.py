@@ -25,6 +25,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
   def PartialProcessTweets(self, params, max_id, since_id):
     calls     = 0
+    callbykey = []
     twits     = []
 
     ratelimit = self.GetCurrentLimit()
@@ -39,10 +40,13 @@ class DownloadTweetsREST(TwitterApiCall):
       if calls >= ratelimit - 2:
         try:
           self.InitializeTwitterApi()
+          callbykey.append(calls)
           calls = 0
           ratelimit = self.GetCurrentLimit()
+          print "\nUsing another set of credentials because reached limit."
+          continue
         except Exception as e:
-          print "Exiting because reached ratelimit."
+          print "\nExiting because reached ratelimit."
           return [max_id, since_id]
 
       params['max_id']   = max_id
@@ -51,12 +55,12 @@ class DownloadTweetsREST(TwitterApiCall):
       response = self.api.request('search/tweets', params)
       jsonresp = json.loads(response.text)
       if not 'statuses' in jsonresp:
-        print "Exiting because call did not return expected results.\n%s" % jsonresp
+        print "\nExiting because call did not return expected results.\n%s" % jsonresp
         return [max_id, since_id]
 
       statuses = jsonresp['statuses']
       if (len(statuses) == 0):
-        print "Exiting because API returned no tweet."
+        print "\nExiting because API returned no tweet."
         return [None, None]
 
       for s in statuses:
@@ -68,19 +72,22 @@ class DownloadTweetsREST(TwitterApiCall):
           newins = self.backend.InsertTweetIntoDb(sql_vals)
           inserted += newins
         except BackendError as be:
-          print "Exiting as requested by backend: %s" % be
+          print "\nExiting as requested by backend: %s" % be
           return [None, None]
 
       sys.stdout.write('.')
       sys.stdout.flush()
       if (since_id is None):
-        print "Exiting because performing only one call to initialize DB."
+        print "\nExiting because performing only one call to initialize DB."
         return [max_id, since_id]
 
       twits.append(inserted)
       #print "Numer of tweets inserted:\t%d." % inserted
       max_id = min([s['id'] for s in statuses]) - 1
 
+    callbykey.append(calls)
+    print "Total number of calls executed:\t%d." % sum(callbykey)
+    print "Total number of tweets inserted:\t%d." % sum(twits)
     return [None, None]
 
   def ProcessTweets(self):
