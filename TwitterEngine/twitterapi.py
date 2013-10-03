@@ -21,18 +21,26 @@ from secrets import consumer_key, consumer_secret, access_token_key, access_toke
 class TwitterApiCall(object):
   api = None
   backend = None
+  apiid = -1
 
   def __init__(self, auth_type='oAuth2'):
+    self.InitializeTwitterApi()
+
+  def InitializeTwitterApi(self):
+    self.apiid += 1
+    if self.apiid > len(consumer_key):
+      raise Exception("Terminate le chiavi di applicazione.")
+
     if auth_type == 'oAuth2':
-      self.api = TwitterAPI(consumer_key = consumer_key,
-                            consumer_secret = consumer_secret,
+      self.api = TwitterAPI(consumer_key = consumer_key[self.apiid],
+                            consumer_secret = consumer_secret[self.apiid],
                             auth_type = auth_type)
     else:
-      self.api = TwitterAPI(consumer_key = consumer_key,
-                            consumer_secret = consumer_secret,
-                            auth_type = auth_type,
-                            access_token_key = access_token_key,
-                            access_token_secret = access_token_secret)
+      self.api = TwitterAPI(consumer_key = consumer_key[self.apiid],
+                            consumer_secret = consumer_secret[self.apiid],
+                            auth_type = auth_type[self.apiid],
+                            access_token_key = access_token_key[self.apiid],
+                            access_token_secret = access_token_secret[self.apiid])
 
   def ProcessTweets(self):
     raise NotImplementedError

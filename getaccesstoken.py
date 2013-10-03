@@ -14,12 +14,12 @@ ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
 SIGNIN_URL = 'https://api.twitter.com/oauth/authenticate'
 
-from secrets import consumer_key, consumer_secret
+from TwitterEngine.secrets import consumer_key, consumer_secret
 
-def get_access_token(consumer_key, consumer_secret):
+def get_access_token(i, consumer_key, consumer_secret):
 
     signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
-    oauth_consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
+    oauth_consumer = oauth.Consumer(key=consumer_key[i], secret=consumer_secret[i])
     oauth_client = oauth.Client(oauth_consumer)
 
     print 'Requesting temp token from Twitter'
@@ -64,6 +64,7 @@ def get_access_token(consumer_key, consumer_secret):
             print ''
 
 if __name__ == "__main__":
+    i = input("Inserisci l'indice della app che vuoi usare: ")
     #consumer_key = raw_input('Enter your consumer key: ')
     #consumer_secret = raw_input("Enter your consumer secret: ")
-    get_access_token(consumer_key, consumer_secret)
+    get_access_token(i, consumer_key, consumer_secret)

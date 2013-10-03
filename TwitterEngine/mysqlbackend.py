@@ -75,7 +75,7 @@ class MySQLBackend(Backend):
 
   def GetLastCallIds(self):
     try:
-      self.cur.execute("SELECT key, value from lastcall")
+      self.cur.execute("SELECT `key`, `value` from lastcall")
       rows = self.cur.fetchall()
 
       ids = [None, None]

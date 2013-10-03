@@ -37,8 +37,13 @@ class DownloadTweetsREST(TwitterApiCall):
       inserted = 0
 
       if calls >= ratelimit - 2:
-        print "Exiting because reached ratelimit."
-        return [max_id, since_id]
+        try:
+          self.InitializeTwitterApi()
+          calls = 0
+          ratelimit = self.GetCurrentLimit()
+        except Exception as e:
+          print "Exiting because reached ratelimit."
+          return [max_id, since_id]
 
       params['max_id']   = max_id
       params['since_id'] = since_id
@@ -64,7 +69,7 @@ class DownloadTweetsREST(TwitterApiCall):
           inserted += newins
         except BackendError as be:
           print "Exiting as requested by backend: %s" % be
-          return [max_id, since_id]
+          return [None, None]
 
       sys.stdout.write('.')
       sys.stdout.flush()
