@@ -33,7 +33,10 @@ class DownloadTweetsREST(TwitterApiCall):
     sys.stdout.write('Executing Twitter API calls ')
     sys.stdout.flush()
 
-    while True:
+    cycle = True
+    ritorno = [None, None]
+
+    while cycle:
       calls += 1
       inserted = 0
 
@@ -47,7 +50,9 @@ class DownloadTweetsREST(TwitterApiCall):
           continue
         except Exception as e:
           print "\nExiting because reached ratelimit."
-          return [max_id, since_id]
+          twits.append(inserted)
+          ritorno = [max_id, since_id]
+          break
 
       params['max_id']   = max_id
       params['since_id'] = since_id
@@ -56,12 +61,16 @@ class DownloadTweetsREST(TwitterApiCall):
       jsonresp = json.loads(response.text)
       if not 'statuses' in jsonresp:
         print "\nExiting because call did not return expected results.\n%s" % jsonresp
-        return [max_id, since_id]
+        twits.append(inserted)
+        ritorno = [max_id, since_id]
+        break
 
       statuses = jsonresp['statuses']
       if (len(statuses) == 0):
         print "\nExiting because API returned no tweet."
-        return [None, None]
+        twits.append(inserted)
+        ritorno = [None, None]
+        break
 
       for s in statuses:
         sql_vals = self.FromTweetToSQLVals(s, False, False)
@@ -73,13 +82,18 @@ class DownloadTweetsREST(TwitterApiCall):
           inserted += newins
         except BackendError as be:
           print "\nExiting as requested by backend: %s" % be
-          return [None, None]
+          twits.append(inserted)
+          ritorno = [None, None]
+          cycle = False
+          break
 
       sys.stdout.write('.')
       sys.stdout.flush()
       if (since_id is None):
         print "\nExiting because performing only one call to initialize DB."
-        return [max_id, since_id]
+        twits.append(inserted)
+        ritorno = [max_id, since_id]
+        break
 
       twits.append(inserted)
       #print "Numer of tweets inserted:\t%d." % inserted

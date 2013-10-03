@@ -53,7 +53,7 @@ class MySQLBackend(Backend):
       code, msg = e
       if code == 1062:
         self.con.rollback()
-        raise BackendError("Exiting because tried to insert a tweet already present in the DB: %s" % sql_vals[0])
+        raise BackendError("Tried to insert a tweet already present in the DB: %s" % sql_vals[0])
       else:
         print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
 
