@@ -80,8 +80,8 @@ class MySQLBackend(Backend):
 
       ids = [None, None]
       for row in rows:
-        if row[0] == 'max_id': ids[0] = row[0]
-        elif row[0] == 'since_id': ids[1] = row[0]
+        if row[0] == 'max_id': ids[0] = row[1]
+        elif row[0] == 'since_id': ids[1] = row[1]
 
       return ids
     except Exception as e:
