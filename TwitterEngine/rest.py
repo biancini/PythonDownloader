@@ -100,7 +100,7 @@ class DownloadTweetsREST(TwitterApiCall):
       max_id = min([s['id'] for s in statuses]) - 1
 
     callbykey.append(calls)
-    print "Total number of calls executed:\t%d." % sum(callbykey)
+    print "Total number of calls executed: \t%d." % sum(callbykey)
     print "Total number of tweets inserted:\t%d." % sum(twits)
     return [None, None]
 
