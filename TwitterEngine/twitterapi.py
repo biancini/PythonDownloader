@@ -14,6 +14,7 @@ from datetime import datetime
 from TwitterAPI import TwitterAPI
 from geopy import geocoders
 
+from shapely.geometry import shape, Point
 from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
 
@@ -64,8 +65,9 @@ class TwitterApiCall(object):
     p = Point(lng, lat)
     found = False
 
-    for (name, kml) in kmls:
-      if 'geometry' in kmd:
+    for (name, kml_txt) in kmls:
+      kml = eval(kml_txt)
+      if 'geometry' in kml:
         kml_json = json.loads(json.dumps(kml['geometry']))
         found = shape(kml_json).contains(p)
         if found: return name
@@ -81,16 +83,18 @@ class TwitterApiCall(object):
     text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
     location = tweet['user']['location']
 
-    kmls = None
-    if exclude_out: kmls = self.backend.GetKmls()
-    if kmls and not self.CheckPointInKml(self, kmls, lat, lng): return None
-
     if tweet['coordinates'] and tweet['coordinates']['type'] == 'Point':
       coordinates = tweet['coordinates']['coordinates']
     elif geolocate:
       coordinates = self.Geolocate(location)
     else:
       coordinates = ['NULL', 'NULL']
+
+    kmls = None
+    if exclude_out:
+      if coordinates[0] == 'NULL' or coordinates[1] == 'NULL': return None
+      kmls = self.backend.GetKmls()
+    if kmls and not self.CheckPointInKml(kmls, float(coordinates[0]), float(coordinates[1])): return None
 
     sql_vals = (tweet['id'],
                 date_object.strftime('%Y-%m-%d %H:%M:%S'),

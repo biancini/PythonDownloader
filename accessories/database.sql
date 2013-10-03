@@ -32,7 +32,21 @@ CREATE TABLE `french_deps` (
   `NOM_REG` varchar(50) DEFAULT NULL,
   `kml` text,
   PRIMARY KEY (`ID_GEOFLA`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lastcall`
+--
+
+DROP TABLE IF EXISTS `lastcall`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lastcall` (
+  `key` varchar(10) NOT NULL,
+  `value` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,4 +78,4 @@ CREATE TABLE `tweets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-01 17:10:15
+-- Dump completed on 2013-10-03 13:53:40

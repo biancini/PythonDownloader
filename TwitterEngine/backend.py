@@ -11,5 +11,11 @@ class Backend(object):
   def GetKmls(self):
     raise NotImplementedError
 
+  def GetLastCallIds(self):
+    raise NotImplementedError
+
+  def UpdateLatCallIds(self, max_id = None, since_id = None):
+    raise NotImplementedError
+
 class BackendError(Exception):
     pass

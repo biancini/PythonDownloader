@@ -47,7 +47,7 @@ class MySQLBackend(Backend):
       sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
 
       self.cur.execute(sql)
-      self.conn.commit()
+      self.con.commit()
       return 1
     except Exception as e:
       if type(e) is tuple: code, msg = e
@@ -56,11 +56,11 @@ class MySQLBackend(Backend):
         msg = str(e)
 
       if code == 1062:
-        self.conn.rollback()
+        self.con.rollback()
         raise BackendError("Exiting because tried to insert a tweet already present in the DB.")
       else:
         print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
-        self.conn.rollback()
+        self.con.rollback()
 	return 0
 
   def GetKmls(self):
@@ -75,3 +75,39 @@ class MySQLBackend(Backend):
       return kmls
     except Exception as e:
       raise BackendError("Error while retrieving kmls from DB: %s" % e)
+
+  def GetLastCallIds(self):
+    try:
+      self.cur.execute("SELECT key, value from lastcall")
+      rows = self.cur.fetchall()
+
+      ids = [None, None]
+      for row in rows:
+        if row[0] == 'max_id': ids[0] = row[0]
+        elif row[0] == 'since_id': ids[1] = row[0]
+
+      return ids
+    except Exception as e:
+      raise BackendError("Error while retrieving last call ids from DB: %s" % e)
+
+  def UpdateLatCallIds(self, max_id = None, since_id = None):
+    try:
+      if max_id:
+        sql  = "INSERT INTO lastcall (key, value) VALUES ('max_id', '%s') " % max_id
+        sql += "ON DUPLICATE KEY UPDATE VALUES ('max_id', '%s')" % max_id
+      else:
+        sql  = "INSERT INTO lastcall (key, value) VALUES ('max_id', NULL) "
+        sql += "ON DUPLICATE KEY UPDATE VALUES ('max_id', NULL)"
+      self.cur.execute(sql)
+      self.con.commit()
+
+      if since_id:
+        sql  = "INSERT INTO lastcall (key, value) VALUES ('since_id', '%s') " % since_id
+        sql += "ON DUPLICATE KEY UPDATE VALUES ('since_id', '%s')" % max_id
+      else:
+        sql  = "INSERT INTO lastcall (key, value) VALUES ('since_id', NULL) "
+        sql += "ON DUPLICATE KEY UPDATE VALUES ('since_id', NULL)"
+      self.cur.execute(sql)
+      self.con.commit()
+    except Exception as e:
+      raise BackendError("Error while updating last call ids into DB: %s" % e)
