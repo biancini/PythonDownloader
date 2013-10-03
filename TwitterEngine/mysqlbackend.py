@@ -44,24 +44,21 @@ class MySQLBackend(Backend):
   def InsertTweetIntoDb(self, sql_vals):
     try:
       sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
-      sql += 'VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
+      sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
 
       self.cur.execute(sql)
       self.con.commit()
       return 1
     except Exception as e:
-      if type(e) is tuple: code, msg = e
-      else:
-        code = 0
-        msg = str(e)
-
+      code, msg = e
       if code == 1062:
         self.con.rollback()
-        raise BackendError("Exiting because tried to insert a tweet already present in the DB.")
+        raise BackendError("Exiting because tried to insert a tweet already present in the DB: %s", sql_vals[0])
       else:
         print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
-        self.con.rollback()
-	return 0
+
+      self.con.rollback()
+      return 0
 
   def GetKmls(self):
     try:
@@ -93,20 +90,16 @@ class MySQLBackend(Backend):
   def UpdateLatCallIds(self, max_id = None, since_id = None):
     try:
       if max_id:
-        sql  = "INSERT INTO lastcall (key, value) VALUES ('max_id', '%s') " % max_id
-        sql += "ON DUPLICATE KEY UPDATE VALUES ('max_id', '%s')" % max_id
+        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'max_id'" % max_id
       else:
-        sql  = "INSERT INTO lastcall (key, value) VALUES ('max_id', NULL) "
-        sql += "ON DUPLICATE KEY UPDATE VALUES ('max_id', NULL)"
+        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'max_id'"
       self.cur.execute(sql)
       self.con.commit()
 
       if since_id:
-        sql  = "INSERT INTO lastcall (key, value) VALUES ('since_id', '%s') " % since_id
-        sql += "ON DUPLICATE KEY UPDATE VALUES ('since_id', '%s')" % max_id
+        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'since_id'" % since_id
       else:
-        sql  = "INSERT INTO lastcall (key, value) VALUES ('since_id', NULL) "
-        sql += "ON DUPLICATE KEY UPDATE VALUES ('since_id', NULL)"
+        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'since_id'"
       self.cur.execute(sql)
       self.con.commit()
     except Exception as e:

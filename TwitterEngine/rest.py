@@ -23,12 +23,11 @@ class DownloadTweetsREST(TwitterApiCall):
     limits = self.GetRateLimits()['resources']['search']['/search/tweets']
     return int(limits['remaining'])
 
-  def PartialProcessTweets(self, params, ratelimit, max_id, since_id):
+  def PartialProcessTweets(self, params, max_id, since_id):
     calls     = 0
     twits     = []
 
-    params['max_id']   = max_id
-    params['since_id'] = since_id
+    ratelimit = self.GetCurrentLimit()
 
     sys.stdout.write('Executing Twitter API calls ')
     sys.stdout.flush()
@@ -36,9 +35,13 @@ class DownloadTweetsREST(TwitterApiCall):
     while True:
       calls += 1
       inserted = 0
+
       if calls >= ratelimit - 2:
         print "Exiting because reached ratelimit."
         return [max_id, since_id]
+
+      params['max_id']   = max_id
+      params['since_id'] = since_id
 
       response = self.api.request('search/tweets', params)
       jsonresp = json.loads(response.text)
@@ -51,15 +54,8 @@ class DownloadTweetsREST(TwitterApiCall):
         print "Exiting because API returned no tweet."
         return [None, None]
 
-      #print "Number of tweets downloaded:\t%d." % len(statuses)
-  
-      #pp = pprint.PrettyPrinter(depth=6)
-      #pp.pprint(statuses[0])
-      #break
-
       for s in statuses:
-        #print s
-        sql_vals = self.FromTweetToSQLVals(s, True, True)
+        sql_vals = self.FromTweetToSQLVals(s, False, False)
         if not sql_vals:
           break
 
@@ -89,8 +85,6 @@ class DownloadTweetsREST(TwitterApiCall):
     count  = 100       # Number of tweets to retrieve (max. 100)
     lang   = 'fr'      # French language
 
-    ratelimit = self.GetCurrentLimit()
-
     max_ids   = [None, None]
     since_ids = [None, None]
 
@@ -115,10 +109,12 @@ class DownloadTweetsREST(TwitterApiCall):
                'since_id':    None }
 
     if max_ids[0] is not None and since_ids[0] is not None:
-      ret = self.PartialProcessTweets(params, ratelimit, max_ids[0], since_ids[0])
+      print "Executing set of calls to fill previously unfilled gap..."
+      ret = self.PartialProcessTweets(params, max_ids[0], since_ids[0])
       if ret[0] is not None and ret[1] is not None:
         print "Error with the fill-the-gaps mechanisms."
         return
 
-    ret = self.PartialProcessTweets(params, ratelimit, max_ids[1], since_ids[1])
-    self.backend.UpdateLatCallIds(self, ret[0], ret[1])
+    print "Executing call with max_id = %s and since_id = %s" % (max_ids[1], since_ids[1])
+    ret = self.PartialProcessTweets(params, max_ids[1], since_ids[1])
+    self.backend.UpdateLatCallIds(ret[0], ret[1])
