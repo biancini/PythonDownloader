@@ -19,6 +19,6 @@ img.putpixel((x, y+1), red)
 img.putpixel((x+1, y+1), red)
 
 # save the image
-img.save("test1.png")
+img.save("output/test1.png")
 # optionally look at the image you have created
 img.show()
