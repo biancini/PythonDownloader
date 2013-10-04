@@ -39,7 +39,7 @@ class DrawMap(TwitterApiCall):
     root_path = os.path.abspath(os.path.join(__file__, '..'))
     red = (255,0,0)
 
-    interval = 10
+    interval = 30
 
     advancement = 0
     imgnum = 1
@@ -84,3 +84,4 @@ class DrawMap(TwitterApiCall):
 
         for i in range(1, persistence):
           show[i-1] = show[i]
+        show[persistence] = []
