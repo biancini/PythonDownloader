@@ -136,7 +136,7 @@ class MySQLBackend(Backend):
   def UpdateCoordinates(self, location, lat, lng):
     print "Updating coordinate for location %s: [%s, %s]." % (location, lat, lng)
     try:
-      self.cur.execute("UPDATE tweets SET latitude = %s, longitude = %s WHERE user_location = '%s'" % (lat, lng, location))
+      self.cur.execute("UPDATE tweets SET latitude = %s, longitude = %s WHERE user_location = '%s'" % (lat, lng, location.replace('\\', '\\\\').replace('\'', '\\\'')))
       self.con.commit()
     except Exception as e:
       raise BackendError("Error while updating coordinates for location into DB: %s" % e)
