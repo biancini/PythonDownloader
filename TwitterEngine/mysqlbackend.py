@@ -118,4 +118,25 @@ class MySQLBackend(Backend):
 
       return tweets
     except Exception as e:
-      raise BackendError("Error while retrieving kmls from DB: %s" % e)
+      raise BackendError("Error while retrieving tweet coordinates from DB: %s" % e)
+
+  def GetLocations(self):
+    try:
+      self.cur.execute("SELECT user_location, COUNT(*) AS `number` FROM tweets WHERE latitude IS NULL GROUP BY user_location ORDER BY number DESC")
+      rows = self.cur.fetchall()
+
+      locations = []
+      for row in rows:
+        locations.append(row[0]);
+
+      return locations
+    except Exception as e:
+      raise BackendError("Error while retrieving locations from DB: %s" % e)
+
+  def UpdateCoordinates(self, location, lat, lng):
+    print "Updating coordinate for location %s: [%s, %s]." % (location, lat, lng)
+    try:
+      self.cur.execute("UPDATE tweets SET latitude = %s, longitude = %s WHERE user_location = '%s'" % (lat, lng, location))
+      self.con.commit()
+    except Exception as e:
+      raise BackendError("Error while updating coordinates for location into DB: %s" % e)

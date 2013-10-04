@@ -20,5 +20,11 @@ class Backend(object):
   def GetAllTweetCoordinates(self):
     raise NotImplementedError
 
+  def UpdateCoordinates(self, location, lat, lng):
+    raise NotImplementedError
+
+  def GetLocations(self):
+    raise NotImplementedError
+
 class BackendError(Exception):
     pass
