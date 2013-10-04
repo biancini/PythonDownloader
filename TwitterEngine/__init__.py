@@ -12,11 +12,13 @@ from .backend import BackendError
 from .mysqlbackend import MySQLBackend
 
 from .drawmap import DrawMap
+from .geolocate import Geolocate
 
 __all__ = [
            'DownloadTweetsREST', 
            'DownloadTweetsStream',
            'BackendError',
            'MySQLBackend',
-           'DrawMap'
+           'DrawMap',
+           'Geolocate'
 ]
