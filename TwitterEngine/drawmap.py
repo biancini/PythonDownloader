@@ -4,7 +4,7 @@ __date__ = "October 2, 2013"
 import os
 import sys
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from twitterapi import TwitterApiCall
 from backend import BackendError
@@ -12,6 +12,7 @@ from mysqlbackend import MySQLBackend
 
 
 class DrawMap(TwitterApiCall): 
+  color = (255,0,0)
 
   def __init__(self, auth_type):
     super(DrawMap, self).__init__(auth_type)
@@ -26,13 +27,9 @@ class DrawMap(TwitterApiCall):
 
     return [int(x), int(y)]
 
-  def DrawPoint(self, img, x, y):
-    red = (255,0,0)
+  def DrawPoint(self, draw, x, y):
     radius = 5
-
-    draw = ImageDraw.Draw(img)
-    draw.ellipse((x - radius/2, y - radius/2, x + radius/2, y + radius/2), fill=red)
-    #img.putpixel((x, y), red)
+    draw.ellipse((x - radius/2, y - radius/2, x + radius/2, y + radius/2), fill=self.color)
     del draw
 
   def ProduceImages(self):
@@ -46,8 +43,7 @@ class DrawMap(TwitterApiCall):
     persistence = 5
 
     show = []
-    for i in range(0, persistence):
-      show.append([])
+    for i in range(0, persistence): show.append([])
 
     tweets = self.backend.GetAllTweetCoordinates()
     if tweets is None: return
@@ -55,24 +51,30 @@ class DrawMap(TwitterApiCall):
     start_time = tweets[0][0]
     end_time = tweets[-1][0]
 
+    font = ImageFont.truetype("%s/freesansbold.ttf" % root_path, 16)
+
     print "Creating images of France for all tweets in DB."
     print "Will be creating %d images." % ((end_time - start_time).seconds / interval)
 
     for tweet in tweets:
-      img = Image.open("%s/france.png" % root_path)
-
       if tweet[1] is None or tweet[2] is None: continue
+
       delta_secs = (tweet[0] - start_time).seconds
 
       if delta_secs <= interval:
         show[persistence-1].append([tweet[2], tweet[1]])
       else:
+        img = Image.open("%s/france.png" % root_path)
+        draw = ImageDraw.Draw(img)
+
         allpoints = [item for sublist in show for item in sublist]
         for point in allpoints:
           [x, y] = self.GetXY(img.size, point[0], point[1])
-          self.DrawPoint(img, x, y)
+          self.DrawPoint(draw, x, y)
 
+        draw.text((0, 0), tweet[0].strftime("%d/%m/%Y %H:%M"), self.color, font=font)
         img.save("%s/../images/france%05d.png" % (root_path, imgnum))
+        del draw
 
         advancement += 1
         if advancement >= interval:
@@ -84,4 +86,4 @@ class DrawMap(TwitterApiCall):
 
         for i in range(1, persistence):
           show[i-1] = show[i]
-        show[persistence-1] = []
+          show[persistence-1] = []
