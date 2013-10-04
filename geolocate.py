@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from TwitterEngine import Geolocate
+from TwitterEngine import GeolocateBackend
 
 if __name__ == "__main__":
-  engine = Geolocate('oAuth2')
+  engine = GeolocateBackend('oAuth2')
   engine.UpdateBackendData()
