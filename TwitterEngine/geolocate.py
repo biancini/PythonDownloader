@@ -19,4 +19,4 @@ class GeolocateBackend(TwitterApiCall):
     for location in locations:
       coords = self.Geolocate(location)
       if coords[0] == 'NULL' or coords[1] == 'NULL': continue
-      self.backend.UpdateCoordinates(location, coords[0], coords[0])
+      self.backend.UpdateCoordinates(location, coords[0], coords[1])

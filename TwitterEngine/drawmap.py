@@ -13,17 +13,16 @@ from mysqlbackend import MySQLBackend
 
 class DrawMap(TwitterApiCall): 
   color = (255,0,0)
+  lower_left = [41.0, -5.5]
+  top_right  = [51.6, 10.0]
 
   def __init__(self, auth_type):
     super(DrawMap, self).__init__(auth_type)
     self.backend = MySQLBackend()
 
   def GetXY(self, size, lat, lng):
-    lower_left = [41.0, -5.5]
-    top_right  = [51.6, 10.0]
-
-    x = size[0] * (lng - lower_left[1]) / (top_right[1] - lower_left[1])
-    y = size[1] * (lat - top_right[0]) / (lower_left[0] - top_right[0])
+    x = size[0] * (lng - self.lower_left[1]) / (self.top_right[1] - self.lower_left[1])
+    y = size[1] * (lat - self.top_right[0]) / (self.lower_left[0] - self.top_right[0])
 
     return [int(x), int(y)]
 
@@ -58,6 +57,8 @@ class DrawMap(TwitterApiCall):
 
     for tweet in tweets:
       if tweet[1] is None or tweet[2] is None: continue
+      if tweet[2] < self.lower_left[0] or tweet[2] > self.top_right[0]: continue
+      if tweet[1] < self.lower_left[1] or tweet[1] > self.top_right[1]: continue
 
       delta_secs = (tweet[0] - start_time).seconds
 
