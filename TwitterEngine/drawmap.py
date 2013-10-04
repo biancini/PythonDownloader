@@ -40,7 +40,7 @@ class DrawMap(TwitterApiCall):
 
     advancement = 0
     imgnum = 1
-    persistence = 5
+    persistence = 10
 
     show = []
     for i in range(0, persistence): show.append([])
