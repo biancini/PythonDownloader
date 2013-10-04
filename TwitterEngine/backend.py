@@ -17,5 +17,8 @@ class Backend(object):
   def UpdateLastCallIds(self, max_id = None, since_id = None):
     raise NotImplementedError
 
+  def GetAllTweetCoordinates(self):
+    raise NotImplementedError
+
 class BackendError(Exception):
     pass

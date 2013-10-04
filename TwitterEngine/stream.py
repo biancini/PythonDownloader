@@ -1,11 +1,6 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import MySQLdb
-
 from datetime import datetime
 
 from twitterapi import TwitterApiCall

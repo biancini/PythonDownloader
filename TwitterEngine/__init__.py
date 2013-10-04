@@ -11,9 +11,12 @@ from .stream import DownloadTweetsStream
 from .backend import BackendError
 from .mysqlbackend import MySQLBackend
 
+from .drawmap import DrawMap
+
 __all__ = [
-	'DownloadTweetsREST', 
-	'DownloadTweetsStream',
-        'BackendError',
-        'MySQLBackend'
+           'DownloadTweetsREST', 
+           'DownloadTweetsStream',
+           'BackendError',
+           'MySQLBackend',
+           'DrawMap'
 ]

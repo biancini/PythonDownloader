@@ -1,7 +1,6 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-import MySQLdb
 import pprint
 import sys
 import json

@@ -105,3 +105,17 @@ class MySQLBackend(Backend):
       self.con.commit()
     except Exception as e:
       raise BackendError("Error while updating last call ids into DB: %s" % e)
+
+  def GetAllTweetCoordinates(self):
+    try:
+      #self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp` LIMIT 100")
+      self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp`")
+      rows = self.cur.fetchall()
+
+      tweets = []
+      for row in rows:
+        tweets.append([row[0], row[1], row[2]]);
+
+      return tweets
+    except Exception as e:
+      raise BackendError("Error while retrieving kmls from DB: %s" % e)
