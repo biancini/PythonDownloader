@@ -36,3 +36,9 @@ nosetests.xml
 
 # Secrets file for Twitter keys
 secrets.py
+
+# Img files and movies
+images/*.png
+images/*.avi
+images/*.mp4
+images/*.mov
