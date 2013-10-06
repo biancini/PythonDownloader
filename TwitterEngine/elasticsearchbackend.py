@@ -148,19 +148,20 @@ class ElasticSearchBackend(Backend):
   def GetFrenchDepartments(self):
     print "Retrieving all French departments"
     try:
-      data = { }
+      data = { "query" : { "match_all" : { } } }
       data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/french_depts/_search" % self.elasticsearch_server
+      # TODO manage pagination and eliminate size 100
+      host = "%s/twitter/french_depts/_search?size=100" % self.elasticsearch_server
       req = requests.get(host, data=data_json)
       ret = json.loads(req.content)
-
       rows = []
       for hit in ret['hits']['hits']:
         curhit = []
-        curhit.append(hit['_source']['NOM_REG'])
-        curhit.append(hit['_source']['KML'])
-        rows.append(curhit)
+        if 'NOM_REG' in hit['_source'] and 'KML' in hit['_source']:
+          curhit.append(hit['_source']['NOM_REG'].replace('\\\'', '\''))
+          curhit.append(hit['_source']['KML'].replace('\\\'', '\''))
+          rows.append(curhit)
 
       return rows
     except Exception as e:
-      raise BackendError("Error while retrieving French departments from DB: %s" % e)
+      raise BackendError("Error while retrieving French departments from ElasticSearch: %s" % e)
