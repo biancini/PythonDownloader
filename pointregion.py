@@ -3,10 +3,9 @@
 
 import sys
 import json
-import MySQLdb
 
+from TwitterEngine import BackendChooser, BackendError
 from shapely.geometry import shape, Point
-from secrets import dbhost, dbuser, dbpass, dbname
 
 def CheckPointInKml(kml_db, lat, lng):
   p = Point(lng, lat)
@@ -25,17 +24,8 @@ if __name__ == "__main__":
   lat = 48.822768
   lng = 2.345388
 
-  con = MySQLdb.connect(host = dbhost,
-                        user = dbuser,
-                        passwd = dbpass,
-                        db = dbname,
-                        charset = 'utf8')
-  print "Connected to MySQL db %s:%s." % (dbhost, dbname)
-  cur = con.cursor()
-
-  cur.execute("SELECT NOM_REG, KML FROM french_deps")
-  rows = cur.fetchall()
-  con.close()
+  backend = BackendChooser.GetBackend()
+  rows = backend.GetFrenchDepartments()
 
   inside = False
   for row in rows:

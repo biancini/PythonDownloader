@@ -5,14 +5,13 @@ import os
 import sys
 
 from twitterapi import TwitterApiCall
-from backend import BackendError
-from mysqlbackend import MySQLBackend
+from backend import BackendChooser, BackendError
 
 
 class GeolocateBackend(TwitterApiCall): 
   def __init__(self, auth_type):
     super(GeolocateBackend, self).__init__(auth_type)
-    self.backend = MySQLBackend()
+    self.backend = Backend.ChooserGetBackend()
 
   def UpdateBackendData(self):
     locations = self.backend.GetLocations()

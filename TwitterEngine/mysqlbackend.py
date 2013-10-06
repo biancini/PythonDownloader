@@ -153,3 +153,11 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while inserting French department into DB: %s" % e)
 
+  def GetFrenchDepartments(self):
+    print "Retrieving all French departments"
+    try:
+      self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
+      rows = self.cur.fetchall()
+      return rows
+    except Exception as e:
+      raise BackendError("Error while retrieving French departments from DB: %s" % e)

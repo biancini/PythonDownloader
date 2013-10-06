@@ -130,11 +130,6 @@ class ElasticSearchBackend(Backend):
   def InsertFrenchDepartments(self, vals):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
     try:
-      #curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
-      #    "user" : "kimchy",
-      #    "post_date" : "2009-11-15T14:12:12",
-      #    "message" : "trying out Elastic Search"
-      #}'
       data = { 'CODE_DEPT' : vals[1],
                'NOM_DEPT'  : vals[2],
                'CODE_CHF'  : vals[3],
@@ -146,6 +141,26 @@ class ElasticSearchBackend(Backend):
       host = "%s/twitter/french_depts/%s" % (self.elasticsearch_server, vals[0])
       req = requests.put(host, data=data_json)
       ret = json.loads(req.content)
-      if not ret["ok"]: raise BackendError("PUT not ok")
+      if not ret["ok"]: raise BackendError("Insert not ok")
     except Exception as e:
       raise BackendError("Error while inserting French department into ElasticSearch: %s" % e)
+
+  def GetFrenchDepartments(self):
+    print "Retrieving all French departments"
+    try:
+      data = { }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/french_depts/_search" % self.elasticsearch_server
+      req = requests.get(host, data=data_json)
+      ret = json.loads(req.content)
+
+      rows = []
+      for hit in ret['hits']['hits']:
+        curhit = []
+        curhit.append(hit['_source']['NOM_REG'])
+        curhit.append(hit['_source']['KML'])
+        rows.append(curhit)
+
+      return rows
+    except Exception as e:
+      raise BackendError("Error while retrieving French departments from DB: %s" % e)

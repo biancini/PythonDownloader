@@ -4,15 +4,14 @@ __date__ = "October 2, 2013"
 from datetime import datetime
 
 from twitterapi import TwitterApiCall
-from backend import BackendError
-from mysqlbackend import MySQLBackend
+from backend import BackendChooser, BackendError
 
 
 class DownloadTweetsStream(TwitterApiCall):
 
   def __init__(self, auth_type):
     super(DownloadTweetsStream, self).__init__(auth_type)
-    self.backend = MySQLBackend()
+    self.backend = BackendChooser.GetBackend()
 
   def ProcessTweets(self):
     squares = ['-5.1,43.1,7.3,50.1'] # Rectangle covering all French territory

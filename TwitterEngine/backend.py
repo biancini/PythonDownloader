@@ -1,6 +1,16 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
+class BackendChooser(object):
+  @staticmethod
+  def GetBackend():
+    from mysqlbackend import MySQLBackend
+    from elasticsearchbackend import ElasticSearchBackend
+
+    #backend = MySQLBackend()
+    backend = ElasticSearchBackend()
+    return backend
+
 class Backend(object):
   def SelectMaxTweetId(self):
     raise NotImplementedError
@@ -28,6 +38,9 @@ class Backend(object):
 
   def InsertFrenchDepartments(self, vals):
     raise NotImplementedError
+
+  def GetFrenchDepartments(self):
+    raise NotImplemented
 
 class BackendError(Exception):
     pass

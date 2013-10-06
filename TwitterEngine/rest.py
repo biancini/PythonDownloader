@@ -8,16 +8,14 @@ import json
 from datetime import datetime
 
 from twitterapi import TwitterApiCall
-from backend import BackendError
-from mysqlbackend import MySQLBackend
-from elasticsearchbackend import ElasticSearchBackend
+from backend import BackendChooser, BackendError
 
 
 class DownloadTweetsREST(TwitterApiCall): 
 
   def __init__(self, auth_type):
     super(DownloadTweetsREST, self).__init__(auth_type)
-    self.backend = MySQLBackend()
+    self.backend = BackendChooser.GetBackend()
 
   def GetCurrentLimit(self):
     limits = self.GetRateLimits()['resources']['search']['/search/tweets']

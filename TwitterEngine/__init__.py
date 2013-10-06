@@ -8,7 +8,7 @@ __date__ = "October 2, 2013"
 from .rest import DownloadTweetsREST
 from .stream import DownloadTweetsStream
 
-from .backend import BackendError
+from .backend import Backend, BackendChooser, BackendError
 from .mysqlbackend import MySQLBackend
 from .elasticsearchbackend import ElasticSearchBackend
 
@@ -18,6 +18,7 @@ from .geolocate import GeolocateBackend
 __all__ = [
            'DownloadTweetsREST', 
            'DownloadTweetsStream',
+           'Backend',
            'BackendError',
            'MySQLBackend',
            'ElasticSearchBackend',

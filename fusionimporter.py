@@ -3,11 +3,10 @@
 
 import urllib
 import urllib2
-import MySQLdb
 import json
 import sys
 
-from TwitterEngine import MySQLBackend, ElasticSearchBackend
+from TwitterEngine import BackendChooser, BackendError
 from TwitterEngine.secrets import google_refresh_token, google_client_id, google_client_secret
 
 def getGoogleAccessToken():
@@ -35,8 +34,7 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 if __name__ == "__main__":
-  #backend = MySQLBackend()
-  backend = ElasticSearchBackend()
+  backend = BackendChooser.GetBackend()
 
   access_token = getGoogleAccessToken()
   tablename = '1_r_DC9mlrFCJB93hNfzD9P8murmI4_2tmgaQcZ4'
