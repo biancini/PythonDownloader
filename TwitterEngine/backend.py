@@ -26,5 +26,8 @@ class Backend(object):
   def GetLocations(self):
     raise NotImplementedError
 
+  def InsertFrenchDepartments(self, vals):
+    raise NotImplementedError
+
 class BackendError(Exception):
     pass

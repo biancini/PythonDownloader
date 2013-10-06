@@ -10,6 +10,7 @@ from datetime import datetime
 from twitterapi import TwitterApiCall
 from backend import BackendError
 from mysqlbackend import MySQLBackend
+from elasticsearchbackend import ElasticSearchBackend
 
 
 class DownloadTweetsREST(TwitterApiCall): 

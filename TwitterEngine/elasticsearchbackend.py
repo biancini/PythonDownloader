@@ -1,10 +1,12 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-import MySQLdb
 import pprint
 import sys
+import requests
 import json
+import pprint
+import StringIO
 
 from datetime import datetime
 
@@ -12,24 +14,8 @@ from backend import Backend, BackendError
 from secrets import dbhost, dbuser, dbpass, dbname
 
 
-class MySQLBackend(Backend):
-  con = None
-  cur = None
-
-  def __init__(self):
-    try:
-      self.con = MySQLdb.connect(host = dbhost,
-                                 user = dbuser,
-                                 passwd = dbpass,
-                                 db = dbname,
-                                 charset = 'utf8')
-      print "Connected to MySQL db %s:%s." % (dbhost, dbname)
-      self.cur = self.con.cursor()
-    except Exception as e:
-      raise BackendError("Error connecting to MySQL db %s:%s: %s" % (dbhost, dbname, e))
-
-  def __del__(self):
-    if self.con: self.con.close()
+class ElasticSearchBackend(Backend):
+  elasticsearch_server = 'http://localhost:9200'
 
   def SelectMaxTweetId(self):
     try:
@@ -144,12 +130,22 @@ class MySQLBackend(Backend):
   def InsertFrenchDepartments(self, vals):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
     try:
-      sql  = "INSERT INTO french_deps (%s) " % field_list
-      sql += "VALUES (%d,'%s','%s','%s','%s','%s','%s','%s')" % vals
-      #print sql
-
-      self.cur.execute(sql)
-      self.con.commit()
+      #curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
+      #    "user" : "kimchy",
+      #    "post_date" : "2009-11-15T14:12:12",
+      #    "message" : "trying out Elastic Search"
+      #}'
+      data = { 'CODE_DEPT' : vals[1],
+               'NOM_DEPT'  : vals[2],
+               'CODE_CHF'  : vals[3],
+               'NOM_CHF'   : vals[4],
+               'CODE_REG'  : vals[5],
+               'NOM_REG'   : vals[6],
+               'KML'       : vals[7] }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/french_depts/%s" % (self.elasticsearch_server, vals[0])
+      req = requests.put(host, data=data_json)
+      ret = json.loads(req.content)
+      if not ret["ok"]: raise BackendError("PUT not ok")
     except Exception as e:
-      raise BackendError("Error while inserting French department into DB: %s" % e)
-
+      raise BackendError("Error while inserting French department into ElasticSearch: %s" % e)

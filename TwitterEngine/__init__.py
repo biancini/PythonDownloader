@@ -10,6 +10,7 @@ from .stream import DownloadTweetsStream
 
 from .backend import BackendError
 from .mysqlbackend import MySQLBackend
+from .elasticsearchbackend import ElasticSearchBackend
 
 from .drawmap import DrawMap
 from .geolocate import GeolocateBackend
@@ -19,6 +20,7 @@ __all__ = [
            'DownloadTweetsStream',
            'BackendError',
            'MySQLBackend',
+           'ElasticSearchBackend',
            'DrawMap',
            'GeolocateBackend'
 ]

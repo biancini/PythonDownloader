@@ -87,4 +87,4 @@ class DrawMap(TwitterApiCall):
 
         for i in range(1, persistence):
           show[i-1] = show[i]
-          show[persistence-1] = []
+        show[persistence-1] = []

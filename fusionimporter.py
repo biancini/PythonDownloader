@@ -7,8 +7,8 @@ import MySQLdb
 import json
 import sys
 
-from secrets import google_refresh_token, google_client_id, google_client_secret
-from secrets import dbhost, dbuser, dbpass, dbname
+from TwitterEngine import MySQLBackend, ElasticSearchBackend
+from TwitterEngine.secrets import google_refresh_token, google_client_id, google_client_secret
 
 def getGoogleAccessToken():
   data = urllib.urlencode({
@@ -35,18 +35,13 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 if __name__ == "__main__":
+  #backend = MySQLBackend()
+  backend = ElasticSearchBackend()
+
   access_token = getGoogleAccessToken()
   tablename = '1_r_DC9mlrFCJB93hNfzD9P8murmI4_2tmgaQcZ4'
   field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
   response = sqlGetFusionTable(access_token, 'SELECT %s FROM %s' % (field_list,tablename))
-
-  con = MySQLdb.connect(host = dbhost,
-                        user = dbuser,
-                        passwd = dbpass,
-                        db = dbname,
-                        charset = 'utf8')
-  print "Connected to MySQL db %s:%s." % (dbhost, dbname)
-  cur = con.cursor()
   result_set = json.loads(response)
 
   for row in result_set['rows']:
@@ -60,14 +55,4 @@ if __name__ == "__main__":
             row[6].replace('\'', '\\\''),
             str(row[7]).replace('\'', '\\\''))
 
-    sql  = "INSERT INTO french_deps (%s) " % field_list
-    sql += "VALUES (%d,'%s','%s','%s','%s','%s','%s','%s')" % vals
-
-    #print sql
-    #sys.exit("Fine")
-
-    cur.execute(sql)
-    print "Inserted row for %s, %s." % (row[2], row[4])
-
-  con.commit()
-  con.close()
+    backend.InsertFrenchDepartments(vals)
