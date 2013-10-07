@@ -62,6 +62,20 @@ class DownloadTweetsREST(TwitterApiCall):
       jsonresp = json.loads(response.text)
       if not 'statuses' in jsonresp:
         if 'errors' in jsonresp and 'code' in jsonresp['errors']:
+          if jsonresp['errors']['code'] == 88:
+            try:
+              self.InitializeTwitterApi()
+              callbykey.append(calls)
+              calls = 0
+              ratelimit = self.GetCurrentLimit()
+              print "\nUsing another set of credentials because reached limit."
+              continue
+            except Exception as e:
+              print "\nExiting because reached ratelimit."
+              twits.append(inserted)
+              ritorno = [max_id, since_id]
+              break
+
           if jsonresp['errors']['code'] != last_errcode:
             print "\nGot error from API, retrying in 5 seconds: %s" % jsonresp
             time.sleep(5)
