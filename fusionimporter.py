@@ -43,7 +43,6 @@ if __name__ == "__main__":
   result_set = json.loads(response)
 
   for row in result_set['rows']:
-    #print row
     vals = (int(row[0]),
             row[1].replace('\'', '\\\''),
             row[2].replace('\'', '\\\''),

@@ -20,11 +20,18 @@ class ElasticSearchBackend(Backend):
 
   def SelectMaxTweetId(self):
     try:
-      self.cur.execute("SELECT MAX(`tweetid`) FROM tweets")
-      firstid = self.cur.fetchone()[0]
+      data = { 'query'  : { 'match_all' : { } },
+               'sort'   : [ { 'id' : 'desc' } ],
+               'fields' : [ 'id' ],
+               'size'   : 1 }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/tweets/_search" % es_server
+      req = requests.get(host, data=data_json)
+      ret = json.loads(req.content)
+      for hit in ret['hits']['hits']:
+        return hit['fields']['id']
 
-      print "The last tweetid in table is %s." % firstid
-      return firstid
+      raise BackendError("No tweet found")      
     except Exception as e:
       raise BackendError("Error while retrieving firstid: %s" % e)
 
@@ -54,7 +61,6 @@ class ElasticSearchBackend(Backend):
       rows = []
       while True:
         data = { 'query' : { 'match_all' : { } },
-                 #'sort' : [ { '_id' : { 'order' : 'asc' } } ],
                  'from' : start,
                  'size' : pagesize }
         data_json = json.dumps(data, indent=2)
@@ -79,36 +85,33 @@ class ElasticSearchBackend(Backend):
 
   def GetLastCallIds(self):
     try:
-      self.cur.execute("SELECT `key`, `value` from lastcall")
-      rows = self.cur.fetchall()
+      data = { 'query' : { 'match_all' : { } } }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/lastcall/_search" % es_server
+      req = requests.get(host, data=data_json)
+      ret = json.loads(req.content)
 
       ids = [None, None]
-      for row in rows:
-        if row[0] == 'max_id': ids[0] = row[1]
-        elif row[0] == 'since_id': ids[1] = row[1]
+      for hit in ret['hits']['hits']:
+        ids[0] = hit['max_id']
+        ids[1] = hit['since_id']
 
       return ids
     except Exception as e:
-      raise BackendError("Error while retrieving last call ids from DB: %s" % e)
+      raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
 
   def UpdateLastCallIds(self, max_id = None, since_id = None):
     print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
     try:
-      if max_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'max_id'" % max_id
-      else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'max_id'"
-      self.cur.execute(sql)
-      self.con.commit()
-
-      if since_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'since_id'" % since_id
-      else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'since_id'"
-      self.cur.execute(sql)
-      self.con.commit()
+      data = { 'max_id'   : max_id,
+               'since_id' : since_id }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/lastcall/1" % es_server
+      req = requests.put(host, data=data_json)
+      ret = json.loads(req.content)
+      if not ret["ok"]: raise BackendError("Insert not ok")
     except Exception as e:
-      raise BackendError("Error while updating last call ids into DB: %s" % e)
+      raise BackendError("Error while updating last call ids into ElasticSearch: %s" % e)
 
   def GetAllTweetCoordinates(self):
     try:
@@ -148,7 +151,8 @@ class ElasticSearchBackend(Backend):
   def InsertFrenchDepartments(self, vals):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
     try:
-      data = { 'CODE_DEPT' : vals[1],
+      data = { 'ID_GEOFLA' : vals[0],
+               'CODE_DEPT' : vals[1],
                'NOM_DEPT'  : vals[2],
                'CODE_CHF'  : vals[3],
                'NOM_CHF'   : vals[4],

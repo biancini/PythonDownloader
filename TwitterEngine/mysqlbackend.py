@@ -148,6 +148,7 @@ class MySQLBackend(Backend):
 
   def InsertFrenchDepartments(self, vals):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
+    field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
     try:
       sql  = "INSERT INTO french_deps (%s) " % field_list
       sql += "VALUES (%d,'%s','%s','%s','%s','%s','%s','%s')" % vals
