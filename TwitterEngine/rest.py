@@ -35,6 +35,8 @@ class DownloadTweetsREST(TwitterApiCall):
     cycle = True
     ritorno = [None, None]
 
+    last_errcode = None
+
     while cycle:
       calls += 1
       inserted = 0
@@ -59,15 +61,17 @@ class DownloadTweetsREST(TwitterApiCall):
       response = self.api.request('search/tweets', params)
       jsonresp = json.loads(response.text)
       if not 'statuses' in jsonresp:
-        if 'errors' in jsonresp and jsonresp['errors']['code'] == 130:
-          print "\nGot over-capacity error. Sleeping 5 seconds"
-          time.sleep(5)
-          continue
-        else:
-          print "\nExiting because call did not return expected results.\n%s" % jsonresp
-          twits.append(inserted)
-          ritorno = [max_id, since_id]
-          break
+        if 'errors' in jsonresp and 'code' in jsonresp['errors']:
+          if jsonresp['errors']['code'] != last_errcode:
+            print "\nGot error from API, retrying in 5 seconds: %s" % jsonresp
+            time.sleep(5)
+            last_errcode = jsonresp['errors']['code']
+            continue
+
+        print "\nExiting because call did not return expected results.\n%s" % jsonresp
+        twits.append(inserted)
+        ritorno = [max_id, since_id]
+        break
 
       statuses = jsonresp['statuses']
       if (len(statuses) == 0):
