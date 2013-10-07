@@ -11,11 +11,12 @@ import StringIO
 from datetime import datetime
 
 from backend import Backend, BackendError
-from secrets import dbhost, dbuser, dbpass, dbname
+from secrets import es_server
 
 
 class ElasticSearchBackend(Backend):
-  elasticsearch_server = 'http://localhost:9200'
+  def BackendLanguage(self):
+    return "JSON"
 
   def SelectMaxTweetId(self):
     try:
@@ -27,37 +28,54 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving firstid: %s" % e)
 
-  def InsertTweetIntoDb(self, sql_vals):
-    try:
-      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
-      sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
+  def InsertTweetIntoDb(self, vals):
+    if vals is None: return 0
 
-      self.cur.execute(sql)
-      self.con.commit()
+    try:
+      data = vals
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
+      req = requests.put(host, data=data_json)
+      ret = json.loads(req.content)
+      if not ret["ok"]: raise BackendError("Insert not ok")
+      if ret["_version"] > 1: raise BackendError("Tried to insert a tweet already present in the DB: %s" % vals['id'])
       return 1
     except Exception as e:
-      code, msg = e
-      if code == 1062:
-        self.con.rollback()
-        raise BackendError("Tried to insert a tweet already present in the DB: %s" % sql_vals[0])
-      else:
-        print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
-
-      self.con.rollback()
+      print "Exception while inserting tweet %s: %s" % (vals['id'], e)
       return 0
 
   def GetKmls(self):
+    print "Retrieving all French departments"
     try:
-      self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
-      rows = self.cur.fetchall()
+      start    = 0
+      pagesize = 10
+      last     = None
 
-      kmls = []
-      for row in rows:
-        kmls.append((row[0], row[1]));
+      rows = []
+      while True:
+        data = { 'query' : { 'match_all' : { } },
+                 #'sort' : [ { '_id' : { 'order' : 'asc' } } ],
+                 'from' : start,
+                 'size' : pagesize }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/french_depts/_search" % es_server
+        req = requests.get(host, data=data_json)
+        ret = json.loads(req.content)
 
-      return kmls
+        for hit in ret['hits']['hits']:
+          curhit = []
+          if 'NOM_REG' in hit['_source'] and 'KML' in hit['_source']:
+            curhit.append(hit['_source']['NOM_REG'].replace('\\\'', '\''))
+            curhit.append(hit['_source']['KML'].replace('\\\'', '\''))
+            rows.append(curhit)
+
+        last = ret['hits']['total']
+        start += pagesize
+        if start > last: break
+
+      return rows
     except Exception as e:
-      raise BackendError("Error while retrieving kmls from DB: %s" % e)
+      raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
 
   def GetLastCallIds(self):
     try:
@@ -138,30 +156,9 @@ class ElasticSearchBackend(Backend):
                'NOM_REG'   : vals[6],
                'KML'       : vals[7] }
       data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/french_depts/%s" % (self.elasticsearch_server, vals[0])
+      host = "%s/twitter/french_depts/%s" % (es_server, vals[0])
       req = requests.put(host, data=data_json)
       ret = json.loads(req.content)
       if not ret["ok"]: raise BackendError("Insert not ok")
     except Exception as e:
       raise BackendError("Error while inserting French department into ElasticSearch: %s" % e)
-
-  def GetFrenchDepartments(self):
-    print "Retrieving all French departments"
-    try:
-      data = { "query" : { "match_all" : { } } }
-      data_json = json.dumps(data, indent=2)
-      # TODO manage pagination and eliminate size 100
-      host = "%s/twitter/french_depts/_search?size=100" % self.elasticsearch_server
-      req = requests.get(host, data=data_json)
-      ret = json.loads(req.content)
-      rows = []
-      for hit in ret['hits']['hits']:
-        curhit = []
-        if 'NOM_REG' in hit['_source'] and 'KML' in hit['_source']:
-          curhit.append(hit['_source']['NOM_REG'].replace('\\\'', '\''))
-          curhit.append(hit['_source']['KML'].replace('\\\'', '\''))
-          rows.append(curhit)
-
-      return rows
-    except Exception as e:
-      raise BackendError("Error while retrieving French departments from ElasticSearch: %s" % e)

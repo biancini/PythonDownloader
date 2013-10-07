@@ -31,6 +31,9 @@ class MySQLBackend(Backend):
   def __del__(self):
     if self.con: self.con.close()
 
+  def BackendLanguage(self):
+    return "SQL"
+
   def SelectMaxTweetId(self):
     try:
       self.cur.execute("SELECT MAX(`tweetid`) FROM tweets")
@@ -41,10 +44,12 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving firstid: %s" % e)
 
-  def InsertTweetIntoDb(self, sql_vals):
+  def InsertTweetIntoDb(self, vals):
+    if vals is None: return 0
+
     try:
       sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
-      sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
+      sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % vals
 
       self.cur.execute(sql)
       self.con.commit()
@@ -53,9 +58,9 @@ class MySQLBackend(Backend):
       code, msg = e
       if code == 1062:
         self.con.rollback()
-        raise BackendError("Tried to insert a tweet already present in the DB: %s" % sql_vals[0])
+        raise BackendError("Tried to insert a tweet already present in the DB: %s" % vals[0])
       else:
-        print "Exception while inserting tweet %s: %s" % (sql_vals[0], e)
+        print "Exception while inserting tweet %s: %s" % (vals[0], e)
 
       self.con.rollback()
       return 0
@@ -152,12 +157,3 @@ class MySQLBackend(Backend):
       self.con.commit()
     except Exception as e:
       raise BackendError("Error while inserting French department into DB: %s" % e)
-
-  def GetFrenchDepartments(self):
-    print "Retrieving all French departments"
-    try:
-      self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
-      rows = self.cur.fetchall()
-      return rows
-    except Exception as e:
-      raise BackendError("Error while retrieving French departments from DB: %s" % e)

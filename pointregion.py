@@ -25,7 +25,7 @@ if __name__ == "__main__":
   lng = 2.345388
 
   backend = BackendChooser.GetBackend()
-  rows = backend.GetFrenchDepartments()
+  rows = backend.GetKmls()
 
   inside = False
   for row in rows:

@@ -12,6 +12,9 @@ class BackendChooser(object):
     return backend
 
 class Backend(object):
+  def BackendLanguage(self):
+    raise NotImplementedError
+
   def SelectMaxTweetId(self):
     raise NotImplementedError
 
@@ -38,9 +41,6 @@ class Backend(object):
 
   def InsertFrenchDepartments(self, vals):
     raise NotImplementedError
-
-  def GetFrenchDepartments(self):
-    raise NotImplemented
 
 class BackendError(Exception):
     pass

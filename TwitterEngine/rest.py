@@ -71,12 +71,15 @@ class DownloadTweetsREST(TwitterApiCall):
         break
 
       for s in statuses:
-        sql_vals = self.FromTweetToSQLVals(s, False, False)
-        if not sql_vals:
-          break
+        if self.backend.BackendLanguage() == "SQL":
+          vals = self.FromTweetToSQLVals(s, False, False)
+        elif self.backend.BackendLanguage() == "JSON":
+          vals = s
+        else:
+          vals = None
 
         try:
-          newins = self.backend.InsertTweetIntoDb(sql_vals)
+          newins = self.backend.InsertTweetIntoDb(vals)
           inserted += newins
         except BackendError as be:
           print "\nExiting as requested by backend: %s" % be

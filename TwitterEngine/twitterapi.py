@@ -121,4 +121,3 @@ class TwitterApiCall(object):
                 coordinates[1])
 
     return sql_vals
-
