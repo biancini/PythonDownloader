@@ -88,7 +88,7 @@ class TwitterApiCall(object):
     
     return None
 
-  def FromTweetToSQLVals(self, tweet, geolocate=True, exclude_out=True):
+  def FromTweetToVals(self, tweet, geolocate=True, exclude_out=True):
     date_object = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
     text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
     location = tweet['user']['location']
@@ -112,12 +112,13 @@ class TwitterApiCall(object):
       kmls = self.backend.GetKmls()
     if kmls and not self.CheckPointInKml(kmls, float(coordinates[0]), float(coordinates[1])): return None
 
-    sql_vals = (tweet['id'],
-                date_object.strftime('%Y-%m-%d %H:%M:%S'),
-                text.replace('\\', '\\\\').replace('\'', '\\\''),
-                ', '.join([h['text'] for h in tweet['entities']['hashtags']]).replace('\\', '\\\\').replace('\'', '\\\''),
-                location.replace('\\', '\\\\').replace('\'', '\\\''),
-                coordinates[0],
-                coordinates[1])
+    ret_vals = {}
+    ret_vals['id'] = tweet['id']
+    ret_vals['created_at'] = date_object.strftime('%Y-%m-%d %H:%M:%S')
+    ret_vals['text'] = text
+    ret_vals['hashtags'] = ', '.join([h['text'] for h in tweet['entities']['hashtags']])
+    ret_vals['location'] = location
+    ret_vals['latitude'] = coordinates[0]
+    ret_vals['longitude'] = coordinates[1]
 
-    return sql_vals
+    return ret_vals

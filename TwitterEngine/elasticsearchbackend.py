@@ -40,6 +40,13 @@ class ElasticSearchBackend(Backend):
 
     try:
       data = vals
+      if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
+        data['coordinates'] = ""
+      else:
+        data['coordinates'] = "%s,%s" % (vals['latitude'], vals['longitude'])
+      del data['latitude']
+      del data['longitude']
+    
       data_json = json.dumps(data, indent=2)
       host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       req = requests.put(host, data=data_json)
