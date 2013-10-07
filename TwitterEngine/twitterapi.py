@@ -31,7 +31,7 @@ class TwitterApiCall(object):
   def InitializeTwitterApi(self):
     self.apiid += 1
     if self.apiid > len(consumer_key):
-      raise Exception("Terminate le chiavi di applicazione.")
+      raise Exception("Application keys terminated.")
 
     if self.auth_type == 'oAuth2':
       self.api = TwitterAPI(consumer_key = consumer_key[self.apiid],

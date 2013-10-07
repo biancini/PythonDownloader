@@ -15,8 +15,6 @@ from secrets import es_server
 
 
 class ElasticSearchBackend(Backend):
-  def BackendLanguage(self):
-    return "JSON"
 
   def SelectMaxTweetId(self):
     try:
@@ -100,8 +98,8 @@ class ElasticSearchBackend(Backend):
 
       ids = [None, None]
       for hit in ret['hits']['hits']:
-        ids[0] = hit['max_id']
-        ids[1] = hit['since_id']
+        ids[0] = hit['_source']['max_id']
+        ids[1] = hit['_source']['since_id']
 
       return ids
     except Exception as e:

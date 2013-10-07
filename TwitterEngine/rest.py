@@ -4,6 +4,7 @@ __date__ = "October 2, 2013"
 import pprint
 import sys
 import json
+import time
 
 from datetime import datetime
 
@@ -58,10 +59,15 @@ class DownloadTweetsREST(TwitterApiCall):
       response = self.api.request('search/tweets', params)
       jsonresp = json.loads(response.text)
       if not 'statuses' in jsonresp:
-        print "\nExiting because call did not return expected results.\n%s" % jsonresp
-        twits.append(inserted)
-        ritorno = [max_id, since_id]
-        break
+        if 'errors' in jsonresp and jsonresp['errors']['code'] == 130:
+          print "\nGot over-capacity error. Sleeping 5 seconds"
+          time.sleep(5)
+          continue
+        else:
+          print "\nExiting because call did not return expected results.\n%s" % jsonresp
+          twits.append(inserted)
+          ritorno = [max_id, since_id]
+          break
 
       statuses = jsonresp['statuses']
       if (len(statuses) == 0):
@@ -71,13 +77,6 @@ class DownloadTweetsREST(TwitterApiCall):
         break
 
       for s in statuses:
-        #if self.backend.BackendLanguage() == "SQL":
-        #  vals = self.FromTweetToVals(s, False, False)
-        #elif self.backend.BackendLanguage() == "JSON":
-        #  vals = s
-        #else:
-        #  vals = None
-
         vals = self.FromTweetToVals(s, False, False)
 
         try:
@@ -122,7 +121,7 @@ class DownloadTweetsREST(TwitterApiCall):
       max_ids[0]   = ret[0]
       since_ids[0] = ret[1]
     except BackendError as be:
-      print "Error while checking last call state."
+      print "Error while checking last call state: %s" % be
 
     max_ids[1] = None
     try:

@@ -12,9 +12,6 @@ class BackendChooser(object):
     return backend
 
 class Backend(object):
-  def BackendLanguage(self):
-    raise NotImplementedError
-
   def SelectMaxTweetId(self):
     raise NotImplementedError
 

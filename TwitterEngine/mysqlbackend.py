@@ -31,9 +31,6 @@ class MySQLBackend(Backend):
   def __del__(self):
     if self.con: self.con.close()
 
-  def BackendLanguage(self):
-    return "SQL"
-
   def SelectMaxTweetId(self):
     try:
       self.cur.execute("SELECT MAX(`tweetid`) FROM tweets")
