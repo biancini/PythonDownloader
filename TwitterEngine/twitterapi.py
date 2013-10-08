@@ -14,7 +14,7 @@ from datetime import datetime
 from TwitterAPI import TwitterAPI
 from geopy import geocoders
 
-from shapely.geometry import shape, Point
+from shapely.geometry import shape, Point, GeometryCollection
 from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
 
@@ -100,11 +100,12 @@ class TwitterApiCall(object):
       elif tweet['place'] and tweet['place']['bounding_box']:
         kml_json = json.loads(json.dumps(tweet['place']['bounding_box']))
         geom = shape(kml_json).centroid
-        if type(geom) == "GeometryCollection":
+        if type(geom) == GeometryCollection:
           coordinates = [list(geom.geoms)[0].y, list(geom.geoms)[0].x]
-        else:
-          print type(geom)
+        elif type(geom) == Point:
           coordinates = [geom.y, geom.x]
+        else:
+          print "Tweet pace is of unknown type: %s." % type(geom)
     except Exception as e:
       print "Error while parsing coordinates: %s" % e
       
