@@ -99,7 +99,11 @@ class TwitterApiCall(object):
         coordinates = tweet['coordinates']['coordinates']
       elif tweet['place'] and tweet['place']['bounding_box']:
         kml_json = json.loads(json.dumps(tweet['place']['bounding_box']))
-        coordinates = [shape(kml_json).centroid.y, shape(kml_json).centroid.x]
+        geom = shape(kml_json).centroid
+        if type(geom) == "GeometryCollection":
+          coordinates = [list(geom.geoms)[0].y, list(geom.geoms)[0].x]
+        else:
+          coordinates = [geom.y, geom.x]
     except Exception as e:
       print "Error while parsing coordinates: %s" % e
       
