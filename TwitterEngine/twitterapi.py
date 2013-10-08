@@ -96,7 +96,9 @@ class TwitterApiCall(object):
     coordinates = ['NULL', 'NULL']
     try:
       if tweet['coordinates'] and tweet['coordinates']['type'] == 'Point':
-        coordinates = tweet['coordinates']['coordinates'].reverse()
+        c = tweet['coordinates']['coordinates']
+        coordinates[0] = c[1]
+        coordinates[1] = c[0]
       elif tweet['place'] and tweet['place']['bounding_box']:
         kml_json = json.loads(json.dumps(tweet['place']['bounding_box']))
         geom = shape(kml_json).centroid
