@@ -142,8 +142,8 @@ class ElasticSearchBackend(Backend):
             curhit.append(hit['fields']['created_at'])
             coordinates = hit['fields']['coordinates']
             if ',' in coordinates:
-              curhit.append(coordinates.split(',')[0])
               curhit.append(coordinates.split(',')[1])
+              curhit.append(coordinates.split(',')[0])
             else:
               curhit.append(None)
               curhit.append(None)
