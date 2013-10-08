@@ -17,7 +17,4 @@ if __name__ == "__main__":
   else:
     engine = DownloadTweetsStream('oAuth1')
 
-  #engine.SelectMaxTweetId()
-  #print engine.GetCurrentLimit()
-  #print engine.PrintRateLimit()
   engine.ProcessTweets()

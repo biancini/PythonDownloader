@@ -120,38 +120,109 @@ class ElasticSearchBackend(Backend):
 
   def GetAllTweetCoordinates(self):
     try:
-      #self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp` LIMIT 100")
-      self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp`")
-      rows = self.cur.fetchall()
+      start    = 0
+      pagesize = 10
+      last     = None
 
       tweets = []
-      for row in rows:
-        tweets.append([row[0], row[1], row[2]]);
+      while True:
+        data = { 'query'  : { 'match_all' : { } },
+                 'from'   : start,
+                 'size'   : pagesize,
+                 'fields' : ['coordinates', 'created_at'],
+                 'sort'   : [ { 'created_at' : 'asc' } ] }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/tweets/_search" % es_server
+        req = requests.get(host, data=data_json)
+        ret = json.loads(req.content)
+
+        for hit in ret['hits']['hits']:
+          curhit = []
+          if 'created_at' in hit['fields'] and 'coordinates' in hit['fields']:
+            curhit.append(hit['fields']['created_at'])
+            coordinates = hit['fields']['coordinates']
+            if ',' in coordinates:
+              curhit.append(coordinates.split(',')[0])
+              curhit.append(coordinates.split(',')[1])
+            else:
+              curhit.append(None)
+              curhit.append(None)
+            tweets.append(curhit)
+
+        last = ret['hits']['total']
+        start += pagesize
+        if start > last: break
 
       return tweets
     except Exception as e:
-      raise BackendError("Error while retrieving tweet coordinates from DB: %s" % e)
+      raise BackendError("Error while retrieving tweet coordinates from ElasticSearch: %s" % e)
 
   def GetLocations(self):
     try:
-      self.cur.execute("SELECT user_location, COUNT(*) AS `number` FROM tweets WHERE latitude IS NULL GROUP BY user_location ORDER BY number DESC")
-      rows = self.cur.fetchall()
+      data = { 'size'   : 0,
+               'facets' : { 'locations': { 'terms' : { 'field' : 'location', 'size' : 20 }, 'global': True } } }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/tweets/_search" % es_server
+      req = requests.get(host, data=data_json)
+      ret = json.loads(req.content)
 
       locations = []
-      for row in rows:
-        locations.append(row[0]);
+      for hit in ret['facets']['locations']['terms']:
+        locations.append(hit['term'])
 
       return locations
     except Exception as e:
-      raise BackendError("Error while retrieving locations from DB: %s" % e)
+      raise BackendError("Error while retrieving locations from ElasticSearch: %s" % e)
 
+  def _GetTweetsIdForLocation(self, location):
+    try:
+      start    = 0
+      pagesize = 10
+      last     = None
+
+      rows = []
+      while True:
+        data = { 'query' : { "term": { "location" : "Paris" } },
+                 'sort' : [ { 'id': 'desc' } ],
+                 'fields' : [ 'id' ],
+                 'from'  : start,
+                 'size'  : pagesize }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/tweets/_search" % es_server
+        req = requests.get(host, data=data_json)
+        ret = json.loads(req.content)
+
+        for hit in ret['hits']['hits']:
+          if 'id' in hit['fields']:
+            rows.append(hit['fields']['id'])
+
+        last = ret['hits']['total']
+        start += pagesize
+        if start > last: break
+
+      return rows
+    except Exception as e:
+      raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
+    
   def UpdateCoordinates(self, location, lat, lng):
     print "Updating coordinate for location %s: [%s, %s]." % (location, lat, lng)
+    tweetids = self._GetTweetsIdForLocation(location)
+
+    errmsg = None
     try:
-      self.cur.execute("UPDATE tweets SET latitude = %s, longitude = %s WHERE user_location = '%s'" % (lat, lng, location.replace('\\', '\\\\').replace('\'', '\\\'')))
-      self.con.commit()
+      for tweetid in tweetids:
+        data = { 'script' : 'ctx._source.coordinates = newcoords',
+                 'params' : { 'newcoords' : "%s,%s" % (lat, lng) } }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/tweets/%s/_update" % (es_server, tweetid)
+        req = requests.post(host, data=data_json)
+        ret = json.loads(req.content)
+        if not ret["ok"]: errmsg = "Insert not ok"
     except Exception as e:
-      raise BackendError("Error while updating coordinates for location into DB: %s" % e)
+      errmsg = "%s" % e
+
+    if errmsg is not None:
+      raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % errmsg)
 
   def InsertFrenchDepartments(self, vals):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
