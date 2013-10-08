@@ -103,6 +103,7 @@ class TwitterApiCall(object):
         if type(geom) == "GeometryCollection":
           coordinates = [list(geom.geoms)[0].y, list(geom.geoms)[0].x]
         else:
+          print type(geom)
           coordinates = [geom.y, geom.x]
     except Exception as e:
       print "Error while parsing coordinates: %s" % e

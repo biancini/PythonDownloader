@@ -29,8 +29,8 @@
       ],
       "list": {
         "0": {
-          "from": "2013-10-07T11:02:20.900Z",
-          "to": "2013-10-08T11:02:20.900Z",
+          "from": "2013-10-07T12:40:54.547Z",
+          "to": "2013-10-08T12:40:54.549Z",
           "field": "created_at",
           "type": "time",
           "mandate": "must",
@@ -75,7 +75,7 @@
           "timefield": "created_at",
           "timeformat": "",
           "refresh": {
-            "enable": false,
+            "enable": true,
             "interval": 30,
             "min": 3
           },
@@ -199,7 +199,7 @@
           "pages": 5,
           "offset": 0,
           "sort": [
-            "_id",
+            "created_at",
             "desc"
           ],
           "style": {
