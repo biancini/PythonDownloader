@@ -58,8 +58,15 @@ class DownloadTweetsREST(TwitterApiCall):
       params['max_id']   = max_id
       params['since_id'] = since_id
 
-      response = self.api.request('search/tweets', params)
-      jsonresp = json.loads(response.text)
+      try:
+        response = self.api.request('search/tweets', params)
+        jsonresp = json.loads(response.text)
+      except Exception as e:
+        print"\nExiting because of an error during API call: %s." % e
+        twits.append(inserted)
+        ritorno = [max_id, since_id]
+        break
+
       if not 'statuses' in jsonresp:
         if 'errors' in jsonresp and 'code' in jsonresp['errors']:
           if jsonresp['errors']['code'] == 88:
