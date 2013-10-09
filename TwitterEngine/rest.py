@@ -129,7 +129,7 @@ class DownloadTweetsREST(TwitterApiCall):
     callbykey.append(calls)
     print "Total number of calls executed: \t%d." % sum(callbykey)
     print "Total number of tweets inserted:\t%d." % sum(twits)
-    return [None, None]
+    return ritorno
 
   def ProcessTweets(self):
     lat    = 45.776665 # Latitude and longitude of Clermont-Ferrand
