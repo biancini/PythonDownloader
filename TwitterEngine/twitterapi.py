@@ -14,7 +14,8 @@ from datetime import datetime
 from TwitterAPI import TwitterAPI
 from geopy import geocoders
 
-from shapely.geometry import shape, Point, GeometryCollection
+from shapely.geometry import shape, Point
+from shapely.geometry.collection import GeometryCollection
 from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
 
@@ -107,7 +108,7 @@ class TwitterApiCall(object):
         elif type(geom) == Point:
           coordinates = [geom.y, geom.x]
         else:
-          print "Tweet pace is of unknown type: %s." % type(geom)
+          print "Tweet place is of unknown type: %s." % type(geom)
     except Exception as e:
       print "Error while parsing coordinates: %s" % e
       
