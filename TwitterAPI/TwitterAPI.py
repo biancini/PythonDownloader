@@ -7,6 +7,7 @@ import requests
 import base64
 import urllib
 import urllib2
+import sys
 from requests_oauthlib import OAuth1
 
 class BearerAuth(requests.auth.AuthBase):
