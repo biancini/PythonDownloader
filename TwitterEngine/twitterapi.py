@@ -103,8 +103,9 @@ class TwitterApiCall(object):
       elif tweet['place'] and tweet['place']['bounding_box']:
         kml_json = json.loads(json.dumps(tweet['place']['bounding_box']))
         geom = shape(kml_json).centroid
-        if type(geom) == GeometryCollection and len(list(geom.geoms)) >= 1:
-          coordinates = [list(geom.geoms)[0].y, list(geom.geoms)[0].x]
+        if type(geom) == GeometryCollection:
+          if len(list(geom.geoms)) >= 1:
+            coordinates = [list(geom.geoms)[0].y, list(geom.geoms)[0].x]
         elif type(geom) == Point:
           coordinates = [geom.y, geom.x]
         else:
