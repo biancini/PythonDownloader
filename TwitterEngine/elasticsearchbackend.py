@@ -39,7 +39,9 @@ class ElasticSearchBackend(Backend):
 
       host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       present = requests.head(host)
-      if present.status_code is not 404: return 0
+      if int(present.status_code) != 404:
+        print "HEAD returned %s" % present.status_code
+        return 0
 
       data = vals
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':

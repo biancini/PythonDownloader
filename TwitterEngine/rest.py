@@ -99,7 +99,7 @@ class DownloadTweetsREST(TwitterApiCall):
         break
 
       statuses = jsonresp['statuses']
-      if (len(statuses) == 0):
+      if len(statuses) is 0:
         print "\nExiting because API returned no tweet."
         twits.append(inserted)
         ritorno = [None, None]
@@ -120,10 +120,10 @@ class DownloadTweetsREST(TwitterApiCall):
 
       sys.stdout.write('.')
       sys.stdout.flush()
-      if (since_id is None):
+      if since_id is None:
         print "\nExiting because performing only one call to initialize DB."
         twits.append(inserted)
-        ritorno = [max_id, since_id]
+        ritorno = [None, None]
         break
 
       twits.append(inserted)
@@ -167,6 +167,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
     if max_ids[0] is not None and since_ids[0] is not None:
       print "Executing set of calls to fill previously unfilled gap..."
+      print "Executing call with max_id = %s and since_id = %s" % (max_ids[0], since_ids[0])
       ret = self.PartialProcessTweets(params, max_ids[0], since_ids[0])
       self.backend.UpdateLastCallIds(ret[0], ret[1])
       if ret[0] is not None and ret[1] is not None:
