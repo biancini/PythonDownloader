@@ -34,9 +34,9 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while retrieving firstid: %s" % e)
 
   def InsertTweetIntoDb(self, vals):
-    if vals is None: return 0
-
     try:
+      if vals is None: return 0
+
       host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       present = requests.head(host)
       if present.status_code is not 404: return 0
@@ -209,10 +209,9 @@ class ElasticSearchBackend(Backend):
     
   def UpdateCoordinates(self, location, lat, lng):
     print "Updating coordinate for location %s: [%s, %s]." % (location, lat, lng)
-    tweetids = self._GetTweetsIdForLocation(location)
-
-    errmsg = None
     try:
+      tweetids = self._GetTweetsIdForLocation(location)
+
       for tweetid in tweetids:
         data = { 'script' : 'ctx._source.coordinates = newcoords',
                  'params' : { 'newcoords' : "%s,%s" % (lat, lng) } }
@@ -220,12 +219,9 @@ class ElasticSearchBackend(Backend):
         host = "%s/twitter/tweets/%s/_update" % (es_server, tweetid)
         req = requests.post(host, data=data_json)
         ret = json.loads(req.content)
-        if not ret["ok"]: errmsg = "Insert not ok"
+        if not ret["ok"]: raise Exception("Insert not ok")
     except Exception as e:
-      errmsg = "%s" % e
-
-    if errmsg is not None:
-      raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % errmsg)
+      raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
