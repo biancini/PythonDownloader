@@ -37,6 +37,10 @@ class ElasticSearchBackend(Backend):
     if vals is None: return 0
 
     try:
+      host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
+      present = requests.head(host)
+      if present.status_code is not 404: return 0
+
       data = vals
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
         data['coordinates'] = ""
@@ -46,11 +50,10 @@ class ElasticSearchBackend(Backend):
       del data['longitude']
     
       data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       req = requests.put(host, data=data_json)
       ret = json.loads(req.content)
       if not ret["ok"]: raise BackendError("Insert not ok")
-      if ret["_version"] > 1: raise BackendError("Tried to insert a tweet already present in the DB: %s" % vals['id'])
+      if ret["_version"] > 1: raise BackendError("Tweet already present in the DB.")
       return 1
     except Exception as e:
       print "Exception while inserting tweet %s: %s" % (vals['id'], e)

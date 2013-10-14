@@ -91,7 +91,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
         print "\nExiting because call did not return expected results.\n%s" % jsonresp
         twits.append(inserted)
-        ritorno = [max_id, since_id]
+        ritorno = [None, None]
         break
 
       statuses = jsonresp['statuses']
@@ -110,7 +110,7 @@ class DownloadTweetsREST(TwitterApiCall):
         except BackendError as be:
           print "\nExiting as requested by backend: %s" % be
           twits.append(inserted)
-          ritorno = [None, None]
+          ritorno = [max_id, since_id]
           cycle = False
           break
 
@@ -164,6 +164,7 @@ class DownloadTweetsREST(TwitterApiCall):
     if max_ids[0] is not None and since_ids[0] is not None:
       print "Executing set of calls to fill previously unfilled gap..."
       ret = self.PartialProcessTweets(params, max_ids[0], since_ids[0])
+      self.backend.UpdateLastCallIds(ret[0], ret[1])
       if ret[0] is not None and ret[1] is not None:
         print "Error with the fill-the-gaps mechanisms."
         return
