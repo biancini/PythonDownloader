@@ -7,7 +7,7 @@ curl -XPOST 'http://localhost:9200/twitter/tweets/_mapping' -d '{ "tweets" : {
 		"location" : { "type": "string", "index": "not_analyzed" },
 		"coordinates": { "type": "geo_point" },
                 "text": { "type": "string", "analyzer": "french" },
-                "hashtags": { "type": "string" }
+                "userid": { "type": "string" }
 	}
 } }' 
 

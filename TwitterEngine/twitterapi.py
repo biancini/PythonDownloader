@@ -129,7 +129,8 @@ class TwitterApiCall(object):
     ret_vals['id'] = tweet['id']
     ret_vals['created_at'] = date_object.strftime('%Y-%m-%d %H:%M:%S')
     ret_vals['text'] = text
-    ret_vals['hashtags'] = ', '.join([h['text'] for h in tweet['entities']['hashtags']])
+    ret_vals['userid'] = tweet['user']['id']
+    #ret_vals['hashtags'] = ', '.join([h['text'] for h in tweet['entities']['hashtags']])
     ret_vals['location'] = location
     ret_vals['latitude'] = coordinates[0]
     ret_vals['longitude'] = coordinates[1]

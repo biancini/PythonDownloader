@@ -48,12 +48,14 @@ class MySQLBackend(Backend):
       sql_vals = (vals['id'],
                   vals['created_at'],
                   vals['text'].replace('\\', '\\\\').replace('\'', '\\\''),
-                  vals['hashtags'].replace('\\', '\\\\').replace('\'', '\\\''),
+                  #vals['hashtags'].replace('\\', '\\\\').replace('\'', '\\\''),
+                  vals['userid'],
                   vals['location'].replace('\\', '\\\\').replace('\'', '\\\''),
                   vals['latitude'],
                   vals['longitude'])
 
-      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
+      #sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
+      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`) '
       sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s)' % sql_vals
 
       self.cur.execute(sql)
