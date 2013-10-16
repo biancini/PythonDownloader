@@ -12,9 +12,6 @@ class BackendChooser(object):
     return backend
 
 class Backend(object):
-  def SelectMaxTweetId(self):
-    raise NotImplementedError
-
   def InsertTweetIntoDb(self, sql_vals):
     raise NotImplementedError
 

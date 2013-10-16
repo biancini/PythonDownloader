@@ -31,16 +31,6 @@ class MySQLBackend(Backend):
   def __del__(self):
     if self.con: self.con.close()
 
-  def SelectMaxTweetId(self):
-    try:
-      self.cur.execute("SELECT MAX(`tweetid`) FROM tweets")
-      firstid = self.cur.fetchone()[0]
-
-      print "The last tweetid in table is %s." % firstid
-      return firstid
-    except Exception as e:
-      raise BackendError("Error while retrieving firstid: %s" % e)
-
   def InsertTweetIntoDb(self, vals):
     if vals is None: return 0
 
@@ -90,18 +80,26 @@ class MySQLBackend(Backend):
       self.cur.execute("SELECT `key`, `value` from lastcall")
       rows = self.cur.fetchall()
 
-      ids = [None, None]
+      ids = [None, None, None]
       for row in rows:
         if row[0] == 'max_id': ids[0] = row[1]
         elif row[0] == 'since_id': ids[1] = row[1]
+        elif row[0] == 'top_id': ids[2] = row[1]
 
       return ids
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from DB: %s" % e)
 
-  def UpdateLastCallIds(self, max_id = None, since_id = None):
+  def UpdateLastCallIds(self, top_id, max_id = None, since_id = None):
     print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
     try:
+      if top_id:
+        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'top_id'" % top_id
+      else:
+        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'top_id'"
+      self.cur.execute(sql)
+      self.con.commit()
+
       if max_id:
         sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'max_id'" % max_id
       else:

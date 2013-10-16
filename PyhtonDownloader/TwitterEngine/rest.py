@@ -26,7 +26,7 @@ class DownloadTweetsREST(TwitterApiCall):
       print "Error while retrieving current limit: %s" % be
       return 0
 
-  def PartialProcessTweets(self, params, max_id, since_id):
+  def PartialProcessTweets(self, params, top_id,max_id, since_id):
     calls     = 0
     callbykey = []
     twits     = []
@@ -37,7 +37,7 @@ class DownloadTweetsREST(TwitterApiCall):
     sys.stdout.flush()
 
     cycle = True
-    ritorno = [None, None]
+    ritorno = [top_id, None, None]
 
     last_errcode = None
 
@@ -56,7 +56,7 @@ class DownloadTweetsREST(TwitterApiCall):
         except Exception as e:
           print "\nExiting because reached ratelimit."
           twits.append(inserted)
-          ritorno = [max_id, since_id]
+          ritorno = [top_id, max_id, since_id]
           break
 
       params['max_id']   = max_id
@@ -68,7 +68,7 @@ class DownloadTweetsREST(TwitterApiCall):
       except Exception as e:
         print"\nExiting because of an error during API call: %s." % e
         twits.append(inserted)
-        ritorno = [max_id, since_id]
+        ritorno = [top_id, max_id, since_id]
         break
 
       if not 'statuses' in jsonresp:
@@ -84,7 +84,7 @@ class DownloadTweetsREST(TwitterApiCall):
             except Exception as e:
               print "\nExiting because reached ratelimit."
               twits.append(inserted)
-              ritorno = [max_id, since_id]
+              ritorno = [top_id, max_id, since_id]
               break
 
           if jsonresp['errors']['code'] != last_errcode:
@@ -95,14 +95,14 @@ class DownloadTweetsREST(TwitterApiCall):
 
         print "\nExiting because call did not return expected results.\n%s" % jsonresp
         twits.append(inserted)
-        ritorno = [None, None]
+        ritorno = [top_id, max_id, since_id]
         break
 
       statuses = jsonresp['statuses']
       if len(statuses) is 0:
         print "\nExiting because API returned no tweet."
         twits.append(inserted)
-        ritorno = [None, None]
+        ritorno = [top_id, max_id, since_id]
         break
 
       for s in statuses:
@@ -111,10 +111,12 @@ class DownloadTweetsREST(TwitterApiCall):
         try:
           newins = self.backend.InsertTweetIntoDb(vals)
           inserted += newins
+          if top_id is None or top_id < long(vals['id']):
+            top_id = long(vals['id'])
         except BackendError as be:
           print "\nExiting as requested by backend: %s" % be
           twits.append(inserted)
-          ritorno = [max_id, since_id]
+          ritorno = [top_id, max_id, since_id]
           cycle = False
           break
 
@@ -123,7 +125,7 @@ class DownloadTweetsREST(TwitterApiCall):
       if since_id is None:
         print "\nExiting because performing only one call to initialize DB."
         twits.append(inserted)
-        ritorno = [None, None]
+        ritorno = [top_id, None, None]
         break
 
       twits.append(inserted)
@@ -144,19 +146,18 @@ class DownloadTweetsREST(TwitterApiCall):
 
     max_ids   = [None, None]
     since_ids = [None, None]
+    top_id    = None
 
     try:
       ret = self.backend.GetLastCallIds()
       max_ids[0]   = ret[0]
       since_ids[0] = ret[1]
+
+      top_id = ret[2]
+      max_ids[1] = None
+      since_ids[1] = top_id
     except BackendError as be:
       print "Error while checking last call state: %s" % be
-
-    max_ids[1] = None
-    try:
-      since_ids[1] = self.backend.SelectMaxTweetId()
-    except BackendError as be:
-      since_ids[1] = None
 
     params = { 'geocode':     ','.join(map(str, (lat, lng, radius))),
                'count':       count,
@@ -168,12 +169,12 @@ class DownloadTweetsREST(TwitterApiCall):
     if max_ids[0] is not None and since_ids[0] is not None:
       print "Executing set of calls to fill previously unfilled gap..."
       print "Executing call with max_id = %s and since_id = %s" % (max_ids[0], since_ids[0])
-      ret = self.PartialProcessTweets(params, max_ids[0], since_ids[0])
-      self.backend.UpdateLastCallIds(ret[0], ret[1])
+      ret = self.PartialProcessTweets(params, top_id, max_ids[0], since_ids[0])
+      self.backend.UpdateLastCallIds(ret[0], ret[1], ret[2])
       if ret[0] is not None and ret[1] is not None:
         print "Error with the fill-the-gaps mechanisms."
         return
 
     print "Executing call with max_id = %s and since_id = %s" % (max_ids[1], since_ids[1])
-    ret = self.PartialProcessTweets(params, max_ids[1], since_ids[1])
-    self.backend.UpdateLastCallIds(ret[0], ret[1])
+    ret = self.PartialProcessTweets(params, top_id, max_ids[1], since_ids[1])
+    self.backend.UpdateLastCallIds(ret[0], ret[1], ret[2])

@@ -16,23 +16,6 @@ from secrets import es_server
 
 class ElasticSearchBackend(Backend):
 
-  def SelectMaxTweetId(self):
-    try:
-      data = { 'query'  : { 'match_all' : { } },
-               'sort'   : [ { 'id' : 'desc' } ],
-               'fields' : [ 'id' ],
-               'size'   : 1 }
-      data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/tweets/_search" % es_server
-      req = requests.get(host, data=data_json)
-      ret = json.loads(req.content)
-      for hit in ret['hits']['hits']:
-        return hit['fields']['id']
-
-      raise BackendError("No tweet found")      
-    except Exception as e:
-      raise BackendError("Error while retrieving firstid: %s" % e)
-
   def InsertTweetIntoDb(self, vals):
     try:
       if vals is None: return 0
@@ -43,17 +26,22 @@ class ElasticSearchBackend(Backend):
         #print "HEAD returned %s" % present.status_code
         return 0
 
-      data = vals
+      data = {}
+      data['created_at'] = vals['created_at']
+      data['text'] = vals['text']
+      data['userid'] = vals['userid']
+      #data['hashtags'] = vals['hashtags']
+      data['location'] = vals['location']
+
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
         data['coordinates'] = ""
       else:
         data['coordinates'] = "%s,%s" % (vals['latitude'], vals['longitude'])
-      del data['latitude']
-      del data['longitude']
     
       data_json = json.dumps(data, indent=2)
       req = requests.put(host, data=data_json)
       ret = json.loads(req.content)
+
       if not ret["ok"]: raise BackendError("Insert not ok")
       if ret["_version"] > 1: raise BackendError("Tweet already present in the DB.")
       return 1
@@ -101,19 +89,21 @@ class ElasticSearchBackend(Backend):
       req = requests.get(host, data=data_json)
       ret = json.loads(req.content)
 
-      ids = [None, None]
+      ids = [None, None, None]
       for hit in ret['hits']['hits']:
         ids[0] = hit['_source']['max_id']
         ids[1] = hit['_source']['since_id']
+        ids[2] = hit['_source']['top_id']
 
       return ids
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
 
-  def UpdateLastCallIds(self, max_id = None, since_id = None):
-    print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
+  def UpdateLastCallIds(self, top_id, max_id = None, since_id = None):
+    print "Updating lastcall with values top_id = %s, max_id = %s and since_id = %s." % (top_id, max_id, since_id)
     try:
-      data = { 'max_id'   : max_id,
+      data = { 'top_id'   : top_id,
+               'max_id'   : max_id,
                'since_id' : since_id }
       data_json = json.dumps(data, indent=2)
       host = "%s/twitter/lastcall/1" % es_server
