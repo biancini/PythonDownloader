@@ -187,7 +187,7 @@ class ElasticSearchBackend(Backend):
 
       rows = []
       while True:
-        data = { 'query' : { "term": { "location" : "Paris" } },
+        data = { 'query' : { "term": { "location" : location } },
                  'sort' : [ { 'id': 'desc' } ],
                  'fields' : [ 'id' ],
                  'from'  : start,
