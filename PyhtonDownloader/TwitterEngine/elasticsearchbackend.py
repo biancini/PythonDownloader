@@ -179,8 +179,7 @@ class ElasticSearchBackend(Backend):
       rows = []
       while True:
         data = { 'query' : { "term": { "location" : location } },
-                 'sort' : [ { 'created_at': 'desc' } ],
-                 'fields' : [ 'created_at' ],
+                 'fields' : [ ],
                  'from'  : start,
                  'size'  : pagesize }
         data_json = json.dumps(data, indent=2)
