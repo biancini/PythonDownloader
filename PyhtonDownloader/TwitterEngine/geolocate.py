@@ -11,7 +11,7 @@ from backend import BackendChooser, BackendError
 class GeolocateBackend(TwitterApiCall): 
   def __init__(self, auth_type):
     super(GeolocateBackend, self).__init__(auth_type)
-    self.backend = Backend.ChooserGetBackend()
+    self.backend = BackendChooser.GetBackend()
 
   def UpdateBackendData(self):
     locations = self.backend.GetLocations()

@@ -32,6 +32,7 @@ class ElasticSearchBackend(Backend):
       data['userid'] = vals['userid']
       #data['hashtags'] = vals['hashtags']
       data['location'] = vals['location']
+      data['num_friends'] = vals['num_friends']
 
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
         data['coordinates'] = ""
@@ -178,8 +179,8 @@ class ElasticSearchBackend(Backend):
       rows = []
       while True:
         data = { 'query' : { "term": { "location" : location } },
-                 'sort' : [ { 'id': 'desc' } ],
-                 'fields' : [ 'id' ],
+                 'sort' : [ { 'created_at': 'desc' } ],
+                 'fields' : [ 'created_at' ],
                  'from'  : start,
                  'size'  : pagesize }
         data_json = json.dumps(data, indent=2)
@@ -188,8 +189,8 @@ class ElasticSearchBackend(Backend):
         ret = json.loads(req.content)
 
         for hit in ret['hits']['hits']:
-          if 'id' in hit['fields']:
-            rows.append(hit['fields']['id'])
+          if '_id' in hit:
+            rows.append(hit['_id'])
 
         last = ret['hits']['total']
         start += pagesize

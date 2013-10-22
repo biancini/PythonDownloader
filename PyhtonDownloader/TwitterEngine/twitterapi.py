@@ -116,14 +116,15 @@ class TwitterApiCall(object):
     if (coordinates[0] == 'NULL' or coordinates[1] == 'NULL') and geolocate:
       coordinates = self.Geolocate(location)
 
-    #if (coordinates[0] == 'NULL' or coordinates[1] == 'NULL') and location == '':
-    #   print tweet
-
     kmls = None
     if exclude_out:
       if coordinates[0] == 'NULL' or coordinates[1] == 'NULL': return None
       kmls = self.backend.GetKmls()
     if kmls and not self.CheckPointInKml(kmls, float(coordinates[0]), float(coordinates[1])): return None
+
+    #pp = pprint.PrettyPrinter(depth=6)
+    #pp.pprint(tweet)
+    #sys.exit("Fine")
 
     ret_vals = {}
     ret_vals['id'] = tweet['id']
@@ -134,5 +135,6 @@ class TwitterApiCall(object):
     ret_vals['location'] = location
     ret_vals['latitude'] = coordinates[0]
     ret_vals['longitude'] = coordinates[1]
+    ret_vals['num_friends'] = tweet['user']['friends_count']
 
     return ret_vals
