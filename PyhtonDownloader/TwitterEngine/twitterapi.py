@@ -18,8 +18,17 @@ from shapely.geometry import shape, Point
 from shapely.geometry.collection import GeometryCollection
 from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
-
 class TwitterApiCall(object):
+  continuerun = True
+
+  @staticmethod
+  def stop_run():
+    TwitterApiCall.continuerun = False
+
+  @staticmethod
+  def continuing():
+    return TwitterApiCall.continuerun
+
   api = None
   backend = None
   auth_type = None

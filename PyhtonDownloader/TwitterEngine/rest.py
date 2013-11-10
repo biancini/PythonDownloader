@@ -12,8 +12,7 @@ from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
 
 
-class DownloadTweetsREST(TwitterApiCall): 
-
+class DownloadTweetsREST(TwitterApiCall):
   def __init__(self, auth_type):
     super(DownloadTweetsREST, self).__init__(auth_type)
     self.backend = BackendChooser.GetBackend()
@@ -41,7 +40,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
     last_errcode = None
 
-    while cycle:
+    while cycle and TwitterApiCall.continuing():
       calls += 1
       inserted = 0
 

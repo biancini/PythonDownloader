@@ -8,6 +8,7 @@ import time
 import getopt
 import threading
 
+from TwitterEngine import TwitterApiCall
 from TwitterEngine import DownloadTweetsREST, DownloadTweetsStream
 
 lock_file = '/var/lock/twitter.lock'
@@ -21,8 +22,8 @@ def signal_handler(signum, frame):
     sys.exit(-1)
   else:
     print 'You pressed Ctrl+C! The program will interrupt after this execution.'
-    print 'Press Ctrl+C again to exit the program IMMEDIATELY!'
     running = False
+    TwitterApiCall.stop_run()
 
 def download(mechanism):
   print "called download with parameter %s" % mechanism
