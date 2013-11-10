@@ -102,7 +102,7 @@ class DownloadTweetsREST(TwitterApiCall):
       if len(statuses) is 0:
         print "\nExiting because API returned no tweet."
         twits.append(inserted)
-        ritorno = [top_id, max_id, since_id]
+        ritorno = [top_id, None, None]
         break
 
       for s in statuses:
