@@ -2,6 +2,8 @@
 
 SERVER="http://localhost:9200"
 
+curl -XDELETE "${SERVER}/twitter"
+
 curl -XPUT "${SERVER}/twitter/"
 
 #"EEE M dd HH:mm:ss +0000 yyyy"
