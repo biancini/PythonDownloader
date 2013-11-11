@@ -18,11 +18,15 @@ public class SampleAnalyzer {
 		try {
 			ByPersonAnalyzer analyzer = new ByPersonAnalyzer();
 			
-			Date filterDate = Calendar.getInstance().getTime();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			filterDate = sdf.parse("2013-10-18");
 			
-			analyzer.runAnalysis(filterDate, filterDate);
+			Date fromDate = Calendar.getInstance().getTime();
+			fromDate = sdf.parse("2013-01-01");
+			
+			Date toDate = Calendar.getInstance().getTime();
+			toDate = sdf.parse("2014-01-01");
+			
+			analyzer.runAnalysis(fromDate, toDate);
 		} catch (AnalyzerException e) {
 			e.printStackTrace();
 		}

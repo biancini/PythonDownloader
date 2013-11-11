@@ -21,6 +21,7 @@ import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 
 import fr.twitteranalyzer.exceptions.AnalyzerException;
+import fr.twitternalyzer.utils.TweetList;
 
 public class ByPersonAnalyzer implements Analyzer {
 	
@@ -36,15 +37,18 @@ public class ByPersonAnalyzer implements Analyzer {
 		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(from, to);
 		System.out.println("Downloaded " + tweetLeague.size() + " twitters in the league.");
 		
-		int elements = 10;
+		int elements = 1;
 		//int elements = tweetLeague.size();
 		
 		for (int i = 0; i < elements; ++i) {
 			Entry<String, Integer> curUser = tweetLeague.get(i);
 			System.out.println("Getting " + curUser.getValue() + " tweets of user " + curUser.getKey() + ":");
-			String tweets = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), from, to);
-			//System.out.println(tweets);
-			System.out.println("Total text length: " + tweets.length() + " characters.");
+			TweetList<String> tweets = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), from, to);
+			
+			// Print all tweets
+			String allTweetsText = tweets.getAllElements("\n\n");
+			System.out.println(allTweetsText);
+			System.out.println("Total text length: " + allTweetsText.length() + " characters.");
 		}
 	}
 	
@@ -94,7 +98,7 @@ public class ByPersonAnalyzer implements Analyzer {
 		}
 	}
 	
-	public String getAllTweetsForUserId(String user, long number, Date from, Date to) throws AnalyzerException {
+	public TweetList<String> getAllTweetsForUserId(String user, long number, Date from, Date to) throws AnalyzerException {
 		try {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			String strDateFrom = dateFormat.format(from);
@@ -119,12 +123,10 @@ public class ByPersonAnalyzer implements Analyzer {
 				throw new AnalyzerException(errMessage);
 			}
 			
-			String allTweetText = "";
-			
+			TweetList<String> allTweetText = new TweetList<String>();
 			SearchHit[] hits = response.getHits().getHits();
 			for (SearchHit hit : hits) {
-				if (!allTweetText.equals("")) allTweetText += "\n\n";
-				allTweetText += hit.field("text").getValue().toString();
+				allTweetText.add(hit.field("text").getValue().toString());
 			}
 			
 			return allTweetText;
