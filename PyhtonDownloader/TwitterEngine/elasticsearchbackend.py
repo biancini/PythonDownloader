@@ -47,6 +47,9 @@ class ElasticSearchBackend(Backend):
       if ret["_version"] > 1: raise BackendError("Tweet already present in the DB.")
       return 1
     except Exception as e:
+      print ret
+      import sys
+      sys.exit(1)
       print "Exception while inserting tweet %s: %s" % (vals['id'], e)
       return 0
 

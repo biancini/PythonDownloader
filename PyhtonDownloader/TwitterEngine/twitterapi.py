@@ -100,7 +100,8 @@ class TwitterApiCall(object):
 
   def FromTweetToVals(self, tweet, geolocate=True, exclude_out=True):
     date_object = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-    text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+    #text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+    text = tweet['text']
     location = tweet['user']['location']
 
     coordinates = ['NULL', 'NULL']

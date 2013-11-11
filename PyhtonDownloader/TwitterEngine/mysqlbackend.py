@@ -35,9 +35,10 @@ class MySQLBackend(Backend):
     if vals is None: return 0
 
     try:
+      text = vals['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
       sql_vals = (vals['id'],
                   vals['created_at'],
-                  vals['text'].replace('\\', '\\\\').replace('\'', '\\\''),
+                  text.replace('\\', '\\\\').replace('\'', '\\\''),
                   #vals['hashtags'].replace('\\', '\\\\').replace('\'', '\\\''),
                   vals['userid'],
                   vals['location'].replace('\\', '\\\\').replace('\'', '\\\''),

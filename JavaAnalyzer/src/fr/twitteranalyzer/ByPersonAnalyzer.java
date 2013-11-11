@@ -23,11 +23,7 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import fr.twitteranalyzer.exceptions.AnalyzerException;
 import fr.twitternalyzer.utils.TweetList;
 
-public class ByPersonAnalyzer implements Analyzer {
-	
-	protected String elasticSearchHost = "localhost";
-	protected int elasticSearchPort = 9300;
-	protected Client client = null;
+public class ByPersonAnalyzer extends BaseAnalyzer implements IAnalyzer {
 	
 	public ByPersonAnalyzer() {
 		client = getElasticSearchClient(elasticSearchHost, elasticSearchPort);
@@ -37,16 +33,14 @@ public class ByPersonAnalyzer implements Analyzer {
 		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(from, to);
 		System.out.println("Downloaded " + tweetLeague.size() + " twitters in the league.");
 		
-		int elements = 1;
-		//int elements = tweetLeague.size();
-		
+		int elements = tweetLeague.size();
 		for (int i = 0; i < elements; ++i) {
 			Entry<String, Integer> curUser = tweetLeague.get(i);
 			System.out.println("Getting " + curUser.getValue() + " tweets of user " + curUser.getKey() + ":");
 			TweetList<String> tweets = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), from, to);
 			
 			// Print all tweets
-			String allTweetsText = tweets.getAllElements("\n\n");
+			String allTweetsText = tweets.getAllElements("\n\n", false);
 			System.out.println(allTweetsText);
 			System.out.println("Total text length: " + allTweetsText.length() + " characters.");
 		}
@@ -106,7 +100,7 @@ public class ByPersonAnalyzer implements Analyzer {
 		
 			FilterBuilder dateFilter = FilterBuilders.rangeFilter("created_at").from(strDateFrom + " 00:00:00").to(strDateTo + " 23:59:59");
 			FilterBuilder userFilter = FilterBuilders.termFilter("userid", user);
-		
+			
 			SearchResponse response = client.prepareSearch("twitter")
 					.setTypes("tweets")
 					.setFilter(FilterBuilders.andFilter(dateFilter).add(userFilter))
@@ -117,7 +111,7 @@ public class ByPersonAnalyzer implements Analyzer {
 					.execute()
 					.actionGet();
 		
-			if (response.getHits().getTotalHits() != number) {
+			if (response.getHits().getTotalHits() < number) {
 				String errMessage = "Downloaded tweets differ from total number expected";
 				errMessage += " (" + response.getHits().getTotalHits() + " instead of " + number + ")";
 				throw new AnalyzerException(errMessage);
@@ -125,8 +119,8 @@ public class ByPersonAnalyzer implements Analyzer {
 			
 			TweetList<String> allTweetText = new TweetList<String>();
 			SearchHit[] hits = response.getHits().getHits();
-			for (SearchHit hit : hits) {
-				allTweetText.add(hit.field("text").getValue().toString());
+			for (int i = 0 ; i < number; ++i) {
+				allTweetText.add(hits[i].field("text").getValue().toString());
 			}
 			
 			return allTweetText;
