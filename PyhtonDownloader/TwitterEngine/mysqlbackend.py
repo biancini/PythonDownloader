@@ -39,16 +39,16 @@ class MySQLBackend(Backend):
       sql_vals = (vals['id'],
                   vals['created_at'],
                   text.replace('\\', '\\\\').replace('\'', '\\\''),
-                  #vals['hashtags'].replace('\\', '\\\\').replace('\'', '\\\''),
                   vals['userid'],
                   vals['location'].replace('\\', '\\\\').replace('\'', '\\\''),
                   vals['latitude'],
                   vals['longitude'],
-                  vals['num_friends'])
+                  vals['num_friends'],
+                  vals['happiness'],
+                  vals['relevance'])
 
-      #sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `hashtags`, `user_location`, `latitude`, `longitude`) '
-      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`, `num_friends`) '
-      sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s, %s)' % sql_vals
+      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`, `num_friends`, `happiness`, `relevance`) '
+      sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s, %s, %s, %s)' % sql_vals
 
       self.cur.execute(sql)
       self.con.commit()

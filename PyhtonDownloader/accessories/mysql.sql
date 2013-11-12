@@ -66,6 +66,8 @@ CREATE TABLE `tweets` (
   `longitude` float(11,9) DEFAULT NULL,
   `user_location` varchar(50) DEFAULT NULL,
   `num_friends` integer(5) DEFAULT -1,
+  `happiness` integer(5) DEFAULT 0,
+  `relevance` float(5,2) DEFAULT 0,
   PRIMARY KEY (`tweetid`),
   FULLTEXT KEY `text` (`text`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

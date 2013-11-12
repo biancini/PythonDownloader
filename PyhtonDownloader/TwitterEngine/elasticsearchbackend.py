@@ -33,6 +33,8 @@ class ElasticSearchBackend(Backend):
       #data['hashtags'] = vals['hashtags']
       data['location'] = vals['location']
       data['num_friends'] = vals['num_friends']
+      data['happiness'] = vals['happiness']
+      data['relevance'] = vals['relevance']
 
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
         data['coordinates'] = ""

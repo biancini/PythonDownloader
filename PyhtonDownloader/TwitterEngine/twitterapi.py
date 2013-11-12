@@ -18,6 +18,8 @@ from shapely.geometry import shape, Point
 from shapely.geometry.collection import GeometryCollection
 from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
+from happyanalyzer import HappyAnalyzer
+
 class TwitterApiCall(object):
   continuerun = True
 
@@ -31,12 +33,14 @@ class TwitterApiCall(object):
 
   api = None
   backend = None
+  analyzer = None
   auth_type = None
   apiid = -1
 
   def __init__(self, auth_type='oAuth2'):
     self.auth_type = auth_type
     self.InitializeTwitterApi()
+    self.analyzer = HappyAnalyzer()
 
   def InitializeTwitterApi(self):
     self.apiid += 1
@@ -146,5 +150,9 @@ class TwitterApiCall(object):
     ret_vals['latitude'] = coordinates[0]
     ret_vals['longitude'] = coordinates[1]
     ret_vals['num_friends'] = tweet['user']['friends_count']
+
+    happy = self.analyzer.ScoreTweetHappiness(text)
+    ret_vals['happiness'] = happy[0]
+    ret_vals['relevance'] = happy[1]
 
     return ret_vals

@@ -19,14 +19,15 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 	},
 	"mappings": {
 		"tweets": {
-			"analyzer": "tweettext",
 			"properties" : {
  				"created_at": { "type": "date", "format" : "yyyy-MM-dd HH:mm:ss" },
 				"location" : { "type": "string", "index": "not_analyzed" },
 				"num_friends" : { "type": "integer", "index": "not_analyzed" },
 				"coordinates": { "type": "geo_point" },
         	        	"text": { "type": "string", "store": "yes", "analyzer": "tweettext" },
-	        	        "userid": { "type": "long" }
+	        	        "userid": { "type": "long", "index": "not_analyzed" },
+                                "happiness": { "type": "integer" },
+                                "relevance": { "type": "float" }
 			}
 		}
 	}
