@@ -20,6 +20,7 @@ class Engine(object):
   engine = None
   activity = None
   running = False
+  waittime = 5*60
 
   def __init__(self, method, activity):
     try:
@@ -58,12 +59,13 @@ class Engine(object):
         download_thread.start()
 
         now = datetime.now()
-	seconds_since_midnight = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-        if seconds_since_midnight <= (5*60):
+	seconds = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+        seconds -= 3600 # move one hour after midnight
+        if seconds > 0 and seconds <= self.waittime: # five minutes
           byperson_thread = threading.Thread(target=self.byperson)
           byperson_thread.start()
 
-        time.sleep(5*60)
+        time.sleep(self.waittime)
 
   def byperson(self):
     print "Called byperson with parameter %s" % self.mechanism
