@@ -25,7 +25,7 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 				"coordinates": { "type": "geo_point" },
         	        	"text": { "type": "string", "store": "yes", "analyzer": "tweettext" },
 	        	        "userid": { "type": "long", "index": "not_analyzed" },
-                                "happiness": { "type": "integer" },
+                                "happiness": { "type": "float" },
                                 "relevance": { "type": "float" }
 			}
 		},
@@ -35,7 +35,8 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 				"location" : { "type": "string", "index": "not_analyzed" },
 				"num_friends" : { "type": "integer", "index": "not_analyzed" },
 				"coordinates": { "type": "geo_point" },
-                                "happiness": { "type": "float" }
+                                "happiness": { "type": "float" },
+                                "relevance": { "type": "float" }
 			}
 		}
 	}

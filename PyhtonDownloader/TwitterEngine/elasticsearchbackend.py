@@ -37,7 +37,7 @@ class ElasticSearchBackend(Backend):
       data['relevance'] = vals['relevance']
 
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
-        data['coordinates'] = ""
+        data['coordinates'] = None
       else:
         data['coordinates'] = "%s,%s" % (vals['latitude'], vals['longitude'])
     
@@ -49,9 +49,6 @@ class ElasticSearchBackend(Backend):
       if ret["_version"] > 1: raise BackendError("Tweet already present in the DB.")
       return 1
     except Exception as e:
-      print ret
-      import sys
-      sys.exit(1)
       print "Exception while inserting tweet %s: %s" % (vals['id'], e)
       return 0
 
@@ -266,34 +263,84 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving top tweeters from ElasticSearch: %s" % e)
 
-  def GetAllTweetsForUserId(user, num_tweets, date_from, date_to):
+  def GetAllTweetsForUserId(self, user, num_tweets, date_from, date_to):
     print "Retrieving all tweets for user %s." % user
     try:
       start    = 0
       pagesize = 10
       last     = None
 
-      rows = []
+      coordinates = None
+      location = None
+      num_friends = None
+      happiness = 0.0
+      relevance = 0.0
+      count_tweets = 0
+
       while True:
-        data = { 'query' : { 'match_all' : { } },
+        data = { 'query' : { 'term': { 'userid': user } },
                  'from' : start,
-                 'size' : pagesize }
+                 'size' : pagesize,
+                 'filter'  : { 'range': { 'created_at': { 'from': date_from.strftime("%Y-%m-%d 00:00:00"),
+                                                          'to': date_to.strftime("%Y-%m-%d 23:59:59") } } }, }
         data_json = json.dumps(data, indent=2)
-        host = "%s/twitter/french_depts/_search" % es_server
+        host = "%s/twitter/tweets/_search" % es_server
         req = requests.get(host, data=data_json)
         ret = json.loads(req.content)
 
         for hit in ret['hits']['hits']:
-          curhit = []
-          if 'NOM_REG' in hit['_source'] and 'KML' in hit['_source']:
-            curhit.append(hit['_source']['NOM_REG'].replace('\\\'', '\''))
-            curhit.append(hit['_source']['KML'].replace('\\\'', '\''))
-            rows.append(curhit)
+          if coordinates is None and 'coordinates' in hit['_source']:
+            coordinates = hit['_source']['coordinates']
+
+          if location is None and 'location' in hit['_source']:
+            location = hit['_source']['location']
+
+          if num_friends is None and 'num_friends' in hit['_source']:
+            num_friends = hit['_source']['num_friends']
+
+          if 'happiness' in hit['_source'] and 'relevance' in hit['_source']:
+            happiness += hit['_source']['happiness']
+            relevance += hit['_source']['relevance']
+            count_tweets += 1
 
         last = ret['hits']['total']
         start += pagesize
         if start > last: break
 
-      return rows
+      if not count_tweets == num_tweets:
+        raise Exception("Got %d tweets and expecting %d." % (count_tweets, num_tweets))
+
+      happiness /= count_tweets
+      relevance /= count_tweets
+
+      tweetperson = {
+        'date': date_from.strftime("%Y-%m-%d"),
+        'location': location,
+        'num_friends': num_friends,
+        'coordinates': coordinates,
+        'happiness': round(happiness, 2),
+        'relevance': round(relevance, 2)
+      }
+      return tweetperson
     except Exception as e:
       raise BackendError("Error while retrieving tweets from ElasticSearch: %s" % e)
+
+  def InsertByPersonData(self, tweetsdata):
+    try:
+      if tweetsdata is None: return 0
+
+      host = "%s/twitter/byperson" % es_server
+      present = requests.head(host)
+      if int(present.status_code) != 404:
+        #print "HEAD returned %s" % present.status_code
+        return 0
+
+      data_json = json.dumps(tweetsdata, indent=2)
+      req = requests.put(host, data=data_json)
+      ret = json.loads(req.content)
+
+      if not ret["ok"]: raise BackendError("Insert not ok")
+      return 1
+    except Exception as e:
+      print "Exception while inserting byperson data: %s" % e
+      return 0

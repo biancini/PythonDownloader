@@ -27,7 +27,7 @@ class HappyAnalyzer(object):
         [word, happiness] = curline.split('\t')
 
         if not word in self.word_list.keys():
-          self.word_list[unicode(word)] = int(happiness.replace('\n',''))
+          self.word_list[unicode(word)] = float(happiness.replace('\n',''))
 
     file_words.close()
 
@@ -42,26 +42,25 @@ class HappyAnalyzer(object):
       word_array = Counter(tweet_words).most_common()
       for (word, freq) in word_array: word_frequencies[word] = freq
 
-      relevant_words = 0
-      numerator = 0
-      denominator = 0
+      relevant_words = 0.0
+      numerator = 0.0
+      denominator = 0.0
+
       for word in tweet_words:
-        if not word in word_processed:
+        if not word in word_processed and unicode(word) in self.word_list.keys():
           word_frequency = word_frequencies[word]
-          word_happiness = 0
-          if unicode(word) in self.word_list.keys():
-            word_happiness = self.word_list[word]
-            relevant_words += word_frequency
-          word_frequency /= total_length
+          word_happiness = self.word_list[word]
+          relevant_words += word_frequency
+          word_frequency = float(word_frequency) / total_length
           numerator += word_happiness * word_frequency
           denominator += word_frequency
           word_processed.append(word)
 
-      happiness = 0.0 if denominator == 0 else float(numerator) / denominator
-      relevance = 0.0 if total_length == 0 else float(relevant_words) / total_length
+      happiness = 0.0 if denominator == 0 else numerator / denominator
+      relevance = 0.0 if total_length == 0 else relevant_words / total_length
 
       #print "Computed happiness %d with relevance %.2f." % (happiness, relevance)
-      return [happiness, relevance]
+      return [round(happiness, 2), round(relevance, 2)]
     except Exception as e:
       print "Received exception during happiness scoring: %s" % e.message
       return [0,0]

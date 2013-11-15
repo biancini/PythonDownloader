@@ -61,6 +61,9 @@ class TwitterApiCall(object):
   def ProcessTweets(self):
     raise NotImplementedError
 
+  def AggregateByPerson(self, date):
+    raise NotImplementedError
+
   def GetRateLimits(self):
     params = {}
     response = self.api.request('application/rate_limit_status', params)

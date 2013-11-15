@@ -177,3 +177,11 @@ class DownloadTweetsREST(TwitterApiCall):
     print "Executing call with max_id = %s and since_id = %s" % (max_ids[1], since_ids[1])
     ret = self.PartialProcessTweets(params, top_id, max_ids[1], since_ids[1])
     self.backend.UpdateLastCallIds(ret[0], ret[1], ret[2])
+
+  def AggregateByPerson(self, date):
+    tweeters = self.backend.GetAllTweetByPerson(date, date)
+
+    for tweeter in tweeters.items():
+      tweetsdata = self.backend.GetAllTweetsForUserId(tweeter[0], tweeter[1], date, date)
+      self.backend.InsertByPersonData(tweetsdata)
+
