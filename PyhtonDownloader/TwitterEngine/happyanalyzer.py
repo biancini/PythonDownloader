@@ -1,6 +1,7 @@
 __author__ = "Andrea Biancini"
 __date__ = "November 11, 2013"
 
+from collections import Counter
 import Stemmer
 
 import sys
@@ -16,6 +17,7 @@ class HappyAnalyzer(object):
   word_list = {}
 
   def __init__(self):
+    print "Initializing Happiness Analyzer..."
     file_path = os.path.dirname(__file__)
     file_path = os.path.join(file_path, 'words_happiness.txt')
     file_words = open(file_path, 'r')
@@ -30,22 +32,36 @@ class HappyAnalyzer(object):
     file_words.close()
 
   def ScoreTweetHappiness(self, tweet_text):
-    stemmer = Stemmer.Stemmer('french')
-    tweet_words = stemmer.stemWords(tweet_text.split(' '))
+    try:
+      stemmer = Stemmer.Stemmer('french')
+      tweet_words = stemmer.stemWords(tweet_text.split(' '))
 
-    total_words = 0
-    relevant_words = 0
-    happiness = 0
+      total_length = len(tweet_words)
+      word_processed = []
+      word_frequencies = {}
+      word_array = Counter(tweet_words).most_common()
+      for (word, freq) in word_array: word_frequencies[word] = freq
 
-    for word in tweet_words:
-      if len(word) > 2:
-        total_words += 1
-        if unicode(word) in self.word_list.keys():
-          relevant_words += 1
-          happiness += self.word_list[word]
+      relevant_words = 0
+      numerator = 0
+      denominator = 0
+      for word in tweet_words:
+        if not word in word_processed:
+          word_frequency = word_frequencies[word]
+          word_happiness = 0
+          if unicode(word) in self.word_list.keys():
+            word_happiness = self.word_list[word]
+            relevant_words += word_frequency
+          word_frequency /= total_length
+          numerator += word_happiness * word_frequency
+          denominator += word_frequency
+          word_processed.append(word)
 
-    if relevant_words > 0: happiness = float(happiness) / relevant_words
-    if total_words > 0: relevance = round(float(relevant_words) / total_words, 2)
+      happiness = 0.0 if denominator == 0 else float(numerator) / denominator
+      relevance = 0.0 if total_length == 0 else float(relevant_words) / total_length
 
-    #print "Computed happiness %d with relevance %.2f." % (happiness, relevance)
-    return [happiness, relevance]
+      #print "Computed happiness %d with relevance %.2f." % (happiness, relevance)
+      return [happiness, relevance]
+    except Exception as e:
+      print "Received exception during happiness scoring: %s" % e.message
+      return [0,0]

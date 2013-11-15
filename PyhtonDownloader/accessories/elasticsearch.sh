@@ -5,7 +5,6 @@ SERVER="http://localhost:9200"
 curl -XDELETE "${SERVER}/twitter"
 
 #curl -XPUT "${SERVER}/twitter/"
-
 curl -XPOST "${SERVER}/twitter/" -d '{
 	"settings": {
 		"analysis" : {
@@ -28,6 +27,15 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 	        	        "userid": { "type": "long", "index": "not_analyzed" },
                                 "happiness": { "type": "integer" },
                                 "relevance": { "type": "float" }
+			}
+		},
+		"byperson": {
+			"properties" : {
+ 				"date": { "type": "date", "format" : "yyyy-MM-dd" },
+				"location" : { "type": "string", "index": "not_analyzed" },
+				"num_friends" : { "type": "integer", "index": "not_analyzed" },
+				"coordinates": { "type": "geo_point" },
+                                "happiness": { "type": "float" }
 			}
 		}
 	}

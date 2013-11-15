@@ -13,35 +13,56 @@ from TwitterEngine import DownloadTweetsREST, DownloadTweetsStream
 
 lock_file = '/var/lock/twitter.lock'
 
-def signal_handler(signum, frame):
-  global running
 
-  if not running:
-    print 'You pressed Ctrl+C! The program will interrupt IMMEDIATELY!'
-    os.remove(lock_file)
-    sys.exit(-1)
-  else:
-    print 'You pressed Ctrl+C! The program will interrupt after this execution.'
-    running = False
-    TwitterApiCall.stop_run()
+class Engine(object):
+  engine = None
+  running = False
 
-def download(mechanism):
-  print "called download with parameter %s" % mechanism
-  if os.path.exists(lock_file):
-    print "Stopping because another process is already running."
-    print "This script is locked with %s" % lock_file
-    sys.exit(-1)
-  else:
-    open(lock_file, "w").write("1")
+  def __init__(self, method):
     try:
-      if mechanism == 'rest': engine = DownloadTweetsREST('oAuth2')
-      else: engine = DownloadTweetsStream('oAuth1')
+      if mechanism == 'rest': self.engine = DownloadTweetsREST('oAuth2')
+      else: self.engine = DownloadTweetsStream('oAuth1')
 
-      engine.ProcessTweets()
     except Exception as e:
       print "Received exception: %s" % e
-    finally:
+
+  def signal_handler(self, signum, frame):
+    if not self.running:
+      print 'You pressed Ctrl+C! The program will interrupt IMMEDIATELY!'
       os.remove(lock_file)
+      sys.exit(-1)
+    else:
+      print 'You pressed Ctrl+C! The program will interrupt after this execution.'
+      self.running = False
+      TwitterApiCall.stop_run()
+
+  def run(self):
+    if not background:
+      print "Running engine only one time..."
+      self.running = False
+      download(mechanism)
+    else:
+      print "Running the engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)"
+      self.running = True
+      while (self.running):
+        download_thread = threading.Thread(target=self.download)
+        download_thread.start()
+        time.sleep(5*60)
+
+  def download(self):
+    print "called download with parameter %s" % mechanism
+    if os.path.exists(lock_file):
+      print "Stopping because another process is already running."
+      print "This script is locked with %s" % lock_file
+      sys.exit(-1)
+    else:
+      open(lock_file, "w").write("1")
+      try:
+        self.engine.ProcessTweets()
+      except Exception as e:
+        print "Received exception: %s" % e
+      finally:
+        os.remove(lock_file)
 
 def parseargs(name, argv):
   background = False
@@ -67,18 +88,7 @@ def parseargs(name, argv):
 
 if __name__ == "__main__":
   (background, mechanism) = parseargs(sys.argv[0], sys.argv[1:])
-  signal.signal(signal.SIGINT, signal_handler)
+  engine = Engine(mechanism)
 
-  global running
-
-  if not background:
-    print "Running engine only one time..."
-    running = False
-    download(mechanism)
-  else:
-    print "Running the engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)"
-    running = True
-    while (running):
-      download_thread = threading.Thread(target=download, args=[mechanism])
-      download_thread.start()
-      time.sleep(5*60)
+  signal.signal(signal.SIGINT, engine.signal_handler)
+  engine.run()

@@ -238,3 +238,62 @@ class ElasticSearchBackend(Backend):
       if not ret["ok"]: raise BackendError("Insert not ok")
     except Exception as e:
       raise BackendError("Error while inserting French department into ElasticSearch: %s" % e)
+
+  def GetAllTweetByPerson(self, date_from, date_to):
+    try:
+      start    = 0
+      pagesize = 10
+      last     = None
+
+      tweeters = {}
+      data = { 'query'   : { 'match_all' : { } },
+               'from'    : 0,
+               'size'    : 0,
+               'filter'  : { 'range': { 'created_at': { 'from': date_from.strftime("%Y-%m-%d 00:00:00"),
+                                                        'to': date_to.strftime("%Y-%m-%d 23:59:59") } } },
+               'facets'  : { 'top_tweeters' : { 'terms': { 'field': 'userid',
+                                                           'size': 10000000 } } },
+               'sort'    : [ { 'created_at' : 'asc' } ] }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/tweets/_search" % es_server
+      req = requests.get(host, data=data_json)
+      ret = json.loads(req.content)
+
+      for term in ret['facets']['top_tweeters']['terms']:
+        tweeters[str(term['term'])] = term['count']
+
+      return tweeters
+    except Exception as e:
+      raise BackendError("Error while retrieving top tweeters from ElasticSearch: %s" % e)
+
+  def GetAllTweetsForUserId(user, num_tweets, date_from, date_to):
+    print "Retrieving all tweets for user %s." % user
+    try:
+      start    = 0
+      pagesize = 10
+      last     = None
+
+      rows = []
+      while True:
+        data = { 'query' : { 'match_all' : { } },
+                 'from' : start,
+                 'size' : pagesize }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/french_depts/_search" % es_server
+        req = requests.get(host, data=data_json)
+        ret = json.loads(req.content)
+
+        for hit in ret['hits']['hits']:
+          curhit = []
+          if 'NOM_REG' in hit['_source'] and 'KML' in hit['_source']:
+            curhit.append(hit['_source']['NOM_REG'].replace('\\\'', '\''))
+            curhit.append(hit['_source']['KML'].replace('\\\'', '\''))
+            rows.append(curhit)
+
+        last = ret['hits']['total']
+        start += pagesize
+        if start > last: break
+
+      return rows
+    except Exception as e:
+      raise BackendError("Error while retrieving tweets from ElasticSearch: %s" % e)
