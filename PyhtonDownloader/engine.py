@@ -61,7 +61,7 @@ class Engine(object):
         now = datetime.now()
 	seconds = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
         seconds -= 3600 # move one hour after midnight
-        if seconds > 0 and seconds <= self.waittime: # five minutes
+        if seconds > 0 and seconds <= self.waittime:
           byperson_thread = threading.Thread(target=self.byperson)
           byperson_thread.start()
 
