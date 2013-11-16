@@ -11,7 +11,6 @@ from datetime import datetime
 from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
 
-
 class DownloadTweetsREST(TwitterApiCall):
   def __init__(self, auth_type):
     super(DownloadTweetsREST, self).__init__(auth_type)
@@ -182,6 +181,7 @@ class DownloadTweetsREST(TwitterApiCall):
     tweeters = self.backend.GetAllTweetByPerson(date, date)
 
     for tweeter in tweeters.items():
-      tweetsdata = self.backend.GetAllTweetsForUserId(tweeter[0], tweeter[1], date, date)
-      self.backend.InsertByPersonData(tweetsdata)
+      tweets = self.backend.GetAllTweetsForUserId(tweeter[0], tweeter[1], date, date)
+      byperson = self.analyzer.AggretateTweetsByPerson(tweets)
+      self.backend.InsertByPersonData(byperson)
 

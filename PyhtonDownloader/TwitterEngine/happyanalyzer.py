@@ -51,7 +51,7 @@ class HappyAnalyzer(object):
           word_frequency = word_frequencies[word]
           word_happiness = self.word_list[word]
           relevant_words += word_frequency
-          word_frequency = float(word_frequency) / total_length
+          #word_frequency = float(word_frequency) / total_length
           numerator += word_happiness * word_frequency
           denominator += word_frequency
           word_processed.append(word)
@@ -64,3 +64,40 @@ class HappyAnalyzer(object):
     except Exception as e:
       print "Received exception during happiness scoring: %s" % e.message
       return [0,0]
+
+  def AggretateTweetsByPerson(self, tweets):
+      coordinates = None
+      location = None
+      num_friends = None
+      happiness = 0.0
+      relevance = 0.0
+      count_tweets = 0
+
+      for tweet in tweets:
+        if coordinates is None and 'coordinates' in tweet:
+          coordinates = tweet['coordinates:']
+
+        if location is None and 'location' in tweet:
+          location = tweet['location']
+
+        if num_friends is None and 'num_friends' in tweet:
+          num_friends = tweet['num_friends']
+
+        if 'happiness' in tweet and 'relevance' in tweet:
+          happiness += tweet['happiness']
+          relevance += tweet['relevance']
+          count_tweets += 1
+    
+      happiness /= count_tweets
+      relevance /= count_tweets
+
+      tweetperson = {
+        'date': date_from.strftime("%Y-%m-%d"),
+        'location': location,
+        'num_friends': num_friends,
+        'coordinates': coordinates,
+        'happiness': round(happiness, 2),
+        'relevance': round(relevance, 2)
+      }
+
+      return tweetperson

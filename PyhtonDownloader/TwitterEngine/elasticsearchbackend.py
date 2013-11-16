@@ -269,13 +269,7 @@ class ElasticSearchBackend(Backend):
       start    = 0
       pagesize = 10
       last     = None
-
-      coordinates = None
-      location = None
-      num_friends = None
-      happiness = 0.0
-      relevance = 0.0
-      count_tweets = 0
+      tweets  = []
 
       while True:
         data = { 'query' : { 'term': { 'userid': user } },
@@ -289,19 +283,13 @@ class ElasticSearchBackend(Backend):
         ret = json.loads(req.content)
 
         for hit in ret['hits']['hits']:
-          if coordinates is None and 'coordinates' in hit['_source']:
-            coordinates = hit['_source']['coordinates']
+          tweet = {}
 
-          if location is None and 'location' in hit['_source']:
-            location = hit['_source']['location']
+          for key in ['coordinate', 'location', 'num_friends', 'happiness', 'relevance']:
+            if key in hit['_source']:
+              tweet[key] = hit['_source'][key]
 
-          if num_friends is None and 'num_friends' in hit['_source']:
-            num_friends = hit['_source']['num_friends']
-
-          if 'happiness' in hit['_source'] and 'relevance' in hit['_source']:
-            happiness += hit['_source']['happiness']
-            relevance += hit['_source']['relevance']
-            count_tweets += 1
+          tweets.append(tweet)
 
         last = ret['hits']['total']
         start += pagesize
@@ -310,18 +298,7 @@ class ElasticSearchBackend(Backend):
       if not count_tweets == num_tweets:
         raise Exception("Got %d tweets and expecting %d." % (count_tweets, num_tweets))
 
-      happiness /= count_tweets
-      relevance /= count_tweets
-
-      tweetperson = {
-        'date': date_from.strftime("%Y-%m-%d"),
-        'location': location,
-        'num_friends': num_friends,
-        'coordinates': coordinates,
-        'happiness': round(happiness, 2),
-        'relevance': round(relevance, 2)
-      }
-      return tweetperson
+      return tweets
     except Exception as e:
       raise BackendError("Error while retrieving tweets from ElasticSearch: %s" % e)
 
