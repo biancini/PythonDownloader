@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from TwitterAPI import TwitterAPI
 import json
-import pprint
 import sys
-from  TwitterEngine.secrets import consumer_key, consumer_secret, auth_type, access_token_key, access_token_secret
+import pprint
+
+from TwitterAPI import TwitterAPI
+from  TwitterEngine.secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
 class TwitterApiCall(object):
   api = None
 
-  def __init__:
-    self.api = TwitterAPI(consumer_key = consumer_key[i],
-                          consumer_secret = consumer_secret[i],
-                          #auth_type = 'oAuth2')
-                          access_token_key = access_token_key[i],
-                          access_token_secret = access_token_secret[i])
+  def __init__(self):
+    self.api = TwitterAPI(consumer_key=consumer_key[i],
+                          consumer_secret=consumer_secret[i],
+                          # auth_type = 'oAuth2')
+                          access_token_key=access_token_key[i],
+                          access_token_secret=access_token_secret[i])
 
   def GetTweetFromId(self, i, tweetid):
     params = { 'id': tweetid }

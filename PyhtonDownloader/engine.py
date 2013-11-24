@@ -8,8 +8,6 @@ import time
 import getopt
 import threading
 
-from datetime import date, timedelta, datetime
-
 from TwitterEngine import TwitterApiCall
 from TwitterEngine import DownloadTweetsREST, DownloadTweetsStream
 
@@ -20,7 +18,7 @@ class Engine(object):
   engine = None
   mechanism = None
   running = False
-  waittime = 5*60
+  waittime = 5 * 60
 
   def __init__(self, mechanism):
     self.mechanism = mechanism
@@ -77,7 +75,7 @@ def parseargs(name, argv):
   mechanism = 'rest'
 
   try:
-    opts, args = getopt.getopt(argv,"hbm:",["background","mechanism="])
+    opts, _args = getopt.getopt(argv, "hbm:", ["background", "mechanism="])
   except getopt.GetoptError:
     print '%s [-b] -m <mechanism>' % name
     sys.exit(2)

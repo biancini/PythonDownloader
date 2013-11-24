@@ -2,11 +2,6 @@ __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
 import MySQLdb
-import pprint
-import sys
-import json
-
-from datetime import datetime
 
 from backend import Backend, BackendError
 from secrets import dbhost, dbuser, dbpass, dbname
@@ -18,11 +13,11 @@ class MySQLBackend(Backend):
 
   def __init__(self):
     try:
-      self.con = MySQLdb.connect(host = dbhost,
-                                 user = dbuser,
-                                 passwd = dbpass,
-                                 db = dbname,
-                                 charset = 'utf8')
+      self.con = MySQLdb.connect(host=dbhost,
+                                 user=dbuser,
+                                 passwd=dbpass,
+                                 db=dbname,
+                                 charset='utf8')
       print "Connected to MySQL db %s:%s." % (dbhost, dbname)
       self.cur = self.con.cursor()
     except Exception as e:
@@ -47,14 +42,14 @@ class MySQLBackend(Backend):
                   vals['happiness'],
                   vals['relevance'])
 
-      sql  = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`, `num_friends`, `happiness`, `relevance`) '
+      sql = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`, `num_friends`, `happiness`, `relevance`) '
       sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s, %s, %s, %s)' % sql_vals
 
       self.cur.execute(sql)
       self.con.commit()
       return 1
     except Exception as e:
-      code, msg = e
+      code, _msg = e
       if code == 1062:
         self.con.rollback()
         raise BackendError("Tried to insert a tweet already present in the DB: %s" % vals[0])
@@ -92,7 +87,7 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from DB: %s" % e)
 
-  def UpdateLastCallIds(self, top_id, max_id = None, since_id = None):
+  def UpdateLastCallIds(self, top_id, max_id=None, since_id=None):
     print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
     try:
       if top_id:
@@ -120,7 +115,7 @@ class MySQLBackend(Backend):
 
   def GetAllTweetCoordinates(self):
     try:
-      #self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp` LIMIT 100")
+      # self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp` LIMIT 100")
       self.cur.execute("SELECT `timestamp`, `latitude`, `longitude` FROM tweets ORDER BY `timestamp`")
       rows = self.cur.fetchall()
 
@@ -157,9 +152,9 @@ class MySQLBackend(Backend):
     print "Inserting row for %s, %s." % (vals[2], vals[4])
     field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
     try:
-      sql  = "INSERT INTO french_deps (%s) " % field_list
+      sql = "INSERT INTO french_deps (%s) " % field_list
       sql += "VALUES (%d,'%s','%s','%s','%s','%s','%s','%s')" % vals
-      #print sql
+      # print sql
 
       self.cur.execute(sql)
       self.con.commit()

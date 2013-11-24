@@ -4,9 +4,8 @@
 import urllib
 import urllib2
 import json
-import sys
 
-from TwitterEngine import BackendChooser, BackendError
+from TwitterEngine import BackendChooser
 from TwitterEngine.secrets import google_refresh_token, google_client_id, google_client_secret
 
 def getGoogleAccessToken():
@@ -39,7 +38,7 @@ if __name__ == "__main__":
   access_token = getGoogleAccessToken()
   tablename = '1_r_DC9mlrFCJB93hNfzD9P8murmI4_2tmgaQcZ4'
   field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
-  response = sqlGetFusionTable(access_token, 'SELECT %s FROM %s' % (field_list,tablename))
+  response = sqlGetFusionTable(access_token, 'SELECT %s FROM %s' % (field_list, tablename))
   result_set = json.loads(response)
 
   for row in result_set['rows']:

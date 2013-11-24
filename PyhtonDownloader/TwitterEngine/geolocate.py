@@ -1,11 +1,8 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-import os
-import sys
-
 from twitterapi import TwitterApiCall
-from backend import BackendChooser, BackendError
+from backend import BackendChooser
 
 
 class GeolocateBackend(TwitterApiCall): 

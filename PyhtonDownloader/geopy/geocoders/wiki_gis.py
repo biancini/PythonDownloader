@@ -3,7 +3,7 @@ from urllib2 import urlopen
 import xml
 from xml.parsers.expat import ExpatError
 
-from geopy.geocoders.base import Geocoder,GeocoderError,GeocoderResultError
+from geopy.geocoders.base import Geocoder, GeocoderError, GeocoderResultError
 from geopy import Point, Location, util
 
 class MediaWiki(Geocoder):

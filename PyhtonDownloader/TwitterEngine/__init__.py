@@ -18,7 +18,7 @@ from .geolocate import GeolocateBackend
 
 __all__ = [
            'TwitterApiCall',
-           'DownloadTweetsREST', 
+           'DownloadTweetsREST',
            'DownloadTweetsStream',
            'Backend',
            'BackendError',

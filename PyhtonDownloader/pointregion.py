@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
 import json
 
-from TwitterEngine import BackendChooser, BackendError
+from TwitterEngine import BackendChooser
 from shapely.geometry import shape, Point
 
 def CheckPointInKml(kml_db, lat, lng):

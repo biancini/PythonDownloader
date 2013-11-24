@@ -48,15 +48,15 @@ class TwitterApiCall(object):
       raise Exception("Application keys terminated.")
 
     if self.auth_type == 'oAuth2':
-      self.api = TwitterAPI(consumer_key = consumer_key[self.apiid],
-                            consumer_secret = consumer_secret[self.apiid],
-                            auth_type = self.auth_type)
+      self.api = TwitterAPI(consumer_key=consumer_key[self.apiid],
+                            consumer_secret=consumer_secret[self.apiid],
+                            auth_type=self.auth_type)
     else:
-      self.api = TwitterAPI(consumer_key = consumer_key[self.apiid],
-                            consumer_secret = consumer_secret[self.apiid],
-                            auth_type = auth_type[self.apiid],
-                            access_token_key = access_token_key[self.apiid],
-                            access_token_secret = access_token_secret[self.apiid])
+      self.api = TwitterAPI(consumer_key=consumer_key[self.apiid],
+                            consumer_secret=consumer_secret[self.apiid],
+                            auth_type=self.auth_type,
+                            access_token_key=access_token_key[self.apiid],
+                            access_token_secret=access_token_secret[self.apiid])
 
   def ProcessTweets(self):
     raise NotImplementedError
@@ -74,14 +74,14 @@ class TwitterApiCall(object):
     pp.pprint(self.GetRateLimits())
 
   def Geolocate(self, location):
-    #g = geocoders.GoogleV3(google_clientid, google_secret)
-    #g = geocoders.MapQuest(api_key=mapquest_appid)
+    # g = geocoders.GoogleV3(google_clientid, google_secret)
+    # g = geocoders.MapQuest(api_key=mapquest_appid)
     g = geocoders.GeoNames()
  
     try:
-      for place, (lat, lng) in g.geocode(location, exactly_one=False):
-        #print "Computed coordinates for %s: %s, %s." % (location, lat, lng)
-        coordinates= [str(lat), str(lng)]
+      for _place, (lat, lng) in g.geocode(location, exactly_one=False):
+        # print "Computed coordinates for %s: %s, %s." % (location, lat, lng)
+        coordinates = [str(lat), str(lng)]
     except Exception as e:
       print "Error while geocoding: %s" % e
       coordinates = ['NULL', 'NULL']
@@ -107,7 +107,7 @@ class TwitterApiCall(object):
 
   def FromTweetToVals(self, tweet, geolocate=True, exclude_out=True):
     date_object = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-    #text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
+    # text = tweet['text'].encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')
     text = tweet['text']
     location = tweet['user']['location']
 
@@ -139,16 +139,16 @@ class TwitterApiCall(object):
       kmls = self.backend.GetKmls()
     if kmls and not self.CheckPointInKml(kmls, float(coordinates[0]), float(coordinates[1])): return None
 
-    #pp = pprint.PrettyPrinter(depth=6)
-    #pp.pprint(tweet)
-    #sys.exit("Fine")
+    # pp = pprint.PrettyPrinter(depth=6)
+    # pp.pprint(tweet)
+    # sys.exit("Fine")
 
     ret_vals = {}
     ret_vals['id'] = tweet['id']
     ret_vals['created_at'] = date_object.strftime('%Y-%m-%d %H:%M:%S')
     ret_vals['text'] = text
     ret_vals['userid'] = tweet['user']['id']
-    #ret_vals['hashtags'] = ', '.join([h['text'] for h in tweet['entities']['hashtags']])
+    # ret_vals['hashtags'] = ', '.join([h['text'] for h in tweet['entities']['hashtags']])
     ret_vals['location'] = location
     ret_vals['latitude'] = coordinates[0]
     ret_vals['longitude'] = coordinates[1]

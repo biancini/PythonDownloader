@@ -10,10 +10,10 @@ from .TwitterRestPager import TwitterRestPager
 
 
 __all__ = [
-	'TwitterAPI', 
-	'TwitterOAuth', 
-	'TwitterRestPager', 
-	'TwitterResponse', 
-	'RestIterator', 
+	'TwitterAPI',
+	'TwitterOAuth',
+	'TwitterRestPager',
+	'TwitterResponse',
+	'RestIterator',
 	'StreamingIterator'
 ]

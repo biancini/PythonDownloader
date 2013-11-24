@@ -8,7 +8,7 @@ except ImportError:
     except ImportError:
         from django.utils import simplejson as json
 
-from geopy.geocoders.base import Geocoder,GeocoderError,GeocoderResultError
+from geopy.geocoders.base import Geocoder, GeocoderError, GeocoderResultError
 from geopy import Point, Location, util
 
 from warnings import warn
@@ -33,27 +33,27 @@ class Google(Geocoder):
         For example: '%s, Mountain View, CA'. The default is just '%s'.
         """
         
-        warn('geopy.geocoders.google: The `geocoders.google.Google` geocoder uses the '+
-            'older "V2" API and is deprecated and may be broken at any time. A '+
-            'geocoder utilizing the "V3" API is available at '+
-            '`geocoders.googlev3.GoogleV3` and will become the default in a future '+
+        warn('geopy.geocoders.google: The `geocoders.google.Google` geocoder uses the ' + 
+            'older "V2" API and is deprecated and may be broken at any time. A ' + 
+            'geocoder utilizing the "V3" API is available at ' + 
+            '`geocoders.googlev3.GoogleV3` and will become the default in a future ' + 
             'version. See RELEASES file and http://goo.gl/somDT for usage information.',
             DeprecationWarning
         )
         
         if not api_key:
             raise ValueError(
-                "The `geocoders.google.Google` (V2) API now requires the "+
-                "`api_key` argument. Please acquire and use an API key "+
-                "(http://goo.gl/EdoHX) or upgrade to "+
-                "the V3 API (`geocoders.googlev3.GoogleV3`), which does "+
-                "not require a key. ---- Please note that the V2 API is " +
+                "The `geocoders.google.Google` (V2) API now requires the " + 
+                "`api_key` argument. Please acquire and use an API key " + 
+                "(http://goo.gl/EdoHX) or upgrade to " + 
+                "the V3 API (`geocoders.googlev3.GoogleV3`), which does " + 
+                "not require a key. ---- Please note that the V2 API is " + 
                 "deprecated and may not work after March 2013 or September 2013."
             )
         if domain == "maps.google.com":
             raise ValueError(
-                "The `geocoders.google.Google` (V2) API now requires the "+
-                "`domain` argument to be set to 'maps.googleapis.com'. Please "+
+                "The `geocoders.google.Google` (V2) API now requires the " + 
+                "`domain` argument to be set to 'maps.googleapis.com'. Please " + 
                 "change or remove your `domain` kwarg."
             )
 
@@ -112,7 +112,7 @@ class Google(Geocoder):
         else:
             return [parse_place(place) for place in places]
 
-    def check_status_code(self,status_code):
+    def check_status_code(self, status_code):
         if status_code == 400:
             raise GeocoderResultError("Bad request (Server returned status 400)")
         elif status_code == 500:

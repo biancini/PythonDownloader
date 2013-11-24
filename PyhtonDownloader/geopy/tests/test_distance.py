@@ -13,7 +13,7 @@ from geopy.distance import (Distance,
 EARTH_CIRCUMFERENCE = 2 * math.pi * EARTH_RADIUS
 NORTH_POLE = Point(90, 0)
 SOUTH_POLE = Point(-90, 0)
-FIJI = Point(-16.1333333, 180.0) # Vunikondi, Fiji
+FIJI = Point(-16.1333333, 180.0)  # Vunikondi, Fiji
 
 
 class CommonDistanceComputationCases:

@@ -32,10 +32,10 @@ class GPX(object):
                                   Point(42.431240, -71.109236, 26.561890),
                                   Point(42.434980, -71.109942, 45.307495)])
         second_top_level_waypoint = list(self.GPXi.waypoints)[1]
-        self.assertTrue(second_top_level_waypoint ==
+        self.assertTrue(second_top_level_waypoint == 
                           Point(42.439227, -71.119689, 57.607200))
-        self.assertTrue(second_top_level_waypoint.timestamp ==
-          datetime(2001, 6, 2, 3, 26, 55, tzinfo = TimeZone('UTC')))
+        self.assertTrue(second_top_level_waypoint.timestamp == 
+          datetime(2001, 6, 2, 3, 26, 55, tzinfo=TimeZone('UTC')))
         self.assertTrue(second_top_level_waypoint.name == '5067')
         self.assertTrue(second_top_level_waypoint.description == '5067')
 
@@ -66,8 +66,8 @@ def get_suite():
         'test_route_list',
     ]
     tests = []
-    tests.extend(map(GPXInitTestCase,test_methods))
-    tests.extend(map(GPXOpenerTestCase,test_methods))
+    tests.extend(map(GPXInitTestCase, test_methods))
+    tests.extend(map(GPXOpenerTestCase, test_methods))
 
     return unittest.TestSuite(tests)
 

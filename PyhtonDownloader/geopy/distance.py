@@ -16,12 +16,12 @@ EARTH_RADIUS = 6372.795
 #   equivalent to the WGS-84 ellipsoid.
 ELLIPSOIDS = {
     # model           major (km)   minor (km)     flattening
-    'WGS-84':        (6378.137,    6356.7523142,  1 / 298.257223563),
-    'GRS-80':        (6378.137,    6356.7523141,  1 / 298.257222101),
-    'Airy (1830)':   (6377.563396, 6356.256909,   1 / 299.3249646),
-    'Intl 1924':     (6378.388,    6356.911946,   1 / 297.0),
+    'WGS-84':        (6378.137, 6356.7523142, 1 / 298.257223563),
+    'GRS-80':        (6378.137, 6356.7523141, 1 / 298.257222101),
+    'Airy (1830)':   (6377.563396, 6356.256909, 1 / 299.3249646),
+    'Intl 1924':     (6378.388, 6356.911946, 1 / 297.0),
     'Clarke (1880)': (6378.249145, 6356.51486955, 1 / 293.465),
-    'GRS-67':        (6378.1600,   6356.774719,   1 / 298.25)
+    'GRS-67':        (6378.1600, 6356.774719, 1 / 298.25)
 }
 
 class Distance(object):
@@ -153,7 +153,7 @@ class GreatCircleDistance(Distance):
         
         central_angle = acos(
             # We're correcting from floating point rounding errors on very-near and exact points here
-            min(1.0, sin_lat1 * sin_lat2 +
+            min(1.0, sin_lat1 * sin_lat2 + 
                      cos_lat1 * cos_lat2 * cos_delta_lng))
         
         # From http://en.wikipedia.org/wiki/Great_circle_distance:
@@ -164,8 +164,8 @@ class GreatCircleDistance(Distance):
         #   antipodal points (on opposite ends of the sphere). A more
         #   complicated formula that is accurate for all distances is: (below)
         
-        d = atan2(sqrt((cos_lat2 * sin_delta_lng) ** 2 +
-                       (cos_lat1 * sin_lat2 -
+        d = atan2(sqrt((cos_lat2 * sin_delta_lng) ** 2 + 
+                       (cos_lat1 * sin_lat2 - 
                         sin_lat1 * cos_lat2 * cos_delta_lng) ** 2),
                   sin_lat1 * sin_lat2 + cos_lat1 * cos_lat2 * cos_delta_lng)
         
@@ -185,7 +185,7 @@ class GreatCircleDistance(Distance):
         d_div_r = float(distance) / self.RADIUS
 
         lat2 = asin(
-            sin(lat1) * cos(d_div_r) +
+            sin(lat1) * cos(d_div_r) + 
             cos(lat1) * sin(d_div_r) * cos(bearing)
         )
 
@@ -241,16 +241,16 @@ class VincentyDistance(Distance):
             sin_lambda_lng, cos_lambda_lng = sin(lambda_lng), cos(lambda_lng)
 
             sin_sigma = sqrt(
-                (cos_reduced2 * sin_lambda_lng) ** 2 +
-                (cos_reduced1 * sin_reduced2 -
+                (cos_reduced2 * sin_lambda_lng) ** 2 + 
+                (cos_reduced1 * sin_reduced2 - 
                  sin_reduced1 * cos_reduced2 * cos_lambda_lng) ** 2
             )
 
             if sin_sigma == 0:
-                return 0 # Coincident points
+                return 0  # Coincident points
 
             cos_sigma = (
-                sin_reduced1 * sin_reduced2 +
+                sin_reduced1 * sin_reduced2 + 
                 cos_reduced1 * cos_reduced2 * cos_lambda_lng
             )
 
@@ -266,7 +266,7 @@ class VincentyDistance(Distance):
                     sin_reduced1 * sin_reduced2 / cos_sq_alpha
                 )
             else:
-                cos2_sigma_m = 0.0 # Equatorial line
+                cos2_sigma_m = 0.0  # Equatorial line
 
             C = f / 16. * cos_sq_alpha * (4 + f * (4 - 3 * cos_sq_alpha))
 
@@ -275,7 +275,7 @@ class VincentyDistance(Distance):
                 delta_lng + (1 - C) * f * sin_alpha * (
                     sigma + C * sin_sigma * (
                         cos2_sigma_m + C * cos_sigma * (
-                            -1 + 2 * cos2_sigma_m ** 2
+ -1 + 2 * cos2_sigma_m ** 2
                         )
                     )
                 )
@@ -297,11 +297,11 @@ class VincentyDistance(Distance):
             B * sin_sigma * (
                 cos2_sigma_m + B / 4. * (
                     cos_sigma * (
-                        -1 + 2 * cos2_sigma_m ** 2
+ -1 + 2 * cos2_sigma_m ** 2
                     ) - B / 6. * cos2_sigma_m * (
-                        -3 + 4 * sin_sigma ** 2
+ -3 + 4 * sin_sigma ** 2
                     ) * (
-                        -3 + 4 * cos2_sigma_m ** 2
+ -3 + 4 * cos2_sigma_m ** 2
                     )
                 )
             )
@@ -350,10 +350,10 @@ class VincentyDistance(Distance):
             delta_sigma = B * sin_sigma * (
                 cos2_sigma_m + B / 4. * (
                     cos_sigma * (
-                        -1 + 2 * cos2_sigma_m
+ -1 + 2 * cos2_sigma_m
                     ) - B / 6. * cos2_sigma_m * (
-                        -3 + 4 * sin_sigma ** 2) * (
-                        -3 + 4 * cos2_sigma_m ** 2
+ -3 + 4 * sin_sigma ** 2) * (
+ -3 + 4 * cos2_sigma_m ** 2
                     )
                 )
             )
@@ -366,7 +366,7 @@ class VincentyDistance(Distance):
             sin_reduced1 * cos_sigma + cos_reduced1 * sin_sigma * cos_bearing,
             (1 - f) * sqrt(
                 sin_alpha ** 2 + (
-                    sin_reduced1 * sin_sigma -
+                    sin_reduced1 * sin_sigma - 
                     cos_reduced1 * cos_sigma * cos_bearing
                 ) ** 2
             )
@@ -383,7 +383,7 @@ class VincentyDistance(Distance):
             lambda_lng - (1 - C) * f * sin_alpha * (
                 sigma + C * sin_sigma * (
                     cos2_sigma_m + C * cos_sigma * (
-                        -1 + 2 * cos2_sigma_m ** 2
+ -1 + 2 * cos2_sigma_m ** 2
                     )
                 )
             )

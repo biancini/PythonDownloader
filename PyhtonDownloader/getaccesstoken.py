@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # parse_qsl moved to urlparse module in v2.6
-try:
-    from urlparse import parse_qsl
-except:
-    from cgi import parse_qsl
 
 import webbrowser
 import oauth2 as oauth
+
+from urlparse import parse_qsl
 
 REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
@@ -18,7 +16,7 @@ from TwitterEngine.secrets import consumer_key, consumer_secret
 
 def get_access_token(i, consumer_key, consumer_secret):
 
-    signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
+    # signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
     oauth_consumer = oauth.Consumer(key=consumer_key[i], secret=consumer_secret[i])
     oauth_client = oauth.Client(oauth_consumer)
 
@@ -65,6 +63,6 @@ def get_access_token(i, consumer_key, consumer_secret):
 
 if __name__ == "__main__":
     i = input("Inserisci l'indice della app che vuoi usare: ")
-    #consumer_key = raw_input('Enter your consumer key: ')
-    #consumer_secret = raw_input("Enter your consumer secret: ")
+    # consumer_key = raw_input('Enter your consumer key: ')
+    # consumer_secret = raw_input("Enter your consumer secret: ")
     get_access_token(i, consumer_key, consumer_secret)

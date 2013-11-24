@@ -4,13 +4,12 @@ __date__ = "October 2, 2013"
 class BackendChooser(object):
   @staticmethod
   def GetBackend():
-    from mysqlbackend import MySQLBackend
+    # from mysqlbackend import MySQLBackend
+    # backend = MySQLBackend()
     from elasticsearchbackend import ElasticSearchBackend
-
-    #backend = MySQLBackend()
     backend = ElasticSearchBackend()
     return backend
-
+  
 class Backend(object):
   def InsertTweetIntoDb(self, sql_vals):
     raise NotImplementedError
@@ -21,7 +20,7 @@ class Backend(object):
   def GetLastCallIds(self):
     raise NotImplementedError
 
-  def UpdateLastCallIds(self, max_id = None, since_id = None):
+  def UpdateLastCallIds(self, max_id=None, since_id=None):
     raise NotImplementedError
 
   def GetAllTweetCoordinates(self):

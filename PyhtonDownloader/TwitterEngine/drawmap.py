@@ -2,19 +2,17 @@ __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
 import os
-import sys
 
 from PIL import Image, ImageDraw, ImageFont
 
 from twitterapi import TwitterApiCall
-from backend import BackendError
 from mysqlbackend import MySQLBackend
 
 
 class DrawMap(TwitterApiCall): 
-  color = (255,0,0)
+  color = (255, 0, 0)
   lower_left = [41.0, -5.5]
-  top_right  = [51.6, 10.0]
+  top_right = [51.6, 10.0]
 
   def __init__(self, auth_type):
     super(DrawMap, self).__init__(auth_type)
@@ -28,12 +26,11 @@ class DrawMap(TwitterApiCall):
 
   def DrawPoint(self, draw, x, y):
     radius = 5
-    draw.ellipse((x - radius/2, y - radius/2, x + radius/2, y + radius/2), fill=self.color)
+    draw.ellipse((x - radius / 2, y - radius / 2, x + radius / 2, y + radius / 2), fill=self.color)
     del draw
 
   def ProduceImages(self):
     root_path = os.path.abspath(os.path.join(__file__, '..'))
-    red = (255,0,0)
 
     interval = 30
 
@@ -63,7 +60,7 @@ class DrawMap(TwitterApiCall):
       delta_secs = (tweet[0] - start_time).seconds
 
       if delta_secs <= interval:
-        show[persistence-1].append([tweet[2], tweet[1]])
+        show[persistence - 1].append([tweet[2], tweet[1]])
       else:
         img = Image.open("%s/france.png" % root_path)
         draw = ImageDraw.Draw(img)
@@ -86,5 +83,5 @@ class DrawMap(TwitterApiCall):
         start_time = tweet[0]
 
         for i in range(1, persistence):
-          show[i-1] = show[i]
-        show[persistence-1] = []
+          show[i - 1] = show[i]
+        show[persistence - 1] = []

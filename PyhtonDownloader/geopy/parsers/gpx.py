@@ -64,7 +64,7 @@ class GPX(object):
     FILE_EXT = '.gpx'
     MIME_TYPE = 'application/gpx+xml'
     VERSION = '1.1'
-    FIX_TYPES =  set(('none', '2d', '3d', 'dgps', 'pps'))
+    FIX_TYPES = set(('none', '2d', '3d', 'dgps', 'pps'))
     DECIMAL_RE = re.compile(r'([+-]?\d*\.?\d+)$')
 
     # Each "type tuple" is a tuple of two items:

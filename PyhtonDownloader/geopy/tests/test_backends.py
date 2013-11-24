@@ -125,7 +125,7 @@ class GeoNamesTestCase(unittest.TestCase):
 BASIC_TESTCASES = [GoogleTestCase, GoogleV3TestCase, BingTestCase, DotUSTestCase, YahooTestCase]
 
 # geonames does not actually test against addresses (just place names)
-#TESTCASES = [GoogleTestCase, BingTestCase, YahooTestCase, DotUSTestCase, GeoNamesTestCase]
+# TESTCASES = [GoogleTestCase, BingTestCase, YahooTestCase, DotUSTestCase, GeoNamesTestCase]
 
 
 # ==========
@@ -148,7 +148,7 @@ def get_suite():
     ]
     tests = []
     for tc in BASIC_TESTCASES:
-        tests.extend(map(tc,test_methods))
+        tests.extend(map(tc, test_methods))
     
     tests.append(OpenMapQuestTestCase('test_basic_address'))
     tests.append(OpenMapQuestTestCase('test_placename'))

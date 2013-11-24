@@ -29,7 +29,7 @@ class Bing(Geocoder):
         """
         if output_format != None:
             from warnings import warn
-            warn('geopy.geocoders.bing.Bing: The `output_format` parameter is deprecated '+
+            warn('geopy.geocoders.bing.Bing: The `output_format` parameter is deprecated ' + 
                  'and ignored.', DeprecationWarning)
         
         self.api_key = api_key

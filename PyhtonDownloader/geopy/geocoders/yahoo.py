@@ -26,7 +26,7 @@ class Yahoo(Geocoder):
         
         if output_format != None:
             from warnings import warn
-            warn('geopy.geocoders.yahoo.Yahoo: The `output_format` parameter is deprecated '+
+            warn('geopy.geocoders.yahoo.Yahoo: The `output_format` parameter is deprecated ' + 
                  'and now ignored. JSON will be used internally.', DeprecationWarning)
 
     def geocode(self, string, exactly_one=True):
@@ -64,9 +64,9 @@ class Yahoo(Geocoder):
             country = place.get('country')
             location = util.join_filter(", ", [address, city, country])
             lat, lng = place.get('latitude'), place.get('longitude')
-            #if lat and lng:
+            # if lat and lng:
             #    point = Point(floatlat, lng)
-            #else:
+            # else:
             #    point = None
             return (location, (float(lat), float(lng)))
     

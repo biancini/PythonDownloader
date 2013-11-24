@@ -44,13 +44,13 @@ class GeocoderDotUS(Geocoder):
         
         # GeoNames only returns the closest match, no matter what.
         #
-        #if exactly_one and len(places) != 1:
+        # if exactly_one and len(places) != 1:
         #    raise ValueError("Didn't find exactly one placemark! " \
         #                     "(Found %d.)" % len(places))
         #
-        #if exactly_one:
+        # if exactly_one:
         #    return self._parse_result(places[0])
-        #else:
+        # else:
         #    return [self._parse_result(place) for place in places]
         
         return self._parse_result(places[0])
@@ -59,8 +59,8 @@ class GeocoderDotUS(Geocoder):
     def _parse_result(result):
         # turn x=y pairs ("lat=47.6", "long=-117.426") into dict key/value pairs:
         place = dict(
-            filter(lambda x: len(x)>1, # strip off bits that aren't pairs (i.e. "geocoder modified" status string")
-            map(lambda x: x.split('=', 1), result) # split the key=val strings into (key, val) tuples
+            filter(lambda x: len(x) > 1,  # strip off bits that aren't pairs (i.e. "geocoder modified" status string")
+            map(lambda x: x.split('=', 1), result)  # split the key=val strings into (key, val) tuples
         ))
         
         address = [
@@ -88,9 +88,9 @@ class GeocoderDotUS(Geocoder):
             return None
         
         # TODO use Point/Location object API in 0.95
-        #if latitude and longitude:
+        # if latitude and longitude:
         #    point = Point(latitude, longitude)
-        #else:
+        # else:
         #    point = None
-        #return Location(name, point, dict(result))
+        # return Location(name, point, dict(result))
         return name, latlon

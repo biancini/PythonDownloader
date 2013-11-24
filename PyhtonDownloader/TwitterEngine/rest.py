@@ -1,12 +1,9 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-import pprint
 import sys
 import json
 import time
-
-from datetime import datetime
 
 from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
@@ -24,10 +21,10 @@ class DownloadTweetsREST(TwitterApiCall):
       print "Error while retrieving current limit: %s" % be
       return 0
 
-  def PartialProcessTweets(self, params, top_id,max_id, since_id):
-    calls     = 0
+  def PartialProcessTweets(self, params, top_id, max_id, since_id):
+    calls = 0
     callbykey = []
-    twits     = []
+    twits = []
 
     ratelimit = self.GetCurrentLimit()
 
@@ -57,7 +54,7 @@ class DownloadTweetsREST(TwitterApiCall):
           ritorno = [top_id, max_id, since_id]
           break
 
-      params['max_id']   = max_id
+      params['max_id'] = max_id
       params['since_id'] = since_id
 
       try:
@@ -127,7 +124,7 @@ class DownloadTweetsREST(TwitterApiCall):
         break
 
       twits.append(inserted)
-      #print "Numer of tweets inserted:\t%d." % inserted
+      # print "Numer of tweets inserted:\t%d." % inserted
       max_id = min([s['id'] for s in statuses]) - 1
 
     callbykey.append(calls)
@@ -136,19 +133,19 @@ class DownloadTweetsREST(TwitterApiCall):
     return ritorno
 
   def ProcessTweets(self):
-    lat    = 45.776665 # Latitude and longitude of Clermont-Ferrand
-    lng    = 3.07723
-    radius = '400km'   # Radius of France territory
-    count  = 100       # Number of tweets to retrieve (max. 100)
-    lang   = 'fr'      # French language
+    lat = 45.776665  # Latitude and longitude of Clermont-Ferrand
+    lng = 3.07723
+    radius = '400km'  # Radius of France territory
+    count = 100  # Number of tweets to retrieve (max. 100)
+    lang = 'fr'  # French language
 
-    max_ids   = [None, None]
+    max_ids = [None, None]
     since_ids = [None, None]
-    top_id    = None
+    top_id = None
 
     try:
       ret = self.backend.GetLastCallIds()
-      max_ids[0]   = ret[0]
+      max_ids[0] = ret[0]
       since_ids[0] = ret[1]
 
       top_id = ret[2]

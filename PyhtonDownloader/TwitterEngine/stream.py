@@ -1,8 +1,6 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-from datetime import datetime
-
 from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
 
@@ -14,8 +12,8 @@ class DownloadTweetsStream(TwitterApiCall):
     self.backend = BackendChooser.GetBackend()
 
   def ProcessTweets(self):
-    squares = ['-5.1,43.1,7.3,50.1'] # Rectangle covering all French territory
-    lang    = 'fr'                   # French language
+    squares = ['-5.1,43.1,7.3,50.1']  # Rectangle covering all French territory
+    lang = 'fr'  # French language
     print 'Executing Twitter API calls '
 
     params = {'locations':','.join(squares)}
@@ -23,7 +21,7 @@ class DownloadTweetsStream(TwitterApiCall):
 
     for item in r.get_iterator():
       if lang and item['lang'] != lang: continue
-      #print item['text']
+      # print item['text']
 
       sql_vals = self.FromTweetToSQLVals(item, True, True)
       if not sql_vals: continue

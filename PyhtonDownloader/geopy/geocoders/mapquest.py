@@ -54,7 +54,7 @@ class MapQuest(Geocoder):
             latLng = resource['latLng']
             latitude, longitude = latLng.get('lat'), latLng.get('lng')
 
-            location = join_filter(", ", [city, county, state,country])
+            location = join_filter(", ", [city, county, state, country])
             if latitude and longitude:
                 latitude = float(latitude)
                 longitude = float(longitude)

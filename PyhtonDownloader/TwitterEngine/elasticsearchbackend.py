@@ -1,14 +1,8 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-import pprint
-import sys
 import requests
 import json
-import pprint
-import StringIO
-
-from datetime import datetime
 
 from backend import Backend, BackendError
 from secrets import es_server
@@ -23,14 +17,14 @@ class ElasticSearchBackend(Backend):
       host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       present = requests.head(host)
       if int(present.status_code) != 404:
-        #print "HEAD returned %s" % present.status_code
+        # print "HEAD returned %s" % present.status_code
         return 0
 
       data = {}
       data['created_at'] = vals['created_at']
       data['text'] = vals['text']
       data['userid'] = vals['userid']
-      #data['hashtags'] = vals['hashtags']
+      # data['hashtags'] = vals['hashtags']
       data['location'] = vals['location']
       data['num_friends'] = vals['num_friends']
       data['happiness'] = vals['happiness']
@@ -55,9 +49,9 @@ class ElasticSearchBackend(Backend):
   def GetKmls(self):
     print "Retrieving all French departments"
     try:
-      start    = 0
+      start = 0
       pagesize = 10
-      last     = None
+      last = None
 
       rows = []
       while True:
@@ -102,7 +96,7 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
 
-  def UpdateLastCallIds(self, top_id, max_id = None, since_id = None):
+  def UpdateLastCallIds(self, top_id, max_id=None, since_id=None):
     print "Updating lastcall with values top_id = %s, max_id = %s and since_id = %s." % (top_id, max_id, since_id)
     try:
       data = { 'top_id'   : top_id,
@@ -118,9 +112,9 @@ class ElasticSearchBackend(Backend):
 
   def GetAllTweetCoordinates(self):
     try:
-      start    = 0
+      start = 0
       pagesize = 10
-      last     = None
+      last = None
 
       tweets = []
       while True:
@@ -174,9 +168,9 @@ class ElasticSearchBackend(Backend):
 
   def _GetTweetsIdForLocation(self, location):
     try:
-      start    = 0
+      start = 0
       pagesize = 10
-      last     = None
+      last = None
 
       rows = []
       while True:

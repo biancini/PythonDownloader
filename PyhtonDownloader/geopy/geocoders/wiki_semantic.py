@@ -98,7 +98,7 @@ class SemanticMediaWiki(Geocoder):
             relations = self.get_relations(thing)
             for relation, resource in relations:
                 url = things.get(resource, resource)
-                if url in tried: # Avoid cyclic relationships.
+                if url in tried:  # Avoid cyclic relationships.
                     continue
                 tried.add(url)
                 name, (latitude, longitude) = self.geocode_url(url, tried)
