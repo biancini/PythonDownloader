@@ -36,14 +36,5 @@ class Backend(object):
   def InsertFrenchDepartments(self, vals):
     raise NotImplementedError
 
-  def GetAllTweetByPerson(self, date_from, date_to):
-    raise NotImplementedError
-
-  def GetAllTweetsForUserId(self, user, num_tweets, date_from, date_to):
-    raise NotImplementedError
-
-  def InsertByPersonData(self, tweetsdata):
-    raise NotImplementedError
-
 class BackendError(Exception):
     pass
