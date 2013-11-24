@@ -21,6 +21,5 @@
 # 
 # m h  dom mon dow   command
 #
-*/5 * * * * /usr/bin/python .../PythonDownloader/engine.py -m rest -a download >> /var/log/twitter_download.log 2>&1
-0 1 * * * /usr/bin/python .../PythonDownloader/engine.py -m rest -a byperson >> /var/log/twitter_byperson.log 2>&1
+*/5 * * * * /usr/bin/python .../PythonDownloader/engine.py -m rest >> /var/log/twitter_download.log 2>&1
 
