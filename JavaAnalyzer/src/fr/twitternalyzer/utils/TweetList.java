@@ -6,7 +6,7 @@ import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.client.IndicesAdminClient;
 
-import fr.twitteranalyzer.BaseAnalyzer;
+import fr.twitteranalyzer.elastic.ElasticAnalyzerImpl;
 
 public class TweetList<E> extends ArrayList<E> {
 	
@@ -24,7 +24,7 @@ public class TweetList<E> extends ArrayList<E> {
     		sb = new StringBuilder();
     		
 	    	AnalyzeRequest ar = new AnalyzeRequest("twitter", allTweetsText).analyzer("tweettext");
-			IndicesAdminClient indexClient = BaseAnalyzer.client.admin().indices();
+			IndicesAdminClient indexClient = ElasticAnalyzerImpl.client.admin().indices();
 			AnalyzeResponse aresp = indexClient.analyze(ar).actionGet();
 			
 			for (int i = 0; i < aresp.getTokens().size(); i++) {

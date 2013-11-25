@@ -19,7 +19,7 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 	"mappings": {
 		"tweets": {
 			"properties" : {
- 				"created_at": { "type": "date", "format" : "yyyy-MM-dd HH:mm:ss" },
+ 				"created_at": { "type": "date", "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd" },
 				"location" : { "type": "string", "index": "not_analyzed" },
 				"num_friends" : { "type": "integer", "index": "not_analyzed" },
 				"coordinates": { "type": "geo_point" },

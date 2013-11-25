@@ -30,12 +30,12 @@ class Engine(object):
 
   def signal_handler(self, signum, frame):
     if not self.running:
-      print 'You pressed Ctrl+C! The program will interrupt IMMEDIATELY!'
+      print 'You pressed Ctrl+C! The program will be interrupted IMMEDIATELY!'
       if os.path.exists(lock_file_download): os.remove(lock_file_download)
       if os.path.exists(lock_file_byperson): os.remove(lock_file_byperson)
       sys.exit(-1)
     else:
-      print 'You pressed Ctrl+C! The program will interrupt after this execution.'
+      print 'You pressed Ctrl+C! The program will be interrupted after this execution.'
       self.running = False
       TwitterApiCall.stop_run()
 

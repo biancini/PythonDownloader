@@ -7,9 +7,13 @@ public class AnalyzerException extends Exception {
 	public AnalyzerException() {
 		super();
 	}
-	
+
 	public AnalyzerException(String message) {
 		super(message);
 	}
-	
+
+	public AnalyzerException(Exception e) {
+		super(e);
+	}
+
 }
