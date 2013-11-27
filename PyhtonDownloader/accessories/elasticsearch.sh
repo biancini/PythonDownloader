@@ -31,7 +31,7 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 		},
 		"byperson": {
 			"properties" : {
- 				"date": { "type": "date", "format" : "yyyy-MM-dd" },
+ 				"date": { "type": "date", "format" : "yyyy-MM-dd||date_time" },
 				"location" : { "type": "string", "index": "not_analyzed" },
 				"num_friends" : { "type": "integer", "index": "not_analyzed" },
 				"coordinates": { "type": "geo_point" },

@@ -1,13 +1,16 @@
 package fr.twitteranalyzer.elastic;
 
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -26,11 +29,16 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import fr.twitteranalyzer.Analyzer;
 import fr.twitteranalyzer.exceptions.AnalyzerException;
 import fr.twitteranalyzer.model.ByPersonTweets;
+import fr.twitteranalyzer.model.TweetsFields;
+import fr.twitteranalyzer.utils.CoordinatesUtils;
+import fr.twitteranalyzer.utils.DateUtils;
 
 public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
+	private static final String TOP_TWEETERS_FACETS = "top_tweeters";
+
 	public ByPersonAnalyzer() throws AnalyzerException {
-		client = getElasticSearchClient(elasticSearchHost, elasticSearchPort);
+		client = getElasticSearchClient(ELASTICSEARCH_HOST, ELASTICSEARCH_PORT);
 	}
 
 	public String getJobName() {
@@ -43,61 +51,54 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
 	public void runAnalysis(Date from, Date to) throws AnalyzerException {
 		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(from, to);
-		System.out.println("Downloaded " + tweetLeague.size()
-				+ " twitters in the league.");
+		System.out.println("Downloaded " + tweetLeague.size() + " twitters in the league.");
 
 		int elements = tweetLeague.size();
 		for (int i = 0; i < elements; ++i) {
 			Entry<String, Integer> curUser = tweetLeague.get(i);
-			System.out.println("Getting " + curUser.getValue()
-					+ " tweets of user " + curUser.getKey() + ":");
-			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(
-					curUser.getKey(), curUser.getValue(), from, to);
+			// System.out.println("Getting " + curUser.getValue() +
+			// " tweets of user " + curUser.getKey() + ".");
+			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), from, to);
 
-			client.prepareIndex("twitter", "byperson", tweetsByPerson.getId())
-					.setSource(tweetsByPerson.toJsonDocument());
+			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEXNAME, BYPERSONTYPE,
+					tweetsByPerson.getId());
+			requestBuilder.setSource(tweetsByPerson.toJsonDocument());
+			requestBuilder.execute().actionGet();
 		}
 	}
 
 	protected Client getElasticSearchClient(String hostname, int port) {
-		Settings settings = ImmutableSettings.settingsBuilder()
-				.put("cluster.name", "frenchtweets").build();
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CUSTERNAME).build();
 
 		TransportClient transportClient = new TransportClient(settings);
-		transportClient = transportClient
-				.addTransportAddress(new InetSocketTransportAddress(hostname,
-						port));
+		transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress(hostname, port));
 
 		return transportClient;
 	}
 
-	public List<Entry<String, Integer>> queryTopTweeters(Date from, Date to)
-			throws AnalyzerException {
+	public List<Entry<String, Integer>> queryTopTweeters(Date from, Date to) throws AnalyzerException {
 		try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			String strDateFrom = dateFormat.format(from);
-			String strDateTo = dateFormat.format(to);
-
 			int hugenumber = 10000000;
 			List<Entry<String, Integer>> topTweeters = new ArrayList<Entry<String, Integer>>();
 
-			FilterBuilder filter = FilterBuilders.rangeFilter("created_at")
-					.from(strDateFrom + " 00:00:00")
-					.to(strDateTo + " 23:59:59");
-			FacetBuilder facets = FacetBuilders.termsFacet("top_tweeters")
-					.field("userid").size(hugenumber).facetFilter(filter);
+			FilterBuilder filter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
+					.from(DateUtils.firstSecondDate(from)).to(DateUtils.lastSecondDate(to));
+			FacetBuilder facets = FacetBuilders.termsFacet(TOP_TWEETERS_FACETS)
+					.field(TweetsFields.USERID.getFieldName()).size(hugenumber).facetFilter(filter);
 
-			SearchResponse response = client.prepareSearch("twitter")
-					.setTypes("tweets").addFacet(facets).setFrom(0).setSize(0)
-					.setExplain(false).execute().actionGet();
+			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEXNAME).setTypes(TWEETSTYPE);
+			requestBuilder.addFacet(facets);
+			requestBuilder.setFrom(0);
+			requestBuilder.setSize(0);
+			requestBuilder.setExplain(false);
+			SearchResponse response = requestBuilder.execute().actionGet();
 
 			for (Facet facet : response.getFacets().facets()) {
 				if (facet.getType().equals("terms")) {
-					for (TermsFacet.Entry te : ((TermsFacet) facet)
-							.getEntries()) {
-						topTweeters
-								.add(new AbstractMap.SimpleEntry<String, Integer>(
-										te.getTerm().toString(), te.getCount()));
+					for (TermsFacet.Entry te : ((TermsFacet) facet).getEntries()) {
+						SimpleEntry<String, Integer> simpleEntry = new AbstractMap.SimpleEntry<String, Integer>(te
+								.getTerm().toString(), te.getCount());
+						topTweeters.add(simpleEntry);
 					}
 				}
 			}
@@ -108,32 +109,28 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		}
 	}
 
-	public ByPersonTweets getAllTweetsForUserId(String user, long number,
-			Date from, Date to) throws AnalyzerException {
+	public ByPersonTweets getAllTweetsForUserId(String user, long number, Date from, Date to)
+			throws AnalyzerException {
 		try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			String strDateFrom = dateFormat.format(from);
-			String strDateTo = dateFormat.format(to);
+			FilterBuilder dateFilter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
+					.from(DateUtils.firstSecondDate(from)).to(DateUtils.lastSecondDate(to));
+			FilterBuilder userFilter = FilterBuilders.termFilter(TweetsFields.USERID.getFieldName(), user);
 
-			FilterBuilder dateFilter = FilterBuilders.rangeFilter("created_at")
-					.from(strDateFrom + " 00:00:00")
-					.to(strDateTo + " 23:59:59");
-			FilterBuilder userFilter = FilterBuilders
-					.termFilter("userid", user);
+			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEXNAME).setTypes(TWEETSTYPE);
+			requestBuilder.setFilter(FilterBuilders.andFilter(dateFilter).add(userFilter));
+			requestBuilder.setFrom(0);
+			requestBuilder.setSize((int) number);
+			requestBuilder.setExplain(false);
 
-			SearchResponse response = client
-					.prepareSearch("twitter")
-					.setTypes("tweets")
-					.setFilter(
-							FilterBuilders.andFilter(dateFilter)
-									.add(userFilter)).addField("*").setFrom(0)
-					.setSize((int) number).setExplain(false).execute()
-					.actionGet();
+			String[] fieldList = TweetsFields.getFieldList();
+			for (String curField : fieldList) {
+				requestBuilder.addField(curField);
+			}
+			SearchResponse response = requestBuilder.execute().actionGet();
 
 			if (response.getHits().getTotalHits() < number) {
 				String errMessage = "Downloaded tweets differ from total number expected";
-				errMessage += " (" + response.getHits().getTotalHits()
-						+ " instead of " + number + ")";
+				errMessage += " (" + response.getHits().getTotalHits() + " instead of " + number + ")";
 				throw new AnalyzerException(errMessage);
 			}
 
@@ -144,12 +141,10 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			for (int i = 0; i < number; ++i) {
 				setCommonAttributes(tweetsByPerson, hits, i);
 
-				Float curHappiness = (Float) hits[i].field("happiness")
-						.getValue();
+				Double curHappiness = (Double) hits[i].field(TweetsFields.HAPPINESS.getFieldName()).getValue();
 				happiness += curHappiness.floatValue();
 
-				Float curRelevance = (Float) hits[i].field("happiness")
-						.getValue();
+				Double curRelevance = (Double) hits[i].field(TweetsFields.RELEVANCE.getFieldName()).getValue();
 				relevance += curRelevance.floatValue();
 			}
 
@@ -162,26 +157,33 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		}
 	}
 
-	private void setCommonAttributes(ByPersonTweets tweetsByPerson,
-			SearchHit[] hits, int i) {
-		if (tweetsByPerson.getDate() == null) {
-			Date value = (Date) hits[i].field("created_at").getValue();
-			tweetsByPerson.setDate(value);
+	private void setCommonAttributes(ByPersonTweets tweetsByPerson, SearchHit[] hits, int i) {
+		try {
+			if (tweetsByPerson.getDate() == null) {
+				String strValue = hits[i].field(TweetsFields.CREATEDAT.getFieldName()).getValue();
+				Date value = DateUtils.parseDate(strValue);
+				tweetsByPerson.setDate(value);
+			}
+		} catch (ParseException e) {
+			System.err.println("Error while parsing date.");
 		}
 
 		if (tweetsByPerson.getLocation() == null) {
-			String value = hits[i].field("location").getValue().toString();
+			String value = hits[i].field(TweetsFields.LOCATION.getFieldName()).getValue().toString();
 			tweetsByPerson.setLocation(value);
 		}
 
 		if (tweetsByPerson.getNumFriends() == -1) {
-			Integer value = (Integer) hits[i].field("num_friends").getValue();
+			Integer value = hits[i].field(TweetsFields.NUMFRIENDS.getFieldName()).getValue();
 			tweetsByPerson.setNumFriends(value.intValue());
 		}
 
-		if (tweetsByPerson.getCoordinates() == null) {
-			GeoPoint value = (GeoPoint) hits[i].field("coordinates").getValue();
+		if (tweetsByPerson.getCoordinates() == null
+				&& hits[i].field(TweetsFields.COORDINATES.getFieldName()) != null) {
+			String strValue = (String) hits[i].field(TweetsFields.COORDINATES.getFieldName()).getValue();
+			GeoPoint value = CoordinatesUtils.geopointFromString(strValue);
 			tweetsByPerson.setCoordinates(value);
 		}
 	}
+
 }

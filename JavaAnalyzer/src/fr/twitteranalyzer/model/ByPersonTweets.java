@@ -25,18 +25,23 @@ public class ByPersonTweets {
 		if (date != null) {
 			jsonDocument.put("date", date);
 		}
+
 		if (location != null) {
 			jsonDocument.put("location", location);
 		}
+
 		if (numFriends != -1) {
 			jsonDocument.put("num_friends", numFriends);
 		}
+
 		if (coordinates != null) {
 			jsonDocument.put("coordinates", coordinates);
 		}
+
 		if (happiness != -1F) {
 			jsonDocument.put("happiness", happiness);
 		}
+
 		if (relevance != -1F) {
 			jsonDocument.put("relevance", relevance);
 		}

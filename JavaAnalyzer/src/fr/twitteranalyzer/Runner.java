@@ -30,6 +30,7 @@ public class Runner {
 
 			analyzer.runAnalysis(fromDate, toDate);
 		} catch (AnalyzerException e) {
+			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
