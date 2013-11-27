@@ -5,9 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-//import fr.twitteranalyzer.elastic.ByPersonAnalyzer;
+import fr.twitteranalyzer.elastic.ByPersonAnalyzer;
 import fr.twitteranalyzer.exceptions.AnalyzerException;
-import fr.twitteranalyzer.mapreduce.ByPersonAnalyzer;
+
+//import fr.twitteranalyzer.mapreduce.ByPersonAnalyzer;
 
 public class Runner {
 
@@ -22,10 +23,10 @@ public class Runner {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 			Date fromDate = Calendar.getInstance().getTime();
-			fromDate = sdf.parse("2013-01-01");
+			fromDate = sdf.parse("2013-11-26");
 
 			Date toDate = Calendar.getInstance().getTime();
-			toDate = sdf.parse("2014-01-01");
+			toDate = sdf.parse("2014-01-26");
 
 			analyzer.runAnalysis(fromDate, toDate);
 		} catch (AnalyzerException e) {

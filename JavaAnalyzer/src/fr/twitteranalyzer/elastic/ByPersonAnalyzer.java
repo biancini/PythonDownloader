@@ -11,6 +11,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -24,7 +25,7 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 
 import fr.twitteranalyzer.Analyzer;
 import fr.twitteranalyzer.exceptions.AnalyzerException;
-import fr.twitternalyzer.utils.TweetList;
+import fr.twitteranalyzer.model.ByPersonTweets;
 
 public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
@@ -50,14 +51,11 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			Entry<String, Integer> curUser = tweetLeague.get(i);
 			System.out.println("Getting " + curUser.getValue()
 					+ " tweets of user " + curUser.getKey() + ":");
-			TweetList<String> tweets = getAllTweetsForUserId(curUser.getKey(),
-					curUser.getValue(), from, to);
+			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(
+					curUser.getKey(), curUser.getValue(), from, to);
 
-			// Print all tweets
-			String allTweetsText = tweets.getAllElements("\n\n", false);
-			System.out.println(allTweetsText);
-			System.out.println("Total text length: " + allTweetsText.length()
-					+ " characters.");
+			client.prepareIndex("twitter", "byperson", tweetsByPerson.getId())
+					.setSource(tweetsByPerson.toJsonDocument());
 		}
 	}
 
@@ -110,7 +108,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		}
 	}
 
-	public TweetList<String> getAllTweetsForUserId(String user, long number,
+	public ByPersonTweets getAllTweetsForUserId(String user, long number,
 			Date from, Date to) throws AnalyzerException {
 		try {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -128,9 +126,9 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 					.setTypes("tweets")
 					.setFilter(
 							FilterBuilders.andFilter(dateFilter)
-									.add(userFilter)).addField("text")
-					.setFrom(0).setSize((int) number).setExplain(false)
-					.execute().actionGet();
+									.add(userFilter)).addField("*").setFrom(0)
+					.setSize((int) number).setExplain(false).execute()
+					.actionGet();
 
 			if (response.getHits().getTotalHits() < number) {
 				String errMessage = "Downloaded tweets differ from total number expected";
@@ -139,15 +137,51 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 				throw new AnalyzerException(errMessage);
 			}
 
-			TweetList<String> allTweetText = new TweetList<String>();
+			ByPersonTweets tweetsByPerson = new ByPersonTweets(user);
 			SearchHit[] hits = response.getHits().getHits();
+			float happiness = 0F;
+			float relevance = 0F;
 			for (int i = 0; i < number; ++i) {
-				allTweetText.add(hits[i].field("text").getValue().toString());
+				setCommonAttributes(tweetsByPerson, hits, i);
+
+				Float curHappiness = (Float) hits[i].field("happiness")
+						.getValue();
+				happiness += curHappiness.floatValue();
+
+				Float curRelevance = (Float) hits[i].field("happiness")
+						.getValue();
+				relevance += curRelevance.floatValue();
 			}
 
-			return allTweetText;
+			tweetsByPerson.setHappiness(happiness / number);
+			tweetsByPerson.setRelevance(relevance / number);
+
+			return tweetsByPerson;
 		} catch (Exception ex) {
 			throw new AnalyzerException(ex.getMessage());
+		}
+	}
+
+	private void setCommonAttributes(ByPersonTweets tweetsByPerson,
+			SearchHit[] hits, int i) {
+		if (tweetsByPerson.getDate() == null) {
+			Date value = (Date) hits[i].field("created_at").getValue();
+			tweetsByPerson.setDate(value);
+		}
+
+		if (tweetsByPerson.getLocation() == null) {
+			String value = hits[i].field("location").getValue().toString();
+			tweetsByPerson.setLocation(value);
+		}
+
+		if (tweetsByPerson.getNumFriends() == -1) {
+			Integer value = (Integer) hits[i].field("num_friends").getValue();
+			tweetsByPerson.setNumFriends(value.intValue());
+		}
+
+		if (tweetsByPerson.getCoordinates() == null) {
+			GeoPoint value = (GeoPoint) hits[i].field("coordinates").getValue();
+			tweetsByPerson.setCoordinates(value);
 		}
 	}
 }
