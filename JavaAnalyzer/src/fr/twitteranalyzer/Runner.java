@@ -29,6 +29,7 @@ public class Runner {
 			toDate = sdf.parse("2014-01-26");
 
 			analyzer.runAnalysis(fromDate, toDate);
+			System.out.println("Finished.");
 		} catch (AnalyzerException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
