@@ -32,6 +32,7 @@ import fr.twitteranalyzer.model.ByPersonTweets;
 import fr.twitteranalyzer.model.TweetsFields;
 import fr.twitteranalyzer.utils.CoordinatesUtils;
 import fr.twitteranalyzer.utils.DateUtils;
+import fr.twitteranalyzer.utils.LoggerUtils;
 
 public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
@@ -51,13 +52,13 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
 	public void runAnalysis(Date date) throws AnalyzerException {
 		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(date);
-		System.out.println("Downloaded " + tweetLeague.size() + " twitters in the league.");
+		LoggerUtils.writeLog("Downloaded " + tweetLeague.size() + " twitters in the league.", false);
 
 		int elements = tweetLeague.size();
 		for (int i = 0; i < elements; ++i) {
 			Entry<String, Integer> curUser = tweetLeague.get(i);
-			// System.out.println("Getting " + curUser.getValue() +
-			// " tweets of user " + curUser.getKey() + ".");
+			// LoggerUtils.writeLog("Getting " + curUser.getValue() +
+			// " tweets of user " + curUser.getKey() + ".", false);
 			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), date);
 
 			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEX_NAME, BYPERSON_TYPE,
@@ -165,7 +166,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 				tweetsByPerson.setDate(value);
 			}
 		} catch (ParseException e) {
-			System.err.println("Error while parsing date.");
+			LoggerUtils.writeLog("Error while parsing date.", true);
 		}
 
 		if (tweetsByPerson.getLocation() == null) {
