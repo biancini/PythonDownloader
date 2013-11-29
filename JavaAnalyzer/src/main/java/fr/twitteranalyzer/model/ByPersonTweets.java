@@ -7,6 +7,14 @@ import java.util.Map;
 import org.elasticsearch.common.geo.GeoPoint;
 
 public class ByPersonTweets {
+	public static final String USERID_KEY = "userid";
+	public static final String DATE_KEY = "date";
+	public static final String LOCATION_KEY = "location";
+	public static final String NUMFRIENDS_KEY = "num_friends";
+	public static final String COORDINATES_KEY = "coordinates";
+	public static final String HAPPINESS_KEY = "happiness";
+	public static final String RELEVANCE_KEY = "relevance";
+
 	Long id = null;
 	Date date = null;
 	String location = null;
@@ -22,32 +30,30 @@ public class ByPersonTweets {
 	public Map<String, Object> toJsonDocument() {
 		Map<String, Object> jsonDocument = new HashMap<String, Object>();
 
-		if (id != null) {
-			jsonDocument.put("userid", id);
-		}
+		jsonDocument.put(USERID_KEY, id);
 
 		if (date != null) {
-			jsonDocument.put("date", date);
+			jsonDocument.put(DATE_KEY, date);
 		}
 
 		if (location != null) {
-			jsonDocument.put("location", location);
+			jsonDocument.put(LOCATION_KEY, location);
 		}
 
 		if (numFriends != -1) {
-			jsonDocument.put("num_friends", numFriends);
+			jsonDocument.put(NUMFRIENDS_KEY, numFriends);
 		}
 
 		if (coordinates != null) {
-			jsonDocument.put("coordinates", coordinates);
+			jsonDocument.put(COORDINATES_KEY, coordinates);
 		}
 
 		if (happiness != -1F) {
-			jsonDocument.put("happiness", happiness);
+			jsonDocument.put(HAPPINESS_KEY, happiness);
 		}
 
 		if (relevance != -1F) {
-			jsonDocument.put("relevance", relevance);
+			jsonDocument.put(RELEVANCE_KEY, relevance);
 		}
 
 		return jsonDocument;

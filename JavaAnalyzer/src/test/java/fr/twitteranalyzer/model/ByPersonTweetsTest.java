@@ -21,12 +21,51 @@ public class ByPersonTweetsTest {
 	private static final float HAPPINESS = 7.5F;
 	private static final float RELEVANCE = 0.8F;
 
-	private static final String DATE_KEY = "date";
-	private static final String LOCATION_KEY = "location";
-	private static final String NUMFRIENDS_KEY = "num_friends";
-	private static final String COORDINATES_KEY = "coordinates";
-	private static final String HAPPINESS_KEY = "happiness";
-	private static final String RELEVANCE_KEY = "relevance";
+	@Test
+	public void shouldSetterGetterWork() throws ParseException {
+		// given
+		SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD");
+		Date date = dateFormat.parse(DATE);
+		GeoPoint coordinates = new GeoPoint(LATITUDE, LONGITUDE);
+
+		ByPersonTweets byPersonTweets = new ByPersonTweets(USERID);
+		byPersonTweets.setDate(date);
+		byPersonTweets.setLocation(LOCATION);
+		byPersonTweets.setNumFriends(NUMFRIENDS);
+		byPersonTweets.setCoordinates(coordinates);
+		byPersonTweets.setHappiness(HAPPINESS);
+		byPersonTweets.setRelevance(RELEVANCE);
+
+		// when
+
+		// then
+		assertThat(byPersonTweets.getId()).isEqualTo(USERID);
+		assertThat(byPersonTweets.getDate()).isEqualTo(date);
+		assertThat(byPersonTweets.getLocation()).isEqualTo(LOCATION);
+		assertThat(byPersonTweets.getNumFriends()).isEqualTo(NUMFRIENDS);
+		assertThat(byPersonTweets.getCoordinates()).isEqualTo(coordinates);
+		assertThat(byPersonTweets.getHappiness()).isEqualTo(HAPPINESS);
+		assertThat(byPersonTweets.getRelevance()).isEqualTo(RELEVANCE);
+	}
+
+	@Test
+	public void shouldEmptyJsonBeCreated() throws ParseException {
+		// given
+		ByPersonTweets byPersonTweets = new ByPersonTweets(USERID);
+
+		// when
+		Map<String, Object> returnValue = byPersonTweets.toJsonDocument();
+
+		// then
+		assertThat(returnValue).isNotEmpty();
+		assertThat(returnValue.get(ByPersonTweets.USERID_KEY)).isEqualTo(USERID);
+		assertThat(returnValue.containsKey(ByPersonTweets.DATE_KEY)).isEqualTo(false);
+		assertThat(returnValue.containsKey(ByPersonTweets.LOCATION_KEY)).isEqualTo(false);
+		assertThat(returnValue.containsKey(ByPersonTweets.NUMFRIENDS_KEY)).isEqualTo(false);
+		assertThat(returnValue.containsKey(ByPersonTweets.COORDINATES_KEY)).isEqualTo(false);
+		assertThat(returnValue.containsKey(ByPersonTweets.HAPPINESS_KEY)).isEqualTo(false);
+		assertThat(returnValue.containsKey(ByPersonTweets.RELEVANCE_KEY)).isEqualTo(false);
+	}
 
 	@Test
 	public void shouldToJsonDocumentProduceRightHashMap() throws ParseException {
@@ -48,11 +87,12 @@ public class ByPersonTweetsTest {
 
 		// then
 		assertThat(returnValue).isNotEmpty();
-		assertThat(returnValue.get(DATE_KEY)).isEqualTo(date);
-		assertThat(returnValue.get(LOCATION_KEY)).isEqualTo(LOCATION);
-		assertThat(returnValue.get(NUMFRIENDS_KEY)).isEqualTo(NUMFRIENDS);
-		assertThat(returnValue.get(COORDINATES_KEY)).isEqualTo(coordinates);
-		assertThat(returnValue.get(HAPPINESS_KEY)).isEqualTo(HAPPINESS);
-		assertThat(returnValue.get(RELEVANCE_KEY)).isEqualTo(RELEVANCE);
+		assertThat(returnValue.get(ByPersonTweets.USERID_KEY)).isEqualTo(USERID);
+		assertThat(returnValue.get(ByPersonTweets.DATE_KEY)).isEqualTo(date);
+		assertThat(returnValue.get(ByPersonTweets.LOCATION_KEY)).isEqualTo(LOCATION);
+		assertThat(returnValue.get(ByPersonTweets.NUMFRIENDS_KEY)).isEqualTo(NUMFRIENDS);
+		assertThat(returnValue.get(ByPersonTweets.COORDINATES_KEY)).isEqualTo(coordinates);
+		assertThat(returnValue.get(ByPersonTweets.HAPPINESS_KEY)).isEqualTo(HAPPINESS);
+		assertThat(returnValue.get(ByPersonTweets.RELEVANCE_KEY)).isEqualTo(RELEVANCE);
 	}
 }

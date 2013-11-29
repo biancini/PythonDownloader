@@ -36,4 +36,17 @@ public class CoordinatesUtilsTest {
 		assertThat(returnValue.getLat()).isEqualTo(LATITUDE);
 		assertThat(returnValue.getLon()).isEqualTo(LONGITUDE);
 	}
+
+	@Test
+	public void shouldGeopointToStringReturnRightValues() {
+		// given
+		GeoPoint input = new GeoPoint(LATITUDE, LONGITUDE);
+
+		// when
+		String returnValue = CoordinatesUtils.geopointToString(input);
+
+		// then
+		assertThat(returnValue).isEqualTo(LATITUDE + SEPARATOR + LONGITUDE);
+	}
+
 }
