@@ -12,6 +12,8 @@ public final class DateUtils {
 	private static SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
 	private static SimpleDateFormat dateTimeFormatter = new SimpleDateFormat(DATETIME_FORMAT);
 
+	public static final long HOUR = 3600 * 1000;
+
 	private DateUtils() {
 		// Do nothing
 	}

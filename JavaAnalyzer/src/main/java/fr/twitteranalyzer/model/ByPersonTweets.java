@@ -7,7 +7,7 @@ import java.util.Map;
 import org.elasticsearch.common.geo.GeoPoint;
 
 public class ByPersonTweets {
-	String id = null;
+	Long id = null;
 	Date date = null;
 	String location = null;
 	int numFriends = -1;
@@ -15,12 +15,16 @@ public class ByPersonTweets {
 	float happiness = -1F;
 	float relevance = -1F;
 
-	public ByPersonTweets(String id) {
+	public ByPersonTweets(Long id) {
 		this.id = id;
 	}
 
 	public Map<String, Object> toJsonDocument() {
 		Map<String, Object> jsonDocument = new HashMap<String, Object>();
+
+		if (id != null) {
+			jsonDocument.put("userid", id);
+		}
 
 		if (date != null) {
 			jsonDocument.put("date", date);
@@ -49,7 +53,7 @@ public class ByPersonTweets {
 		return jsonDocument;
 	}
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
 

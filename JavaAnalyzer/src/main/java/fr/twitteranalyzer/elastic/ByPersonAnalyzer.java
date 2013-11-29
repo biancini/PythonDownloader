@@ -51,18 +51,18 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 	}
 
 	public void runAnalysis(Date date) throws AnalyzerException {
-		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(date);
+		List<Entry<Long, Integer>> tweetLeague = queryTopTweeters(date);
 		LoggerUtils.writeLog("Downloaded " + tweetLeague.size() + " twitters in the league.", false);
 
 		int elements = tweetLeague.size();
 		for (int i = 0; i < elements; ++i) {
-			Entry<String, Integer> curUser = tweetLeague.get(i);
+			Entry<Long, Integer> curUser = tweetLeague.get(i);
 			// LoggerUtils.writeLog("Getting " + curUser.getValue() +
 			// " tweets of user " + curUser.getKey() + ".", false);
 			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), date);
 
-			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEX_NAME, BYPERSON_TYPE,
-					tweetsByPerson.getId());
+			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEX_NAME, BYPERSON_TYPE, tweetsByPerson
+					.getId().toString());
 			requestBuilder.setSource(tweetsByPerson.toJsonDocument());
 			requestBuilder.execute().actionGet();
 		}
@@ -77,10 +77,10 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		return transportClient;
 	}
 
-	public List<Entry<String, Integer>> queryTopTweeters(Date date) throws AnalyzerException {
+	protected List<Entry<Long, Integer>> queryTopTweeters(Date date) throws AnalyzerException {
 		try {
 			int hugenumber = 10000000;
-			List<Entry<String, Integer>> topTweeters = new ArrayList<Entry<String, Integer>>();
+			List<Entry<Long, Integer>> topTweeters = new ArrayList<Entry<Long, Integer>>();
 
 			FilterBuilder filter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
 					.from(DateUtils.firstSecondDate(date)).to(DateUtils.lastSecondDate(date));
@@ -97,8 +97,11 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			for (Facet facet : response.getFacets().facets()) {
 				if (facet.getType().equals(TERMS_PROPERTY)) {
 					for (TermsFacet.Entry te : ((TermsFacet) facet).getEntries()) {
-						SimpleEntry<String, Integer> simpleEntry = new AbstractMap.SimpleEntry<String, Integer>(te
-								.getTerm().toString(), te.getCount());
+						Long userid = Long.parseLong(te.getTerm().toString());
+						Integer numtweets = te.getCount();
+
+						SimpleEntry<Long, Integer> simpleEntry = new AbstractMap.SimpleEntry<Long, Integer>(
+								userid, numtweets);
 						topTweeters.add(simpleEntry);
 					}
 				}
@@ -110,7 +113,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		}
 	}
 
-	public ByPersonTweets getAllTweetsForUserId(String user, long number, Date date) throws AnalyzerException {
+	protected ByPersonTweets getAllTweetsForUserId(Long user, long number, Date date) throws AnalyzerException {
 		try {
 			FilterBuilder dateFilter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
 					.from(DateUtils.firstSecondDate(date)).to(DateUtils.lastSecondDate(date));
@@ -163,6 +166,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			if (tweetsByPerson.getDate() == null) {
 				String strValue = hits[i].field(TweetsFields.CREATEDAT.getFieldName()).getValue();
 				Date value = DateUtils.parseDate(strValue);
+				value = new Date(value.getTime() + 2 * DateUtils.HOUR);
 				tweetsByPerson.setDate(value);
 			}
 		} catch (ParseException e) {

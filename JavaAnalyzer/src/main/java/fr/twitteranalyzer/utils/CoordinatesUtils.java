@@ -8,6 +8,17 @@ public final class CoordinatesUtils {
 		// Do nothing
 	}
 
+	public static String geopointToString(GeoPoint value) {
+		if (value == null) {
+			return null;
+		}
+
+		String strValue = Double.toString(value.getLat());
+		strValue += ",";
+		strValue += Double.toString(value.getLon());
+		return strValue;
+	}
+
 	public static GeoPoint geopointFromString(String strValue) {
 		float[] latLng = fromStringToLatLng(strValue);
 		GeoPoint value = new GeoPoint(latLng[0], latLng[1]);

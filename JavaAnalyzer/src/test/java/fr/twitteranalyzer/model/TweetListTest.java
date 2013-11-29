@@ -11,15 +11,15 @@ import org.junit.Test;
 
 public class TweetListTest {
 
-	public static final String elasticSearchHost = "localhost";
-	public static final int elasticSearchPort = 9300;
+	private static final String elasticSearchHost = "localhost";
+	private static final int elasticSearchPort = 9300;
 
-	public static final String SEPARATOR = "\n";
-	public static final String FIRST_ELEMENT = "Je suis le premier élément";
-	public static final String SECOND_ELEMENT = "Je suis le deuxième élément";
-	public static final String STEMMED_SEPARATOR = " ";
-	public static final String FIRST_STEMMED_RESULT = "premi élément";
-	public static final String SECOND_STEMMED_RESULT = "deuxiem élément";
+	private static final String SEPARATOR = "\n";
+	private static final String FIRST_ELEMENT = "Je suis le premier élément";
+	private static final String SECOND_ELEMENT = "Je suis le deuxième élément";
+	private static final String STEMMED_SEPARATOR = " ";
+	private static final String FIRST_STEMMED_RESULT = "premi élément";
+	private static final String SECOND_STEMMED_RESULT = "deuxiem élément";
 
 	@Test
 	public void shouldGetAllElementsNotAnalyzedReturnAllTweets() {
@@ -32,8 +32,7 @@ public class TweetListTest {
 		String returnValue = tweetList.getAllElements(SEPARATOR, false);
 
 		// then
-		assertThat(returnValue).isEqualTo(
-				FIRST_ELEMENT + SEPARATOR + SECOND_ELEMENT);
+		assertThat(returnValue).isEqualTo(FIRST_ELEMENT + SEPARATOR + SECOND_ELEMENT);
 	}
 
 	@Test
@@ -49,19 +48,15 @@ public class TweetListTest {
 		String returnValue = tweetList.getAllElements(SEPARATOR, true);
 
 		// then
-		assertThat(returnValue).isEqualTo(
-				FIRST_STEMMED_RESULT + STEMMED_SEPARATOR
-						+ SECOND_STEMMED_RESULT);
+		assertThat(returnValue).isEqualTo(FIRST_STEMMED_RESULT + STEMMED_SEPARATOR + SECOND_STEMMED_RESULT);
 	}
 
 	private Client getElasticSearchClient() {
-		Settings settings = ImmutableSettings.settingsBuilder()
-				.put("cluster.name", "frenchtweets").build();
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "frenchtweets").build();
 
 		TransportClient transportClient = new TransportClient(settings);
-		transportClient = transportClient
-				.addTransportAddress(new InetSocketTransportAddress(
-						elasticSearchHost, elasticSearchPort));
+		transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress(elasticSearchHost,
+				elasticSearchPort));
 
 		return transportClient;
 	}

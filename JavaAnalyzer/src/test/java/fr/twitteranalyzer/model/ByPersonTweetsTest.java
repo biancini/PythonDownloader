@@ -12,21 +12,21 @@ import org.junit.Test;
 
 public class ByPersonTweetsTest {
 
-	public static final String ID = "123456";
-	public static final String DATE = "1980-10-05";
-	public static final String LOCATION = "Paris";
-	public static final int NUMFRIENDS = 100;
-	public static final double LATITUDE = 48.822768D;
-	public static final double LONGITUDE = 2.345388D;
-	public static final float HAPPINESS = 7.5F;
-	public static final float RELEVANCE = 0.8F;
+	private static final Long USERID = 123456L;
+	private static final String DATE = "1980-10-05";
+	private static final String LOCATION = "Paris";
+	private static final int NUMFRIENDS = 100;
+	private static final double LATITUDE = 48.822768D;
+	private static final double LONGITUDE = 2.345388D;
+	private static final float HAPPINESS = 7.5F;
+	private static final float RELEVANCE = 0.8F;
 
-	public static final String DATE_KEY = "date";
-	public static final String LOCATION_KEY = "location";
-	public static final String NUMFRIENDS_KEY = "num_friends";
-	public static final String COORDINATES_KEY = "coordinates";
-	public static final String HAPPINESS_KEY = "happiness";
-	public static final String RELEVANCE_KEY = "relevance";
+	private static final String DATE_KEY = "date";
+	private static final String LOCATION_KEY = "location";
+	private static final String NUMFRIENDS_KEY = "num_friends";
+	private static final String COORDINATES_KEY = "coordinates";
+	private static final String HAPPINESS_KEY = "happiness";
+	private static final String RELEVANCE_KEY = "relevance";
 
 	@Test
 	public void shouldToJsonDocumentProduceRightHashMap() throws ParseException {
@@ -35,7 +35,7 @@ public class ByPersonTweetsTest {
 		Date date = dateFormat.parse(DATE);
 		GeoPoint coordinates = new GeoPoint(LATITUDE, LONGITUDE);
 
-		ByPersonTweets byPersonTweets = new ByPersonTweets(ID);
+		ByPersonTweets byPersonTweets = new ByPersonTweets(USERID);
 		byPersonTweets.setDate(date);
 		byPersonTweets.setLocation(LOCATION);
 		byPersonTweets.setNumFriends(NUMFRIENDS);
