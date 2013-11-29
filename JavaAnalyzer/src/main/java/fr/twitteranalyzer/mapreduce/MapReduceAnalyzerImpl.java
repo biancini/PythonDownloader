@@ -18,13 +18,11 @@ public abstract class MapReduceAnalyzerImpl implements Analyzer {
 	public static final String elasticSearchHost = "localhost";
 	public static final int elasticSearchPort = 9200;
 
-	public abstract void runAnalysis(Date from, Date to)
-			throws AnalyzerException;
+	public abstract void runAnalysis(Date date) throws AnalyzerException;
 
 	public abstract String getJobName();
 
-	public abstract void additionalConfigurations(Configuration conf,
-			Object... params);
+	public abstract void additionalConfigurations(Configuration conf, Object... params);
 
 	public Configuration getMapReduceConfiguration(Object... params) {
 		Configuration conf = new Configuration();
@@ -35,10 +33,8 @@ public abstract class MapReduceAnalyzerImpl implements Analyzer {
 		return conf;
 	}
 
-	public Job getMapReduceJob(Object... params) throws IOException,
-			ClassNotFoundException, InterruptedException {
-		Job mapReduceJob = new Job(getMapReduceConfiguration(params),
-				getJobName());
+	public Job getMapReduceJob(Object... params) throws IOException, ClassNotFoundException, InterruptedException {
+		Job mapReduceJob = new Job(getMapReduceConfiguration(params), getJobName());
 
 		mapReduceJob.setInputFormatClass(ESInputFormat.class);
 		mapReduceJob.setOutputFormatClass(ESOutputFormat.class);

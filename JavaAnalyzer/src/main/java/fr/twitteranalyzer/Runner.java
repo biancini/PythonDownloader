@@ -21,13 +21,10 @@ public class Runner {
 			String dayOfInterest = "2013-11-27";
 			ByPersonAnalyzer analyzer = new ByPersonAnalyzer();
 
-			Date fromDate = Calendar.getInstance().getTime();
-			fromDate = DateUtils.parseDate(dayOfInterest);
+			Date date = Calendar.getInstance().getTime();
+			date = DateUtils.parseDate(dayOfInterest);
 
-			Date toDate = Calendar.getInstance().getTime();
-			toDate = DateUtils.parseDate(dayOfInterest);
-
-			analyzer.runAnalysis(fromDate, toDate);
+			analyzer.runAnalysis(date);
 			System.out.println("Finished.");
 		} catch (AnalyzerException e) {
 			System.err.println(e.getMessage());

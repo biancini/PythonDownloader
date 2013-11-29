@@ -16,11 +16,10 @@ public class ByPersonAnalyzer extends MapReduceAnalyzerImpl implements Analyzer 
 	}
 
 	public void additionalConfigurations(Configuration conf, Object... params) {
-		String fromDate = extractDate(0, params);
-		String toDate = extractDate(1, params);
+		String date = extractDate(0, params);
 
 		String indexName = "twitter/tweets";
-		String query = "created%5Fat:%5B" + fromDate + "+TO+" + toDate + "%5D";
+		String query = "created%5Fat:%5B" + date + "+TO+" + date + "%5D";
 		conf.set("es.resource", indexName + "/_search?q=" + query);
 	}
 
@@ -33,11 +32,10 @@ public class ByPersonAnalyzer extends MapReduceAnalyzerImpl implements Analyzer 
 		return stringDate;
 	}
 
-	public void runAnalysis(Date from, Date to) throws AnalyzerException {
+	public void runAnalysis(Date date) throws AnalyzerException {
 		try {
-			GeneralCombiner combiner = new GeneralCombiner(getMapReduceJob(
-					from, to));
-			ToolRunner.run(getMapReduceConfiguration(from, to), combiner, null);
+			GeneralCombiner combiner = new GeneralCombiner(getMapReduceJob(date));
+			ToolRunner.run(getMapReduceConfiguration(date), combiner, null);
 		} catch (Exception e) {
 			throw new AnalyzerException(e);
 		}

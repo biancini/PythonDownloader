@@ -35,7 +35,7 @@ import fr.twitteranalyzer.utils.DateUtils;
 
 public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
-	private static final String TOP_TWEETERS_FACETS = "top_tweeters";
+	private static final String TERMS_PROPERTY = "terms";
 
 	public ByPersonAnalyzer() throws AnalyzerException {
 		client = getElasticSearchClient(ELASTICSEARCH_HOST, ELASTICSEARCH_PORT);
@@ -49,8 +49,8 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		// Do nothing
 	}
 
-	public void runAnalysis(Date from, Date to) throws AnalyzerException {
-		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(from, to);
+	public void runAnalysis(Date date) throws AnalyzerException {
+		List<Entry<String, Integer>> tweetLeague = queryTopTweeters(date);
 		System.out.println("Downloaded " + tweetLeague.size() + " twitters in the league.");
 
 		int elements = tweetLeague.size();
@@ -58,9 +58,9 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			Entry<String, Integer> curUser = tweetLeague.get(i);
 			// System.out.println("Getting " + curUser.getValue() +
 			// " tweets of user " + curUser.getKey() + ".");
-			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), from, to);
+			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), date);
 
-			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEXNAME, BYPERSONTYPE,
+			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEX_NAME, BYPERSON_TYPE,
 					tweetsByPerson.getId());
 			requestBuilder.setSource(tweetsByPerson.toJsonDocument());
 			requestBuilder.execute().actionGet();
@@ -68,7 +68,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 	}
 
 	protected Client getElasticSearchClient(String hostname, int port) {
-		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CUSTERNAME).build();
+		Settings settings = ImmutableSettings.settingsBuilder().put(CLUSTER_NAME_PROPERTY, CUSTERNAME).build();
 
 		TransportClient transportClient = new TransportClient(settings);
 		transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress(hostname, port));
@@ -76,17 +76,17 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		return transportClient;
 	}
 
-	public List<Entry<String, Integer>> queryTopTweeters(Date from, Date to) throws AnalyzerException {
+	public List<Entry<String, Integer>> queryTopTweeters(Date date) throws AnalyzerException {
 		try {
 			int hugenumber = 10000000;
 			List<Entry<String, Integer>> topTweeters = new ArrayList<Entry<String, Integer>>();
 
 			FilterBuilder filter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
-					.from(DateUtils.firstSecondDate(from)).to(DateUtils.lastSecondDate(to));
+					.from(DateUtils.firstSecondDate(date)).to(DateUtils.lastSecondDate(date));
 			FacetBuilder facets = FacetBuilders.termsFacet(TOP_TWEETERS_FACETS)
 					.field(TweetsFields.USERID.getFieldName()).size(hugenumber).facetFilter(filter);
 
-			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEXNAME).setTypes(TWEETSTYPE);
+			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_NAME).setTypes(TWEETS_TYPE);
 			requestBuilder.addFacet(facets);
 			requestBuilder.setFrom(0);
 			requestBuilder.setSize(0);
@@ -94,7 +94,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			SearchResponse response = requestBuilder.execute().actionGet();
 
 			for (Facet facet : response.getFacets().facets()) {
-				if (facet.getType().equals("terms")) {
+				if (facet.getType().equals(TERMS_PROPERTY)) {
 					for (TermsFacet.Entry te : ((TermsFacet) facet).getEntries()) {
 						SimpleEntry<String, Integer> simpleEntry = new AbstractMap.SimpleEntry<String, Integer>(te
 								.getTerm().toString(), te.getCount());
@@ -109,14 +109,13 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		}
 	}
 
-	public ByPersonTweets getAllTweetsForUserId(String user, long number, Date from, Date to)
-			throws AnalyzerException {
+	public ByPersonTweets getAllTweetsForUserId(String user, long number, Date date) throws AnalyzerException {
 		try {
 			FilterBuilder dateFilter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
-					.from(DateUtils.firstSecondDate(from)).to(DateUtils.lastSecondDate(to));
+					.from(DateUtils.firstSecondDate(date)).to(DateUtils.lastSecondDate(date));
 			FilterBuilder userFilter = FilterBuilders.termFilter(TweetsFields.USERID.getFieldName(), user);
 
-			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEXNAME).setTypes(TWEETSTYPE);
+			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_NAME).setTypes(TWEETS_TYPE);
 			requestBuilder.setFilter(FilterBuilders.andFilter(dateFilter).add(userFilter));
 			requestBuilder.setFrom(0);
 			requestBuilder.setSize((int) number);
@@ -147,9 +146,10 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 				Double curRelevance = (Double) hits[i].field(TweetsFields.RELEVANCE.getFieldName()).getValue();
 				relevance += curRelevance.floatValue();
 			}
-
-			tweetsByPerson.setHappiness(happiness / number);
-			tweetsByPerson.setRelevance(relevance / number);
+			happiness /= number;
+			relevance /= number;
+			tweetsByPerson.setHappiness(happiness);
+			tweetsByPerson.setRelevance(relevance);
 
 			return tweetsByPerson;
 		} catch (Exception ex) {
