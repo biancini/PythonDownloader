@@ -63,7 +63,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
 	public void runAnalysis(Date date) throws AnalyzerException {
 		List<Entry<Long, Integer>> tweetLeague = queryTopTweeters(date);
-		LoggerUtils.writeLog("Downloaded " + tweetLeague.size() + " twitters in the league.", false);
+		LoggerUtils.info("Downloaded " + tweetLeague.size() + " twitters in the league.");
 
 		int elements = tweetLeague.size();
 		for (int i = 0; i < elements; ++i) {
@@ -186,7 +186,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 				tweetsByPerson.setDate(value);
 			}
 		} catch (ParseException e) {
-			LoggerUtils.writeLog("Error while parsing date.", true);
+			LoggerUtils.error("Error while parsing date.", e);
 		}
 
 		if (tweetsByPerson.getLocation() == null) {

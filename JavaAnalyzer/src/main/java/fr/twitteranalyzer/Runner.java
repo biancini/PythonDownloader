@@ -39,10 +39,9 @@ public class Runner {
 			ByPersonAnalyzer analyzer = new ByPersonAnalyzer(source, destination);
 			analyzer.runAnalysis(date);
 
-			LoggerUtils.writeLog("Finished.", false);
+			LoggerUtils.info("Finished.");
 		} catch (AnalyzerException e) {
-			LoggerUtils.writeLog(e.getMessage(), true);
-			e.printStackTrace();
+			LoggerUtils.error(e.getMessage(), e);
 		}
 	}
 
