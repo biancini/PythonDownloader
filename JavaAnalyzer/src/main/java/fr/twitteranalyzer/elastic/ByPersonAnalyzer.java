@@ -29,6 +29,7 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import fr.twitteranalyzer.Analyzer;
 import fr.twitteranalyzer.exceptions.AnalyzerException;
 import fr.twitteranalyzer.model.ByPersonTweets;
+import fr.twitteranalyzer.model.ElasticSearchConnection;
 import fr.twitteranalyzer.model.TweetsFields;
 import fr.twitteranalyzer.utils.CoordinatesUtils;
 import fr.twitteranalyzer.utils.DateUtils;
@@ -38,8 +39,18 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
 	private static final String TERMS_PROPERTY = "terms";
 
-	public ByPersonAnalyzer() throws AnalyzerException {
-		client = getElasticSearchClient(ELASTICSEARCH_HOST, ELASTICSEARCH_PORT);
+	public ByPersonAnalyzer(ElasticSearchConnection source, ElasticSearchConnection destination)
+			throws AnalyzerException {
+		if (source == null) {
+			source = new ElasticSearchConnection();
+		}
+
+		if (destination == null) {
+			destination = new ElasticSearchConnection();
+		}
+
+		clientSource = getElasticSearchClient(source);
+		clientDestination = getElasticSearchClient(destination);
 	}
 
 	public String getJobName() {
@@ -61,18 +72,23 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			// " tweets of user " + curUser.getKey() + ".", false);
 			ByPersonTweets tweetsByPerson = getAllTweetsForUserId(curUser.getKey(), curUser.getValue(), date);
 
-			IndexRequestBuilder requestBuilder = client.prepareIndex(INDEX_NAME, BYPERSON_TYPE, tweetsByPerson
-					.getId().toString());
+			IndexRequestBuilder requestBuilder = clientDestination.prepareIndex(INDEX_NAME, BYPERSON_TYPE,
+					tweetsByPerson.getId().toString());
 			requestBuilder.setSource(tweetsByPerson.toJsonDocument());
 			requestBuilder.execute().actionGet();
 		}
 	}
 
-	protected Client getElasticSearchClient(String hostname, int port) {
-		Settings settings = ImmutableSettings.settingsBuilder().put(CLUSTER_NAME_PROPERTY, CUSTERNAME).build();
+	protected Client getElasticSearchClient(ElasticSearchConnection connection) {
+		String clusterName = connection.getClusterName();
+		String elasticSearchHost = connection.getElasticSearchHost();
+		int elasticSearchPort = connection.getElasticSearchPort();
+
+		Settings settings = ImmutableSettings.settingsBuilder().put(CLUSTER_NAME_PROPERTY, clusterName).build();
 
 		TransportClient transportClient = new TransportClient(settings);
-		transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress(hostname, port));
+		transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress(elasticSearchHost,
+				elasticSearchPort));
 
 		return transportClient;
 	}
@@ -87,7 +103,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			FacetBuilder facets = FacetBuilders.termsFacet(TOP_TWEETERS_FACETS)
 					.field(TweetsFields.USERID.getFieldName()).size(hugenumber).facetFilter(filter);
 
-			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_NAME).setTypes(TWEETS_TYPE);
+			SearchRequestBuilder requestBuilder = clientSource.prepareSearch(INDEX_NAME).setTypes(TWEETS_TYPE);
 			requestBuilder.addFacet(facets);
 			requestBuilder.setFrom(0);
 			requestBuilder.setSize(0);
@@ -119,7 +135,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 					.from(DateUtils.firstSecondDate(date)).to(DateUtils.lastSecondDate(date));
 			FilterBuilder userFilter = FilterBuilders.termFilter(TweetsFields.USERID.getFieldName(), user);
 
-			SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_NAME).setTypes(TWEETS_TYPE);
+			SearchRequestBuilder requestBuilder = clientSource.prepareSearch(INDEX_NAME).setTypes(TWEETS_TYPE);
 			requestBuilder.setFilter(FilterBuilders.andFilter(dateFilter).add(userFilter));
 			requestBuilder.setFrom(0);
 			requestBuilder.setSize((int) number);
