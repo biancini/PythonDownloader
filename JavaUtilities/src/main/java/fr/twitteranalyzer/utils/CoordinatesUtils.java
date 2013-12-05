@@ -1,5 +1,7 @@
 package fr.twitteranalyzer.utils;
 
+import java.util.List;
+
 import org.elasticsearch.common.geo.GeoPoint;
 
 public final class CoordinatesUtils {
@@ -33,5 +35,14 @@ public final class CoordinatesUtils {
 		floatValues[1] = Float.parseFloat(strValues[1]);
 
 		return floatValues;
+	}
+
+	public static boolean isPointInKml(GeoPoint point, List<GeoPoint> coordinates) {
+		for (GeoPoint coordinate : coordinates) {
+			System.out.println(coordinate.getLat());
+			System.out.println(coordinate.getLon());
+		}
+
+		return false;
 	}
 }

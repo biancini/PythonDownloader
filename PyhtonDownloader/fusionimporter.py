@@ -42,6 +42,27 @@ if __name__ == "__main__":
   result_set = json.loads(response)
 
   for row in result_set['rows']:
+    if 'geometry' in row[7]:
+      coords = row[7]['geometry']['coordinates'][0]
+      newcoords = []
+      for coord in coords:
+        newcoords.append(coord[::-1])
+
+      row[7]['geometry']['coordinates'][0] = newcoords
+      row[7] = json.dumps(row[7])
+    elif 'type' in row[7] and row[7]['type'] == 'GeometryCollection':
+      polygons = row[7]['geometries']
+      for polygon in polygons:
+        coords = polygon['coordinates'][0]
+        newcoords = []
+        for coord in coords:
+          newcoords.append(coord[::-1])
+        polygon['coordinates'][0] = newcoords
+      row[7] = json.dumps(row[7])
+    else:
+      print "Wrong type in fusion table KML field."
+      break
+
     vals = (int(row[0]),
             row[1].replace('\'', '\\\''),
             row[2].replace('\'', '\\\''),
@@ -49,6 +70,7 @@ if __name__ == "__main__":
             row[4].replace('\'', '\\\''),
             row[5].replace('\'', '\\\''),
             row[6].replace('\'', '\\\''),
-            str(row[7]).replace('\'', '\\\''))
+            row[7].replace('\'', '\\\''))
 
+    #print vals
     backend.InsertFrenchDepartments(vals)

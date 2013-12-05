@@ -7,7 +7,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
 
 import fr.twitteranalyzer.Analyzer;
-import fr.twitteranalyzer.exceptions.AnalyzerException;
+import fr.twitteranalyzer.exceptions.UtilsException;
 
 public class ByPersonAnalyzer extends MapReduceAnalyzerImpl implements Analyzer {
 
@@ -32,12 +32,12 @@ public class ByPersonAnalyzer extends MapReduceAnalyzerImpl implements Analyzer 
 		return stringDate;
 	}
 
-	public void runAnalysis(Date date) throws AnalyzerException {
+	public void runAnalysis(Date date) throws UtilsException {
 		try {
 			GeneralCombiner combiner = new GeneralCombiner(getMapReduceJob(date));
 			ToolRunner.run(getMapReduceConfiguration(date), combiner, null);
 		} catch (Exception e) {
-			throw new AnalyzerException(e);
+			throw new UtilsException(e);
 		}
 	}
 }

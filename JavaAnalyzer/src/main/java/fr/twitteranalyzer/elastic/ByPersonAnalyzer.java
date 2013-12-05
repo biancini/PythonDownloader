@@ -12,12 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -27,12 +22,13 @@ import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 
 import fr.twitteranalyzer.Analyzer;
-import fr.twitteranalyzer.exceptions.AnalyzerException;
+import fr.twitteranalyzer.exceptions.UtilsException;
 import fr.twitteranalyzer.model.ByPersonTweets;
 import fr.twitteranalyzer.model.ElasticSearchConnection;
 import fr.twitteranalyzer.model.TweetsFields;
 import fr.twitteranalyzer.utils.CoordinatesUtils;
 import fr.twitteranalyzer.utils.DateUtils;
+import fr.twitteranalyzer.utils.ElasticSearchUtils;
 import fr.twitteranalyzer.utils.LoggerUtils;
 
 public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
@@ -40,7 +36,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 	private static final String TERMS_PROPERTY = "terms";
 
 	public ByPersonAnalyzer(ElasticSearchConnection source, ElasticSearchConnection destination)
-			throws AnalyzerException {
+			throws UtilsException {
 		if (source == null) {
 			source = new ElasticSearchConnection();
 		}
@@ -49,8 +45,8 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			destination = new ElasticSearchConnection();
 		}
 
-		clientSource = getElasticSearchClient(source);
-		clientDestination = getElasticSearchClient(destination);
+		clientSource = ElasticSearchUtils.getElasticSearchClient(source);
+		clientDestination = ElasticSearchUtils.getElasticSearchClient(destination);
 	}
 
 	public String getJobName() {
@@ -61,7 +57,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		// Do nothing
 	}
 
-	public void runAnalysis(Date date) throws AnalyzerException {
+	public void runAnalysis(Date date) throws UtilsException {
 		List<Entry<Long, Integer>> tweetLeague = queryTopTweeters(date);
 		LoggerUtils.info("Downloaded " + tweetLeague.size() + " twitters in the league.");
 
@@ -79,21 +75,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 		}
 	}
 
-	protected Client getElasticSearchClient(ElasticSearchConnection connection) {
-		String clusterName = connection.getClusterName();
-		String elasticSearchHost = connection.getElasticSearchHost();
-		int elasticSearchPort = connection.getElasticSearchPort();
-
-		Settings settings = ImmutableSettings.settingsBuilder().put(CLUSTER_NAME_PROPERTY, clusterName).build();
-
-		TransportClient transportClient = new TransportClient(settings);
-		transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress(elasticSearchHost,
-				elasticSearchPort));
-
-		return transportClient;
-	}
-
-	protected List<Entry<Long, Integer>> queryTopTweeters(Date date) throws AnalyzerException {
+	protected List<Entry<Long, Integer>> queryTopTweeters(Date date) throws UtilsException {
 		try {
 			int hugenumber = 10000000;
 			List<Entry<Long, Integer>> topTweeters = new ArrayList<Entry<Long, Integer>>();
@@ -125,11 +107,11 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
 			return topTweeters;
 		} catch (Exception ex) {
-			throw new AnalyzerException(ex.getMessage());
+			throw new UtilsException(ex.getMessage());
 		}
 	}
 
-	protected ByPersonTweets getAllTweetsForUserId(Long user, long number, Date date) throws AnalyzerException {
+	protected ByPersonTweets getAllTweetsForUserId(Long user, long number, Date date) throws UtilsException {
 		try {
 			FilterBuilder dateFilter = FilterBuilders.rangeFilter(TweetsFields.CREATEDAT.getFieldName())
 					.from(DateUtils.firstSecondDate(date)).to(DateUtils.lastSecondDate(date));
@@ -150,7 +132,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 			if (response.getHits().getTotalHits() < number) {
 				String errMessage = "Downloaded tweets differ from total number expected";
 				errMessage += " (" + response.getHits().getTotalHits() + " instead of " + number + ")";
-				throw new AnalyzerException(errMessage);
+				throw new UtilsException(errMessage);
 			}
 
 			ByPersonTweets tweetsByPerson = new ByPersonTweets(user);
@@ -173,7 +155,7 @@ public class ByPersonAnalyzer extends ElasticAnalyzerImpl implements Analyzer {
 
 			return tweetsByPerson;
 		} catch (Exception ex) {
-			throw new AnalyzerException(ex.getMessage());
+			throw new UtilsException(ex.getMessage());
 		}
 	}
 

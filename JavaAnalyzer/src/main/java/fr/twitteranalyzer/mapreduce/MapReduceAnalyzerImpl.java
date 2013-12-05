@@ -11,14 +11,14 @@ import org.elasticsearch.hadoop.mr.ESInputFormat;
 import org.elasticsearch.hadoop.mr.ESOutputFormat;
 
 import fr.twitteranalyzer.Analyzer;
-import fr.twitteranalyzer.exceptions.AnalyzerException;
+import fr.twitteranalyzer.exceptions.UtilsException;
 
 public abstract class MapReduceAnalyzerImpl implements Analyzer {
 
 	public static final String elasticSearchHost = "localhost";
 	public static final int elasticSearchPort = 9200;
 
-	public abstract void runAnalysis(Date date) throws AnalyzerException;
+	public abstract void runAnalysis(Date date) throws UtilsException;
 
 	public abstract String getJobName();
 

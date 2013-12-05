@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 import fr.twitteranalyzer.elastic.ByPersonAnalyzer;
-import fr.twitteranalyzer.exceptions.AnalyzerException;
+import fr.twitteranalyzer.exceptions.UtilsException;
 import fr.twitteranalyzer.model.ElasticSearchConnection;
 import fr.twitteranalyzer.utils.LoggerUtils;
 
@@ -40,7 +40,7 @@ public class Runner {
 			analyzer.runAnalysis(date);
 
 			LoggerUtils.info("Finished.");
-		} catch (AnalyzerException e) {
+		} catch (UtilsException e) {
 			LoggerUtils.error(e.getMessage(), e);
 		}
 	}
