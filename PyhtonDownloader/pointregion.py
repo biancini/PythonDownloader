@@ -7,7 +7,7 @@ from TwitterEngine import BackendChooser
 from shapely.geometry import shape, Point
 
 def CheckPointInKml(kml_db, lat, lng):
-  p = Point(lng, lat)
+  p = Point(lat, lng)
 
   if 'geometry' in kml_db:
     kml_json = json.loads(json.dumps(kml_db['geometry']))

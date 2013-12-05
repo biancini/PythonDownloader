@@ -4,6 +4,8 @@ __date__ = "October 2, 2013"
 import requests
 import json
 
+from datetime import datetime
+
 from backend import Backend, BackendError
 from secrets import es_server
 
@@ -131,7 +133,8 @@ class ElasticSearchBackend(Backend):
         for hit in ret['hits']['hits']:
           curhit = []
           if 'created_at' in hit['fields'] and 'coordinates' in hit['fields']:
-            curhit.append(hit['fields']['created_at'])
+            created_at = datetime.strptime(hit['fields']['created_at'], '%Y-%m-%d %H:%M:%S')
+            curhit.append(created_at)
             coordinates = hit['fields']['coordinates']
             if ',' in coordinates:
               curhit.append(coordinates.split(',')[1])
@@ -140,6 +143,7 @@ class ElasticSearchBackend(Backend):
               curhit.append(None)
               curhit.append(None)
             tweets.append(curhit)
+            #print "new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1])
 
         last = ret['hits']['total']
         start += pagesize
@@ -212,7 +216,7 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
-    print "Inserting row for %s, %s." % (vals[2], vals[4])
+    print "Inserting row for %s, %s." % (vals[2], vals[6])
     try:
       data = { 'ID_GEOFLA' : vals[0],
                'CODE_DEPT' : vals[1],

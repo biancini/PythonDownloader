@@ -6,7 +6,8 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 from twitterapi import TwitterApiCall
-from mysqlbackend import MySQLBackend
+#from mysqlbackend import MySQLBackend
+from elasticsearchbackend import ElasticSearchBackend
 
 
 class DrawMap(TwitterApiCall): 
@@ -16,7 +17,7 @@ class DrawMap(TwitterApiCall):
 
   def __init__(self, auth_type):
     super(DrawMap, self).__init__(auth_type)
-    self.backend = MySQLBackend()
+    self.backend = ElasticSearchBackend()
 
   def GetXY(self, size, lat, lng):
     x = size[0] * (lng - self.lower_left[1]) / (self.top_right[1] - self.lower_left[1])
