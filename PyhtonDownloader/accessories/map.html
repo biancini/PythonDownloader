@@ -1,162 +1,157 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Heatmaps</title>
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0px;
-        padding: 0px;
-		overflow: hidden;
-		scroll: no;
-      }
-	  #map-canvas {
-        margin: 0px;
-        padding: 0px;
-      }
-	  #panel {
-        position: absolute;
-        left: 50%;
-        margin-left: -180px;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-      }
-	  #graph {
-	    position: absolute;
-        bottom: 0px;
-        left: 0px;
-        background-color: #fff;
-        padding: 0px;
-		height: 200px;	
-	  }
-    </style>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=visualization"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-	<!--
-	var heatmap;
-	google.load('visualization', '1', {packages: ['annotatedtimeline']});
-	
-    function initializeMap(jsonTweets) {
-      var mapOptions = {
-        zoom: 6,
-        center: new google.maps.LatLng(45.776665, 3.07723),
-        mapTypeId: google.maps.MapTypeId.SATELLITE
-      };
-      var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-	  
-	  heatmap = new google.maps.visualization.HeatmapLayer();
-	  heatmap.set('radius', 20);
-      heatmap.setMap(map);
-	  setMapData(jsonTweets, null, null);
-    }
-	
-	function setMapData(jsonTweets, dateFrom, dateTo) {
-	  var tweetData = [];
-	  for (var i = 0; i < jsonTweets["hits"]["hits"].length; i++) {
-        var tweet = jsonTweets["hits"]["hits"][i]["_source"];
-		if (tweet["coordinates"] != null) {
-		    var coordinates = tweet["coordinates"].split(",");
-			var created_at = new Date(tweet["created_at"].replace(" ", "T") + "+00:00");
-			
-		    if ((!dateFrom || (created_at - dateFrom) >= 0) && (!dateTo || (created_at - dateTo) <= 0)) {
-				tweetData.push(new google.maps.LatLng(parseFloat(coordinates[0]), parseFloat(coordinates[1])));
-			}
+	<head>
+		<meta charset="utf-8">
+		<title>Heatmaps</title>
+		<style>
+		html, body {
+			height: 100%;
+			margin: 0px;
+			padding: 0px;
+			overflow: hidden;
+			scroll: no;
 		}
-	  }
-	
-	  var pointArray = new google.maps.MVCArray(tweetData);
-	  heatmap.setData(pointArray);
-    }
-	
-	function groupTweetsByMinute(jsonTweets) {
-      var tweetByMinute = {};
-	  for (var i = 0; i < jsonTweets["hits"]["hits"].length; i++) {
-        var tweet = jsonTweets["hits"]["hits"][i]["_source"];
-		if (tweet["coordinates"] != null) {
-			var created_at = new Date(tweet["created_at"].replace(" ", "T") + "+00:00");
-			created_at.setSeconds(0);
-			var key = created_at.toString('yyyy-MM-dd HH:mm:ss');
-			
-			if (tweetByMinute[key] === undefined) {
-				tweetByMinute[key] = 1;
-			}
-			else {
-				tweetByMinute[key] = tweetByMinute[key] + 1;
-			}
+		#map-canvas {
+			margin: 0px;
+			padding: 0px;
 		}
-	  }
-	  return tweetByMinute;
-	}
+		#panel {
+			position: absolute;
+			left: 50%;
+			margin-left: -112px;
+			z-index: 5;
+			background-color: #fff;
+			padding: 5px;
+			border: 1px solid #999;
+		}
+		#graph {
+			position: absolute;
+			bottom: 0px;
+			left: 0px;
+			background-color: #fff;
+			padding: 0px;
+			height: 200px;	
+		}
+		</style>
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=visualization"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+		var heatmap;
+		google.load('visualization', '1', {packages: ['annotatedtimeline']});
 	
-	function initializeGraph(jsonTweets) {
-	   var data = new google.visualization.DataTable();
-	   data.addColumn('datetime', 'Minute');
-	   data.addColumn('number', 'Tweets');
-	   
-	   var tweetByMinute = groupTweetsByMinute(jsonTweets);
-	   for (var key in tweetByMinute) {
-		  data.addRow([new Date(key), tweetByMinute[key]]);
-	   }
-	   
-	   var options = {
-	     'displayAnnotations': false,
-		 'dateformat': 'yyyy-MM-dd HH:mm',
-		 'displayZoomButtons': false,
-	   };
-	   var annotatedtimeline = new google.visualization.AnnotatedTimeLine(document.getElementById('graph'));
-	   annotatedtimeline.draw(data, options);
-	   
-	   google.visualization.events.addListener(annotatedtimeline, 'rangechange', function(){
-		  setMapData(jsonTweets, annotatedtimeline.getVisibleChartRange().start, annotatedtimeline.getVisibleChartRange().end);
-        });
-    }
+		function initializeMap(jsonTweets) {
+			var mapOptions = {
+				zoom: 6,
+				center: new google.maps.LatLng(45.776665, 3.07723),
+				mapTypeId: google.maps.MapTypeId.SATELLITE
+			};
+			var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+			heatmap = new google.maps.visualization.HeatmapLayer();
+			heatmap.set('radius', 20);
+			heatmap.setMap(map);
+			setMapData(jsonTweets, null, null);
+		}
 	
-	function initializeWithData() {
-		$.ajax({
+		function setMapData(jsonTweets, dateFrom, dateTo) {
+			var tweetData = [];
+			for (var i = 0; i < jsonTweets["hits"]["hits"].length; i++) {
+				var tweet = jsonTweets["hits"]["hits"][i]["_source"];
+				if (tweet["coordinates"] != null) {
+					var coordinates = tweet["coordinates"].split(",");
+					var created_at = new Date(tweet["created_at"].replace(" ", "T") + "+00:00");
+
+					if ((!dateFrom || (created_at - dateFrom) >= 0) && (!dateTo || (created_at - dateTo) <= 0)) {
+						tweetData.push(new google.maps.LatLng(parseFloat(coordinates[0]), parseFloat(coordinates[1])));
+					}
+				}
+			}
+	
+			var pointArray = new google.maps.MVCArray(tweetData);
+			heatmap.setData(pointArray);
+		}
+
+		function groupTweetsByMinute(jsonTweets) {
+			var tweetByMinute = {};
+			for (var i = 0; i < jsonTweets["hits"]["hits"].length; i++) {
+				var tweet = jsonTweets["hits"]["hits"][i]["_source"];
+				if (tweet["coordinates"] != null) {
+					var created_at = new Date(tweet["created_at"].replace(" ", "T") + "+00:00");
+					created_at.setSeconds(0);
+					var key = created_at.toString('yyyy-MM-dd HH:mm:ss');
+
+					if (tweetByMinute[key] === undefined) {
+						tweetByMinute[key] = 1;
+					} else {
+						tweetByMinute[key] = tweetByMinute[key] + 1;
+					}
+				}
+			}
+			return tweetByMinute;
+		}
+	
+		function initializeGraph(jsonTweets) {
+			var data = new google.visualization.DataTable();
+			data.addColumn('datetime', 'Minute');
+			data.addColumn('number', 'Tweets');
+	   
+			var tweetByMinute = groupTweetsByMinute(jsonTweets);
+			for (var key in tweetByMinute) {
+				data.addRow([new Date(key), tweetByMinute[key]]);
+			}
+	   
+			var options = {
+				'displayAnnotations': f	alse,
+				'dateformat': 'yyyy-MM-dd HH:mm',
+				'displayZoomButtons': false,
+			};
+			var annotatedtimeline = new google.visualization.AnnotatedTimeLine(document.getElementById('graph'));
+			annotatedtimeline.draw(data, options);
+
+			google.visualization.events.addListener(annotatedtimeline, 'rangechange', function(){
+				setMapData(jsonTweets, annotatedtimeline.getVisibleChartRange().start, annotatedtimeline.getVisibleChartRange().end);
+			});
+		}
+
+		function initializeWithData() {
+			$.ajax({
 				url: 'tweets.json',
 				dataType: 'json',
 				success: function(response) {
 					var jsonTweets = response;
-					
+
 					initializeGraph(jsonTweets);
 					initializeMap(jsonTweets);
 				}
+			});
+		}
+	
+		function updateSizes() {
+			var graph_height = $('#graph').height();
+			var remaining_height = parseInt($(window).height() - graph_height); 
+			$('#map-canvas').height(remaining_height); 
+			$('#panel').css("bottom",  (graph_height + 5) + "px");
+			$('#graph').width($(window).width()); 
+		}
+
+		$(document).ready(function() {
+			updateSizes();
+			initializeWithData();
 		});
-	}
 	
-	function updateSizes() {
-		var graph_height = $('#graph').height();
-        var remaining_height = parseInt($(window).height() - graph_height); 
-        $('#map-canvas').height(remaining_height); 
-		$('#panel').css("bottom",  (graph_height + 5) + "px");
-		$('#graph').width($(window).width()); 
-	}
+		$(window).resize(function() {
+			updateSizes();
+		});
+		</script>
+	</head>
 
-	$(document).ready(function() {
-		updateSizes();
-		initializeWithData();
-	});
-	
-	$(window).resize(function() {
-		updateSizes();
-	});
-	// -->
-	</script>
-  </head>
-
-  <body>
-    <div id="panel">
-      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-      <button onclick="changeGradient()">Change gradient</button>
-      <button onclick="changeRadius()">Change radius</button>
-      <button onclick="changeOpacity()">Change opacity</button>
-    </div>
-    <div id="map-canvas"></div>
-	<div id="graph"></div>
-  </body>
+	<body>
+		<div id="panel">
+			<button onclick="resetConfigs()">Reset Configs</button>
+			<button onclick="startStopAnimation()">Start Animation</button>
+		</div>
+		<div id="map-canvas"></div>
+		<div id="graph"></div>
+	</body>
 </html>
