@@ -37,13 +37,16 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 		<script type="text/javascript">
-		var heatmap;
+		var heatmap, annotatedtimeline;
+		var jsonTweets, timer;
+		var dateStart, dateEnd, moveTime;
+
 		google.load('visualization', '1', {packages: ['annotatedtimeline']});
 	
-		function initializeMap(jsonTweets) {
+		function initializeMap() {
 			var mapOptions = {
 				zoom: 6,
-				center: new google.maps.LatLng(45.776665, 3.07723),
+				center: new google.maps.LatLng(46.776665, 3.07723),
 				mapTypeId: google.maps.MapTypeId.SATELLITE
 			};
 			var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -51,10 +54,10 @@
 			heatmap = new google.maps.visualization.HeatmapLayer();
 			heatmap.set('radius', 20);
 			heatmap.setMap(map);
-			setMapData(jsonTweets, null, null);
+			setMapData(null, null);
 		}
 	
-		function setMapData(jsonTweets, dateFrom, dateTo) {
+		function setMapData(dateFrom, dateTo) {
 			var tweetData = [];
 			for (var i = 0; i < jsonTweets["hits"]["hits"].length; i++) {
 				var tweet = jsonTweets["hits"]["hits"][i]["_source"];
@@ -72,7 +75,7 @@
 			heatmap.setData(pointArray);
 		}
 
-		function groupTweetsByMinute(jsonTweets) {
+		function groupTweetsByMinute() {
 			var tweetByMinute = {};
 			for (var i = 0; i < jsonTweets["hits"]["hits"].length; i++) {
 				var tweet = jsonTweets["hits"]["hits"][i]["_source"];
@@ -91,26 +94,33 @@
 			return tweetByMinute;
 		}
 	
-		function initializeGraph(jsonTweets) {
+		function initializeGraph() {
 			var data = new google.visualization.DataTable();
 			data.addColumn('datetime', 'Minute');
 			data.addColumn('number', 'Tweets');
 	   
-			var tweetByMinute = groupTweetsByMinute(jsonTweets);
+			var tweetByMinute = groupTweetsByMinute();
 			for (var key in tweetByMinute) {
 				data.addRow([new Date(key), tweetByMinute[key]]);
 			}
 	   
 			var options = {
-				'displayAnnotations': f	alse,
+				'displayAnnotations': false,
 				'dateformat': 'yyyy-MM-dd HH:mm',
 				'displayZoomButtons': false,
 			};
-			var annotatedtimeline = new google.visualization.AnnotatedTimeLine(document.getElementById('graph'));
+			annotatedtimeline = new google.visualization.AnnotatedTimeLine(document.getElementById('graph'));
+
+			google.visualization.events.addListener(annotatedtimeline, 'ready', function(){
+				dateStart = new Date(annotatedtimeline.getVisibleChartRange().start.getTime());
+				dateEnd = new Date(annotatedtimeline.getVisibleChartRange().end.getTime());
+				moveTime = Math.floor(10 * (dateEnd.getTime() - dateStart.getTime()) / $('#graph').width());
+			});
+
 			annotatedtimeline.draw(data, options);
 
 			google.visualization.events.addListener(annotatedtimeline, 'rangechange', function(){
-				setMapData(jsonTweets, annotatedtimeline.getVisibleChartRange().start, annotatedtimeline.getVisibleChartRange().end);
+				setMapData(annotatedtimeline.getVisibleChartRange().start, annotatedtimeline.getVisibleChartRange().end);
 			});
 		}
 
@@ -119,12 +129,42 @@
 				url: 'tweets.json',
 				dataType: 'json',
 				success: function(response) {
-					var jsonTweets = response;
+					jsonTweets = response;
 
-					initializeGraph(jsonTweets);
-					initializeMap(jsonTweets);
+					initializeGraph();
+					initializeMap();
 				}
 			});
+		}
+
+		function moveRange() {
+			var start = new Date(annotatedtimeline.getVisibleChartRange().start.getTime() + moveTime);
+			var end = new Date(annotatedtimeline.getVisibleChartRange().end.getTime() + moveTime);
+			if (end > dateEnd) {
+				startStopAnimation();
+			} else {
+				setMapData(start, end);
+				annotatedtimeline.setVisibleChartRange(start, end);
+			}
+			window.update();
+		}
+
+		function startStopAnimation() {
+			if ($('#animation').html() == "Start Animation") {
+				$('#animation').text("Stop Animation");
+
+				var start = new Date(annotatedtimeline.getVisibleChartRange().start.getTime());
+				var end = new Date(start.getTime() + 10*60000);
+
+				setMapData(start, end);
+				annotatedtimeline.setVisibleChartRange(start, end);
+
+				timer = setInterval(moveRange, 300);
+			} else {
+				$('#animation').text("Start Animation");
+
+				if (timer !== undefined) clearInterval(timer);
+			}
 		}
 	
 		function updateSizes() {
@@ -133,6 +173,11 @@
 			$('#map-canvas').height(remaining_height); 
 			$('#panel').css("bottom",  (graph_height + 5) + "px");
 			$('#graph').width($(window).width()); 
+		}
+
+		function resetConfigs() {
+			setMapData(null, null);
+			annotatedtimeline.setVisibleChartRange(dateStart, dateEnd);
 		}
 
 		$(document).ready(function() {
@@ -148,8 +193,8 @@
 
 	<body>
 		<div id="panel">
-			<button onclick="resetConfigs()">Reset Configs</button>
-			<button onclick="startStopAnimation()">Start Animation</button>
+			<button id="config" onclick="resetConfigs()">Reset Configs</button>
+			<button id="animation" onclick="startStopAnimation()">Start Animation</button>
 		</div>
 		<div id="map-canvas"></div>
 		<div id="graph"></div>
