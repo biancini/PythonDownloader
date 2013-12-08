@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Heatmaps</title>
+		<link rel="stylesheet" type="text/css" href="css/heatmap.css">
+		<script type="text/javascript" src="js/googleapis.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="js/dygraph-combined.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
+	</head>
+
+	<body>
+		<div id="panel">
+			<button id="config" onclick="resetConfigs()">Reset Configs</button>
+			<button id="animation" onclick="startStopAnimation()">Start Animation</button>
+		</div>
+		<div id="map-canvas"></div>
+		<div id="graph"></div>
+	</body>
+</html>
