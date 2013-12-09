@@ -79,6 +79,8 @@ function initializeGraph() {
 	}
 	dygraph = new Dygraph(document.getElementById("graph"), data, {
 		drawYAxis: false,
+		rollPeriod: 5,
+      		showRoller: false,
 		valueRange: [0, maxNumTweet],
 		zoomCallback: function(minX, maxX, yRanges) {
 			setMapData(minX, maxX);
