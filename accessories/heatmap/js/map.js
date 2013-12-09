@@ -76,7 +76,6 @@ function initializeGraph() {
 	for (var key in tweetByMinute) {
 		data = data + (new Date(key)).toString("yyyy-MM-dd") + "," + tweetByMinute[key] + "\n";
 	}
-	alert(maxNumTweet);
 	dygraph = new Dygraph(document.getElementById("graph"), data, {
 		drawYAxis: false,
 		valueRange: [0, maxNumTweet],
