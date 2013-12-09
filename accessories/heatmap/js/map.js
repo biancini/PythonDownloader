@@ -6,7 +6,7 @@ var animationStart, aminationEnd, moveTime, running;
 function initializeMap() {
 	var mapOptions = {
 		zoom: 6,
-		center: new google.maps.LatLng(46.776665, 3.07723),
+		center: new google.maps.LatLng(46.2, 3.1),
 		mapTypeId: google.maps.MapTypeId.SATELLITE
 	};
 	var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -16,6 +16,7 @@ function initializeMap() {
 	heatmap.set('radius', 0.5);
 	heatmap.setMap(map);
 	setMapData(null, null);
+	heatmap.set('maxIntensity', maxNumTweet/2);
 }
 	
 function setMapData(dateFrom, dateTo) {
@@ -116,7 +117,7 @@ function startStopAnimation() {
 		$('#animation').text("Stop Animation");
 		running = true;
 
-		heatmap.set('maxIntensity', maxNumTweet);
+		heatmap.set('maxIntensity', maxNumTweet/10);
 
 		animationStart = new Date(dateStart.getTime());
 		animationEnd = new Date(dateStart.getTime() + 10*60000);
@@ -128,7 +129,7 @@ function startStopAnimation() {
 		$('#animation').text("Start Animation");
 		running = false;
 
-		heatmap.reset('maxIntensity');
+		heatmap.set('maxIntensity', maxNumTweet/2);
 		dygraph.resetZoom();
 
 		clearInterval(timer);
