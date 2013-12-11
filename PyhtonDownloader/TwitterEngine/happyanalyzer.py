@@ -16,10 +16,10 @@ sys.path.insert(0, lib_path)
 class HappyAnalyzer(object):
   word_list = {}
 
-  def __init__(self):
+  def __init__(self, language):
     print "Initializing Happiness Analyzer..."
     file_path = os.path.dirname(__file__)
-    file_path = os.path.join(file_path, 'words_happiness.txt')
+    file_path = os.path.join(file_path, 'words_%s.txt' % language)
     file_words = open(file_path, 'r')
 
     for curline in file_words:

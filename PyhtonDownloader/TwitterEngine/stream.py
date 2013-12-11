@@ -7,13 +7,13 @@ from backend import BackendChooser, BackendError
 
 class DownloadTweetsStream(TwitterApiCall):
 
-  def __init__(self, engine_name, auth_type):
+  def __init__(self, engine_name, language, auth_type):
     super(DownloadTweetsStream, self).__init__(engine_name, auth_type)
     self.backend = BackendChooser.GetBackend()
 
   def ProcessTweets(self):
-    squares = ['-5.1,43.1,7.3,50.1']  # Rectangle covering all French territory
-    lang = 'fr'  # French language
+    squares = self.filters  # Rectangle covering all French territory
+    lang = self.language
     print 'Executing Twitter API calls '
 
     params = {'locations':','.join(squares)}

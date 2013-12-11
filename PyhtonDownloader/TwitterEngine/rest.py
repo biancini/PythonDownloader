@@ -9,8 +9,8 @@ from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
 
 class DownloadTweetsREST(TwitterApiCall):
-  def __init__(self, engine_name, auth_type):
-    super(DownloadTweetsREST, self).__init__(engine_name, auth_type)
+  def __init__(self, engine_name, language, filters, auth_type):
+    super(DownloadTweetsREST, self).__init__(engine_name, language, filters, auth_type)
     self.backend = BackendChooser.GetBackend()
 
   def GetCurrentLimit(self):
@@ -133,11 +133,10 @@ class DownloadTweetsREST(TwitterApiCall):
     return ritorno
 
   def ProcessTweets(self):
-    lat = 45.776665  # Latitude and longitude of Clermont-Ferrand
-    lng = 3.07723
-    radius = '400km'  # Radius of France territory
+    lat = self.filters[0]
+    lng = self.filters[1]
+    radius = self.filters[2]
     count = 100  # Number of tweets to retrieve (max. 100)
-    lang = 'fr'  # French language
 
     max_ids = [None, None]
     since_ids = [None, None]
@@ -156,7 +155,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
     params = { 'geocode':     ','.join(map(str, (lat, lng, radius))),
                'count':       count,
-               'lang':        lang,
+               'lang':        self.language,
                'result_type': 'recent',
                'max_id':      None,
                'since_id':    None }

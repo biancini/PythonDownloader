@@ -11,7 +11,7 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 			"analyzer": {
 				"tweettext": {
 					"type": "snowball",
-					"language": "French"
+					"language": "English"
 				}
 			}
 		}
