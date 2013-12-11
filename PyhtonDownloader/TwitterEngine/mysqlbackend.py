@@ -72,9 +72,9 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving kmls from DB: %s" % e)
 
-  def GetLastCallIds(self):
+  def GetLastCallIds(self, engine_name):
     try:
-      self.cur.execute("SELECT `key`, `value` from lastcall")
+      self.cur.execute("SELECT `key`, `value` from lastcall WHERE `enginename` = '%s'" % engine_name)
       rows = self.cur.fetchall()
 
       ids = [None, None, None]
@@ -87,27 +87,27 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from DB: %s" % e)
 
-  def UpdateLastCallIds(self, top_id, max_id=None, since_id=None):
+  def UpdateLastCallIds(self, engine_name, top_id, max_id=None, since_id=None):
     print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
     try:
       if top_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'top_id'" % top_id
+        sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'top_id'" % (engine_name, top_id)
       else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'top_id'"
+        sql = "UPDATE lastcall SET `value` = NULL WHERE `enginename` = '%s' AND `key` = 'top_id'" % engine_name
       self.cur.execute(sql)
       self.con.commit()
 
       if max_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'max_id'" % max_id
+        sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'max_id'" % (engine_name, max_id)
       else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'max_id'"
+        sql = "UPDATE lastcall SET `value` = NULL WHERE `enginename` = '%s' AND `key` = 'max_id'" % engine_name
       self.cur.execute(sql)
       self.con.commit()
 
       if since_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `key` = 'since_id'" % since_id
+        sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'since_id'" % (engine_name, since_id)
       else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `key` = 'since_id'"
+        sql = "UPDATE lastcall SET `value` = NULL WHERE `enginename` = '%s' AND `key` = 'since_id'" % engine_name
       self.cur.execute(sql)
       self.con.commit()
     except Exception as e:

@@ -43,6 +43,7 @@ DROP TABLE IF EXISTS `lastcall`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lastcall` (
+  `enginename` varchar(50) NOT NULL,
   `key` varchar(10) NOT NULL,
   `value` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`key`)
