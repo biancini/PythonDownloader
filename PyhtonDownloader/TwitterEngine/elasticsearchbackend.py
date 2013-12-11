@@ -80,11 +80,11 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
 
-  def GetLastCallIds(self):
+  def GetLastCallIds(self, engine_name):
     try:
       data = { 'query' : { 'match_all' : { } } }
       data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/lastcall/_search" % es_server
+      host = "%s/twitter/%s_lastcall/_search" % (es_server, engine_name)
       req = requests.get(host, data=data_json)
       ret = json.loads(req.content)
 
@@ -98,14 +98,14 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
 
-  def UpdateLastCallIds(self, top_id, max_id=None, since_id=None):
+  def UpdateLastCallIds(self, engine_name, top_id, max_id=None, since_id=None):
     print "Updating lastcall with values top_id = %s, max_id = %s and since_id = %s." % (top_id, max_id, since_id)
     try:
       data = { 'top_id'   : top_id,
                'max_id'   : max_id,
                'since_id' : since_id }
       data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/lastcall/1" % es_server
+      host = "%s/twitter/%s_lastcall/1" % (es_server, engine_name)
       req = requests.put(host, data=data_json)
       ret = json.loads(req.content)
       if not ret["ok"]: raise BackendError("Insert not ok")
@@ -143,7 +143,7 @@ class ElasticSearchBackend(Backend):
               curhit.append(None)
               curhit.append(None)
             tweets.append(curhit)
-            #print "new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1])
+            # print "new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1])
 
         last = ret['hits']['total']
         start += pagesize

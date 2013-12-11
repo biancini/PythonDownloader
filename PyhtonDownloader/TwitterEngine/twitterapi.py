@@ -32,12 +32,14 @@ class TwitterApiCall(object):
     return TwitterApiCall.continuerun
 
   api = None
+  engine_name = None
   backend = None
   analyzer = None
   auth_type = None
   apiid = -1
 
-  def __init__(self, auth_type='oAuth2'):
+  def __init__(self, engine_name, auth_type='oAuth2'):
+    self.engine_name = engine_name
     self.auth_type = auth_type
     self.InitializeTwitterApi()
     self.analyzer = HappyAnalyzer()

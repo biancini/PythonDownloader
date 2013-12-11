@@ -9,8 +9,8 @@ from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
 
 class DownloadTweetsREST(TwitterApiCall):
-  def __init__(self, auth_type):
-    super(DownloadTweetsREST, self).__init__(auth_type)
+  def __init__(self, engine_name, auth_type):
+    super(DownloadTweetsREST, self).__init__(engine_name, auth_type)
     self.backend = BackendChooser.GetBackend()
 
   def GetCurrentLimit(self):
@@ -144,7 +144,7 @@ class DownloadTweetsREST(TwitterApiCall):
     top_id = None
 
     try:
-      ret = self.backend.GetLastCallIds()
+      ret = self.backend.GetLastCallIds(self.engine_name)
       max_ids[0] = ret[0]
       since_ids[0] = ret[1]
 
@@ -165,14 +165,14 @@ class DownloadTweetsREST(TwitterApiCall):
       print "Executing set of calls to fill previously unfilled gap..."
       print "Executing call with max_id = %s and since_id = %s" % (max_ids[0], since_ids[0])
       ret = self.PartialProcessTweets(params, top_id, max_ids[0], since_ids[0])
-      self.backend.UpdateLastCallIds(ret[0], ret[1], ret[2])
+      self.backend.UpdateLastCallIds(self.engine_name, ret[0], ret[1], ret[2])
       if ret[0] is not None and ret[1] is not None:
         print "Error with the fill-the-gaps mechanisms."
         return
 
     print "Executing call with max_id = %s and since_id = %s" % (max_ids[1], since_ids[1])
     ret = self.PartialProcessTweets(params, top_id, max_ids[1], since_ids[1])
-    self.backend.UpdateLastCallIds(ret[0], ret[1], ret[2])
+    self.backend.UpdateLastCallIds(self.engine_name, ret[0], ret[1], ret[2])
 
   def AggregateByPerson(self, date):
     tweeters = self.backend.GetAllTweetByPerson(date, date)

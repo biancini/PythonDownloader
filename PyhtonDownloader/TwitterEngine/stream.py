@@ -7,8 +7,8 @@ from backend import BackendChooser, BackendError
 
 class DownloadTweetsStream(TwitterApiCall):
 
-  def __init__(self, auth_type):
-    super(DownloadTweetsStream, self).__init__(auth_type)
+  def __init__(self, engine_name, auth_type):
+    super(DownloadTweetsStream, self).__init__(engine_name, auth_type)
     self.backend = BackendChooser.GetBackend()
 
   def ProcessTweets(self):
