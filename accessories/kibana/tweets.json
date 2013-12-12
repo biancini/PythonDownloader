@@ -29,8 +29,8 @@
       ],
       "list": {
         "0": {
-          "from": "2013-11-14T11:04:23.388Z",
-          "to": "2013-11-15T11:04:23.389Z",
+          "from": "2013-12-12T16:23:37.403Z",
+          "to": "2013-12-12T17:23:37.403Z",
           "field": "created_at",
           "type": "time",
           "mandate": "must",
@@ -71,11 +71,11 @@
             "7d",
             "30d"
           ],
-          "timespan": "24h",
+          "timespan": "1h",
           "timefield": "created_at",
           "timeformat": "",
           "refresh": {
-            "enable": false,
+            "enable": true,
             "interval": 30,
             "min": 3
           },
@@ -141,7 +141,7 @@
           "value_field": null,
           "auto_int": true,
           "resolution": 100,
-          "interval": "10m",
+          "interval": "30s",
           "intervals": [
             "auto",
             "1s",
@@ -209,9 +209,7 @@
           "fields": [
             "created_at",
             "text",
-            "coordinates",
-            "happiness",
-            "relevance"
+            "coordinates"
           ],
           "highlight": [],
           "sortable": true,
