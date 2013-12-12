@@ -36,7 +36,7 @@ class MySQLBackend(Backend):
         if top_id is None or top_id < long(val['id']):
             top_id = long(val['id'])
     except BackendError as e:
-      self.logger.log("Bulk insert not ok for tweet: " % val['id'])
+      self.logger.log("Bulk insert not ok for tweet %s: %s " % (val['id'], e))
       
     return (num_inserted, top_id)
 

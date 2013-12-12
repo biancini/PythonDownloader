@@ -59,7 +59,7 @@ class Engine(object):
         time.sleep(self.waittime)
 
   def download(self, cur_engine):
-    print "Starting engine %s" % cur_engine.GetEngineName()
+    print "Starting download from engine %s" % cur_engine.GetEngineName()
     
     if os.path.exists(cur_engine.GetLockFileDownload()):
       print "Stopping because another process is already running."
