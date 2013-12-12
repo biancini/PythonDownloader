@@ -27,6 +27,9 @@ class Backend(object):
         sys.stdout.flush()
     else: self.logger.log(message, newline)
   
+  def BulkInsertTweetIntoDb(self, vals):
+    raise NotImplementedError
+  
   def InsertTweetIntoDb(self, sql_vals):
     raise NotImplementedError
 

@@ -11,10 +11,53 @@ from secrets import es_server
 
 
 class ElasticSearchBackend(Backend):
-  
   def __init__(self, logger):
     Backend.__init__(self, logger)
 
+  def BulkInsertTweetIntoDb(self, vals):
+    top_id = None
+    if vals is None or len(vals) == 0: return (0, top_id)
+    
+    try:
+      bulk_uploads = ""
+      for val in vals:
+        bulk_uploads += '{ "index" : { "_index" : "twitter", "_type" : "tweets", "_id" : "%s" } }\n' % val['id']
+        
+        data = {}
+        data['created_at'] = val['created_at']
+        data['text'] = val['text']
+        data['userid'] = val['userid']
+        # data['hashtags'] = val['hashtags']
+        data['location'] = val['location']
+        data['num_friends'] = val['num_friends']
+        # data['happiness'] = val['happiness']
+        # data['relevance'] = val['relevance']
+  
+        if val['latitude'] == 'NULL' or val['longitude'] == 'NULL':
+          data['coordinates'] = None
+        else:
+          data['coordinates'] = "%s,%s" % (val['latitude'], val['longitude'])
+        
+        bulk_uploads += json.dumps(data) + "\n"
+      
+      host = "%s/_bulk" % es_server
+      req = requests.put(host, data=bulk_uploads)
+      ret = json.loads(req.content)
+  
+      inserted = 0
+      for item in ret["items"]:
+        if item["index"]["ok"]:
+          inserted += 1
+          if top_id is None or top_id < long(item["index"]['_id']):
+            top_id = long(item["index"]['_id'])
+        else:
+          self.logger.log("Bulk insert not ok for tweet: " % item["index"]["_id"])
+          
+      return (inserted, top_id)
+    except Exception as e:
+      self.logger.log("Exception while bulk inserting tweets: %s" % e)
+      return (0, top_id)
+    
   def InsertTweetIntoDb(self, vals):
     try:
       if vals is None: return 0

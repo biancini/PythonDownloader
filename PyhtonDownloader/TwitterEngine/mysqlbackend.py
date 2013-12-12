@@ -25,6 +25,20 @@ class MySQLBackend(Backend):
 
   def __del__(self):
     if self.con: self.con.close()
+    
+  def BulkInsertTweetIntoDb(self, vals):
+    num_inserted = 0
+    top_id = None
+    
+    try:
+      for val in vals:
+        num_inserted += self.InsertTweetIntoDb(val)
+        if top_id is None or top_id < long(val['id']):
+            top_id = long(val['id'])
+    except BackendError as e:
+      self.logger.log("Bulk insert not ok for tweet: " % val['id'])
+      
+    return (num_inserted, top_id)
 
   def InsertTweetIntoDb(self, vals):
     if vals is None: return 0

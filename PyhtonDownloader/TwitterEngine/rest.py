@@ -8,6 +8,8 @@ from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
 
 class DownloadTweetsREST(TwitterApiCall):
+  bulk = True
+  
   def __init__(self, engine_name, language, filters, auth_type):
     super(DownloadTweetsREST, self).__init__(engine_name, language, filters, auth_type)
     self.backend = BackendChooser.GetBackend(self.logger)
@@ -100,20 +102,37 @@ class DownloadTweetsREST(TwitterApiCall):
         ritorno = [top_id, None, None]
         break
 
-      for s in statuses:
-        vals = self.FromTweetToVals(s, False, False)
-
+      if self.bulk:
+        vals = []
+        for s in statuses:
+          vals.append(self.FromTweetToVals(s, False, False))
+  
         try:
-          newins = self.backend.InsertTweetIntoDb(vals)
+          (newins, new_topid) = self.backend.BulkInsertTweetIntoDb(vals)
           inserted += newins
-          if top_id is None or top_id < long(vals['id']):
-            top_id = long(vals['id'])
+          if top_id is None or top_id < new_topid:
+            top_id = new_topid
         except BackendError as be:
           self.log("\nExiting as requested by backend: %s" % be)
           twits.append(inserted)
           ritorno = [top_id, max_id, since_id]
           cycle = False
           break
+      else:
+        for s in statuses:
+          vals = self.FromTweetToVals(s, False, False)
+  
+          try:
+            newins = self.backend.InsertTweetIntoDb(vals)
+            inserted += newins
+            if top_id is None or top_id < long(vals['id']):
+              top_id = long(vals['id'])
+          except BackendError as be:
+            self.log("\nExiting as requested by backend: %s" % be)
+            twits.append(inserted)
+            ritorno = [top_id, max_id, since_id]
+            cycle = False
+            break
 
       self.log('.', False)
       if since_id is None:

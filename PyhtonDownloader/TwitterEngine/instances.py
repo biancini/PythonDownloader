@@ -1,5 +1,5 @@
 # LANGUAGE = "fr"
-#  
+#   
 # INSTANCES = [{
 #               'name': 'France',
 #               'type': 'rest',

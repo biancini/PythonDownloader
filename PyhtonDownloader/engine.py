@@ -47,7 +47,8 @@ class Engine(object):
     if not background:
       print "Running engine only one time..."
       self.running = False
-      self.download()
+      for cur_engine in self.engines:
+        self.download(cur_engine)
     else:
       print "Running the engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)"
       self.running = True
