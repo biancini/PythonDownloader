@@ -3,14 +3,23 @@ __date__ = "October 2, 2013"
 
 class BackendChooser(object):
   @staticmethod
-  def GetBackend():
+  def GetBackend(logger):
     # from mysqlbackend import MySQLBackend
-    # backend = MySQLBackend()
+    # backend = MySQLBackend(logger)
     from elasticsearchbackend import ElasticSearchBackend
-    backend = ElasticSearchBackend()
+    backend = ElasticSearchBackend(logger)
     return backend
   
 class Backend(object):
+  logger = None
+  
+  def __init__(self, logger):
+    self.logger = logger
+    
+  def log(self, message):
+    if self.logger is None: print message
+    else: self.logger.log(message)
+  
   def InsertTweetIntoDb(self, sql_vals):
     raise NotImplementedError
 

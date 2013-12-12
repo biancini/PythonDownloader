@@ -18,7 +18,8 @@ from shapely.geometry import shape, Point
 from shapely.geometry.collection import GeometryCollection
 from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
-from happyanalyzer import HappyAnalyzer
+from logger import Logger
+# from happyanalyzer import HappyAnalyzer
 
 class TwitterApiCall(object):
   continuerun = True
@@ -34,19 +35,41 @@ class TwitterApiCall(object):
   engine_name = None
   language = None
   filters = None
+  
+  lock_file_download = None
+  
   api = None
   backend = None
   analyzer = None
   auth_type = None
   apiid = -1
+  
+  logger = None
 
   def __init__(self, engine_name, language, filters, auth_type='oAuth2'):
     self.engine_name = engine_name
     self.language = language
     self.filters = filters
     self.auth_type = auth_type
+    self.logger = Logger(engine_name)
     self.InitializeTwitterApi()
-    self.analyzer = HappyAnalyzer(self.language)
+    # self.analyzer = HappyAnalyzer(self.language)
+    
+  def GetEngineName(self):
+    return self.engine_name
+  
+  def SetLockFileDownload(self, lock_file_download):
+    self.lock_file_download = lock_file_download
+  
+  def GetLockFileDownload(self):
+    return self.lock_file_download
+
+  def getMechanism(self):
+    raise NotImplementedError
+  
+  def log(self, message, newline=True):
+    if self.logger is None: print message
+    else: self.logger.log(message, newline)
 
   def InitializeTwitterApi(self):
     self.apiid += 1
@@ -160,8 +183,8 @@ class TwitterApiCall(object):
     ret_vals['longitude'] = coordinates[1]
     ret_vals['num_friends'] = tweet['user']['friends_count']
 
-    happy = self.analyzer.ScoreTweetHappiness(text)
-    ret_vals['happiness'] = happy[0]
-    ret_vals['relevance'] = happy[1]
+    # happy = self.analyzer.ScoreTweetHappiness(text)
+    # ret_vals['happiness'] = happy[0]
+    # ret_vals['relevance'] = happy[1]
 
     return ret_vals

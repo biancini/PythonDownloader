@@ -11,6 +11,9 @@ from secrets import es_server
 
 
 class ElasticSearchBackend(Backend):
+  
+  def __init__(self, logger):
+    Backend.__init__(self, logger)
 
   def InsertTweetIntoDb(self, vals):
     try:
@@ -19,7 +22,7 @@ class ElasticSearchBackend(Backend):
       host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       present = requests.head(host)
       if int(present.status_code) != 404:
-        # print "HEAD returned %s" % present.status_code
+        # self.logger.log("HEAD returned %s" % present.status_code)
         return 0
 
       data = {}
@@ -29,8 +32,8 @@ class ElasticSearchBackend(Backend):
       # data['hashtags'] = vals['hashtags']
       data['location'] = vals['location']
       data['num_friends'] = vals['num_friends']
-      data['happiness'] = vals['happiness']
-      data['relevance'] = vals['relevance']
+      # data['happiness'] = vals['happiness']
+      # data['relevance'] = vals['relevance']
 
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
         data['coordinates'] = None
@@ -45,11 +48,11 @@ class ElasticSearchBackend(Backend):
       if ret["_version"] > 1: raise BackendError("Tweet already present in the DB.")
       return 1
     except Exception as e:
-      print "Exception while inserting tweet %s: %s" % (vals['id'], e)
+      self.logger.log("Exception while inserting tweet %s: %s" % (vals['id'], e))
       return 0
 
   def GetKmls(self):
-    print "Retrieving all French departments"
+    self.logger.log("Retrieving all French departments")
     try:
       start = 0
       pagesize = 10
@@ -99,7 +102,7 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
 
   def UpdateLastCallIds(self, engine_name, top_id, max_id=None, since_id=None):
-    print "Updating lastcall with values top_id = %s, max_id = %s and since_id = %s." % (top_id, max_id, since_id)
+    self.logger.log("Updating lastcall with values top_id = %s, max_id = %s and since_id = %s." % (top_id, max_id, since_id))
     try:
       data = { 'top_id'   : top_id,
                'max_id'   : max_id,
@@ -143,7 +146,7 @@ class ElasticSearchBackend(Backend):
               curhit.append(None)
               curhit.append(None)
             tweets.append(curhit)
-            # print "new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1])
+            # self.logger.log("new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1]))
 
         last = ret['hits']['total']
         start += pagesize
@@ -200,7 +203,7 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
     
   def UpdateCoordinates(self, location, lat, lng):
-    print "Updating coordinate for location %s: [%s, %s]." % (location, lat, lng)
+    self.logger.log("Updating coordinate for location %s: [%s, %s]." % (location, lat, lng))
     try:
       tweetids = self._GetTweetsIdForLocation(location)
 
@@ -216,7 +219,7 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
-    print "Inserting row for %s, %s." % (vals[2], vals[6])
+    self.logger.log("Inserting row for %s, %s." % (vals[2], vals[6]))
     try:
       data = { 'ID_GEOFLA' : vals[0],
                'CODE_DEPT' : vals[1],

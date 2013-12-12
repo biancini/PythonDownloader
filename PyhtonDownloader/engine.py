@@ -13,29 +13,24 @@ from TwitterEngine import TwitterApiCall
 from TwitterEngine import DownloadTweetsREST, DownloadTweetsStream
 
 class Engine(object):
-  engine = None
-  mechanism = None
+  engines = []
   running = False
   waittime = 5 * 60
-  
-  lock_file_download = None
-  lock_file_byperson = None
 
-  def __init__(self, engine_name, mechanism, language, filters):
-    self.mechanism = mechanism
-  
-    self.lock_file_download = '/var/lock/twitter_%s_download.lock' % engine_name
-    self.lock_file_byperson = '/var/lock/twitter_%s_byperson.lock' % engine_name
-    
-    try:
-      if mechanism == 'rest':
-        self.engine = DownloadTweetsREST(engine_name, language, filters, 'oAuth2')
-        print 'Initialized rest engine %s' % engine_name
-      else:
-        self.engine = DownloadTweetsStream(engine_name, language, filters, 'oAuth1')
-        print 'Initialized stream engine %s' % engine_name
-    except Exception as e:
-      print "Received exception: %s" % e
+  def __init__(self, engines, language):
+    for cur_engine in engines:
+      try:
+        if cur_engine['type'] == 'rest': engine = DownloadTweetsREST(cur_engine['name'], language, cur_engine['filters'], 'oAuth2')
+        else: engine = DownloadTweetsStream(cur_engine['name'], language, cur_engine['filters'], 'oAuth1')
+        
+        engine.SetLockFileDownload('/var/lock/twitter_%s_download.lock' % cur_engine['name'])
+        self.engines.append(engine)
+      except Exception as e:
+        print "Received exception: %s" % e
+      
+      print 'Initialized %s engine %s' % (cur_engine['type'], cur_engine['name'])
+      
+    signal.signal(signal.SIGINT, self.signal_handler)
 
   def signal_handler(self, signum, frame):
     if not self.running:
@@ -58,26 +53,26 @@ class Engine(object):
       self.running = True
 
       while (self.running):
-        download_thread = threading.Thread(target=self.download)
-        download_thread.start()
-
+        for cur_engine in self.engines:
+          threading.Thread(target=self.download, args=[cur_engine]).start()
         time.sleep(self.waittime)
 
-  def download(self):
-    print "Called download with parameter %s" % self.mechanism
-    if os.path.exists(self.lock_file_download):
+  def download(self, cur_engine):
+    print "Starting engine %s" % cur_engine.GetEngineName()
+    
+    if os.path.exists(cur_engine.GetLockFileDownload()):
       print "Stopping because another process is already running."
-      print "This script is locked with %s" % self.lock_file_download
+      print "This script is locked with %s" % cur_engine.GetLockFileDownload()
       sys.exit(-1)
     else:
-      open(self.lock_file_download, "w").write("1")
+      open(cur_engine.GetLockFileDownload(), "w").write("1")
       try:
-        self.engine.ProcessTweets()
+        cur_engine.ProcessTweets()
       except Exception as e:
         print "Received exception: %s" % e
       finally:
-        if os.path.exists(self.lock_file_download):
-          os.remove(self.lock_file_download)
+        if os.path.exists(cur_engine.GetLockFileDownload()):
+          os.remove(cur_engine.GetLockFileDownload())
 
 def parseargs(name, argv):
   background = False
@@ -99,32 +94,8 @@ def parseargs(name, argv):
       engine_name = arg
 
   return (background, engine_name)
-
-engines = []
-
-def signal_handler(signum, frame):
-  for cur_engine in engines:
-    cur_engine.signal_handler(signum, frame)
-    
-def run():
-  for cur_engine in engines:
-    engine_thread = threading.Thread(target=cur_engine.run)
-    engine_thread.start()
     
 if __name__ == "__main__":
   (background, start_name) = parseargs(sys.argv[0], sys.argv[1:])
-  language = instances.LANGUAGE
-  engine_instances = instances.INSTANCES
-  
-  signal.signal(signal.SIGINT, signal_handler)
-  
-  for cur_engine in engine_instances:
-    if start_name is None or start_name == cur_engine['name']:
-      engine_name = cur_engine['name'] or 'default'
-      mechanism = cur_engine['type'] or 'rest'
-      filters = cur_engine['filters'] or []
-    
-      cur_engine = Engine(engine_name, mechanism, language, filters)
-      engines.append(cur_engine)
-    
-  run()
+  engine = Engine(instances.INSTANCES, instances.LANGUAGE)
+  engine.run()

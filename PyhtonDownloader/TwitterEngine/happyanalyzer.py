@@ -18,9 +18,9 @@ class HappyAnalyzer(object):
 
   def __init__(self, language):
     print "Initializing Happiness Analyzer..."
-    file_path = os.path.dirname(__file__)
-    file_path = os.path.join(file_path, 'words_%s.txt' % language)
-    file_words = open(file_path, 'r')
+    dict_path = os.path.abspath(os.path.join(root_path, 'dictionaries'))
+    dict_path = os.path.join(dict_path, 'words_%s.txt' % language)
+    file_words = open(dict_path, 'r')
 
     for curline in file_words:
       if '\t' in curline:

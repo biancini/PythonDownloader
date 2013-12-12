@@ -18,7 +18,7 @@ class MySQLBackend(Backend):
                                  passwd=dbpass,
                                  db=dbname,
                                  charset='utf8')
-      print "Connected to MySQL db %s:%s." % (dbhost, dbname)
+      self.logger.log("Connected to MySQL db %s:%s." % (dbhost, dbname))
       self.cur = self.con.cursor()
     except Exception as e:
       raise BackendError("Error connecting to MySQL db %s:%s: %s" % (dbhost, dbname, e))
@@ -54,7 +54,7 @@ class MySQLBackend(Backend):
         self.con.rollback()
         raise BackendError("Tried to insert a tweet already present in the DB: %s" % vals[0])
       else:
-        print "Exception while inserting tweet %s: %s" % (vals[0], e)
+        self.logger.log("Exception while inserting tweet %s: %s" % (vals[0], e))
 
       self.con.rollback()
       return 0
@@ -88,7 +88,7 @@ class MySQLBackend(Backend):
       raise BackendError("Error while retrieving last call ids from DB: %s" % e)
 
   def UpdateLastCallIds(self, engine_name, top_id, max_id=None, since_id=None):
-    print "Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id)
+    self.logger.log("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
     try:
       if top_id:
         sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'top_id'" % (engine_name, top_id)
@@ -141,7 +141,7 @@ class MySQLBackend(Backend):
       raise BackendError("Error while retrieving locations from DB: %s" % e)
 
   def UpdateCoordinates(self, location, lat, lng):
-    print "Updating coordinate for location %s: [%s, %s]." % (location, lat, lng)
+    self.logger.log("Updating coordinate for location %s: [%s, %s]." % (location, lat, lng))
     try:
       self.cur.execute("UPDATE tweets SET latitude = %s, longitude = %s WHERE user_location = '%s'" % (lat, lng, location.replace('\\', '\\\\').replace('\'', '\\\'')))
       self.con.commit()
@@ -149,12 +149,12 @@ class MySQLBackend(Backend):
       raise BackendError("Error while updating coordinates for location into DB: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
-    print "Inserting row for %s, %s." % (vals[2], vals[4])
+    self.logger.log("Inserting row for %s, %s." % (vals[2], vals[4]))
     field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
     try:
       sql = "INSERT INTO french_deps (%s) " % field_list
       sql += "VALUES (%d,'%s','%s','%s','%s','%s','%s','%s')" % vals
-      # print sql
+      # self.logger.log(sql)
 
       self.cur.execute(sql)
       self.con.commit()
