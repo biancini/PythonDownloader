@@ -68,7 +68,12 @@ class TwitterApiCall(object):
     raise NotImplementedError
   
   def log(self, message, newline=True):
-    if self.logger is None: print message
+    if self.logger is None:
+      if newline:
+          print message
+      else:
+        sys.stdout.write('.')
+        sys.stdout.flush()
     else: self.logger.log(message, newline)
 
   def InitializeTwitterApi(self):
