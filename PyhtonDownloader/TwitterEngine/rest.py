@@ -51,6 +51,7 @@ class DownloadTweetsREST(TwitterApiCall):
           self.log("\nUsing another set of credentials because reached limit.")
           continue
         except Exception as e:
+          self.log("\n\n\n%s" % e)  # AB elimina commento
           self.log("\nExiting because reached ratelimit.")
           twits.append(inserted)
           ritorno = [top_id, max_id, since_id]
@@ -69,26 +70,30 @@ class DownloadTweetsREST(TwitterApiCall):
         break
 
       if not 'statuses' in jsonresp:
-        if 'errors' in jsonresp and 'code' in jsonresp['errors']:
-          if jsonresp['errors']['code'] == 88:
-            try:
-              self.InitializeTwitterApi()
-              callbykey.append(calls)
-              calls = 0
-              ratelimit = self.GetCurrentLimit()
-              self.log("\nUsing another set of credentials because reached limit.")
-              continue
-            except Exception as e:
-              self.log("\nExiting because reached ratelimit.")
-              twits.append(inserted)
-              ritorno = [top_id, max_id, since_id]
-              break
+        if 'errors' in jsonresp:
+          if type(jsonresp['errors']).__name__ == 'list': errors = jsonresp['errors']
+          else: errors = [jsonresp['errors']]
+          
+          for error in errors:
+            if 'code' in error and error['code'] == 88:
+              try:
+                self.InitializeTwitterApi()
+                callbykey.append(calls)
+                calls = 0
+                ratelimit = self.GetCurrentLimit()
+                self.log("\nUsing another set of credentials because reached limit.")
+                continue
+              except Exception as e:
+                self.log("\nExiting because reached ratelimit.")
+                twits.append(inserted)
+                ritorno = [top_id, max_id, since_id]
+                break
 
-          if jsonresp['errors']['code'] != last_errcode:
-            self.log("\nGot error from API, retrying in 5 seconds: %s" % jsonresp)
-            time.sleep(5)
-            last_errcode = jsonresp['errors']['code']
-            continue
+            if error['code'] != last_errcode:
+              self.log("\nGot error from API, retrying in 5 seconds: %s" % jsonresp)
+              time.sleep(5)
+              last_errcode = error['code']
+              continue
 
         self.log("\nExiting because call did not return expected results.\n%s" % jsonresp)
         twits.append(inserted)
@@ -117,7 +122,6 @@ class DownloadTweetsREST(TwitterApiCall):
           twits.append(inserted)
           ritorno = [top_id, max_id, since_id]
           cycle = False
-          break
       else:
         for s in statuses:
           vals = self.FromTweetToVals(s, False, False)
