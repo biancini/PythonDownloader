@@ -30,7 +30,7 @@ class Engine(object):
       except Exception as e:
         print "Received exception: %s" % e
       
-      print 'Initialized %s engine %s' % (cur_engine['type'], cur_engine['name'])
+      print 'Initialized %s engine %s to use key number %d' % (cur_engine['type'], cur_engine['name'], cur_engine['apikey'])
       
     signal.signal(signal.SIGINT, self.signal_handler)
 
