@@ -5,8 +5,8 @@ var animationStart, aminationEnd, moveTime, running;
 
 function initializeMap() {
 	var mapOptions = {
-		zoom: 6,
-		center: new google.maps.LatLng(46.2, 3.1),
+		zoom: 5,
+		center: new google.maps.LatLng(40, -100),
 		mapTypeId: google.maps.MapTypeId.SATELLITE
 	};
 	var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -66,7 +66,7 @@ function groupTweetsByMinute() {
 	}
 
 	console.log("First date: " + dateStart + "\nLast date: " + dateEnd);
-	moveTime = Math.floor((dateEnd.getTime() - dateStart.getTime()) / $('#graph').width());
+	moveTime = 10*Math.floor((dateEnd.getTime() - dateStart.getTime()) / $('#graph').width());
 	console.log("Move time: " + moveTime);
 	return tweetByMinute;
 }
@@ -90,7 +90,7 @@ function initializeGraph() {
 
 function initializeWithData() {
 	$.ajax({
-		url: 'tweets.json',
+		url: 'http://localhost:9200/twitter/tweets/_search?size=10000',
 		dataType: 'json',
 		success: function(response) {
 			jsonTweets = response;
