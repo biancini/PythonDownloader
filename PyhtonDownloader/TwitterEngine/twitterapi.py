@@ -47,15 +47,16 @@ class TwitterApiCall(object):
   
   logger = None
 
-  def __init__(self, engine_name, api_key, language, filters, auth_type='oAuth2'):
-    self.engine_name = engine_name
+  def __init__(self, engine_config, language, auth_type='oAuth2'):
+    self.engine_name = engine_config['name']
+    self.apiid = engine_config['apikey']
     self.language = language
-    self.filters = filters
+    self.filters = engine_config['filters']
     self.auth_type = auth_type
-    self.logger = Logger(engine_name)
-    self.InitializeTwitterApi()
+    self.logger = Logger(engine_config['name'])
     # self.analyzer = HappyAnalyzer(self.language)
-    self.apiid = api_key
+    
+    self.InitializeTwitterApi()
     
   def GetEngineName(self):
     return self.engine_name

@@ -10,9 +10,10 @@ from backend import BackendChooser, BackendError
 class DownloadTweetsREST(TwitterApiCall):
   bulk = True
   
-  def __init__(self, engine_name, api_key, language, filters, auth_type):
-    super(DownloadTweetsREST, self).__init__(engine_name, api_key, language, filters, auth_type)
+  def __init__(self, engine_config, language, auth_type):
+    super(DownloadTweetsREST, self).__init__(engine_config, language, auth_type)
     self.backend = BackendChooser.GetBackend(self.logger)
+    self.bulk = engine_config['bulk']
     
   def getMechanism(self):
     return 'rest'
@@ -51,7 +52,6 @@ class DownloadTweetsREST(TwitterApiCall):
           self.log("\nUsing another set of credentials because reached limit.")
           continue
         except Exception as e:
-          self.log("\n\n\n%s" % e)  # AB elimina commento
           self.log("\nExiting because reached ratelimit.")
           twits.append(inserted)
           ritorno = [top_id, max_id, since_id]
@@ -74,20 +74,28 @@ class DownloadTweetsREST(TwitterApiCall):
           if type(jsonresp['errors']).__name__ == 'list': errors = jsonresp['errors']
           else: errors = [jsonresp['errors']]
           
+          error_88 = False
+          reached_limit = False
           for error in errors:
             if 'code' in error and error['code'] == 88:
+              error_88 = True
               try:
                 self.InitializeTwitterApi()
                 callbykey.append(calls)
                 calls = 0
                 ratelimit = self.GetCurrentLimit()
                 self.log("\nUsing another set of credentials because reached limit.")
-                continue
+                break
               except Exception as e:
                 self.log("\nExiting because reached ratelimit.")
                 twits.append(inserted)
                 ritorno = [top_id, max_id, since_id]
+                reached_limit = True
                 break
+              
+            if error_88:
+              if reached_limit: break
+              else: continue
 
             if error['code'] != last_errcode:
               self.log("\nGot error from API, retrying in 5 seconds: %s" % jsonresp)

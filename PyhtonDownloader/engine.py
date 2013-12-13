@@ -17,20 +17,20 @@ class Engine(object):
   running = False
   waittime = 5 * 60
 
-  def __init__(self, engines, language):
+  def __init__(self, engine_instances, language):
     engine_index = -1
-    for cur_engine in engines:
+    for engine_config in engine_instances:
       engine_index += 1
       try:
-        if cur_engine['type'] == 'rest': engine = DownloadTweetsREST(cur_engine['name'], cur_engine['apikey'], language, cur_engine['filters'], 'oAuth2')
-        else: engine = DownloadTweetsStream(cur_engine['name'], cur_engine['apikey'], language, cur_engine['filters'], 'oAuth1')
+        if engine_config['type'] == 'rest': cur_engine = DownloadTweetsREST(engine_config, language, 'oAuth2')
+        else: cur_engine = DownloadTweetsStream(engine_config, language, 'oAuth1')
         
-        engine.SetLockFileDownload('/var/lock/twitter_%s_download.lock' % cur_engine['name'])
-        self.engines.append(engine)
+        cur_engine.SetLockFileDownload('/var/lock/twitter_%s_download.lock' % engine_config['name'])
+        self.engines.append(cur_engine)
       except Exception as e:
         print "Received exception: %s" % e
       
-      print 'Initialized %s engine %s to use key number %d' % (cur_engine['type'], cur_engine['name'], cur_engine['apikey'])
+      print 'Initialized %s cur_engine %s to use key number %d' % (engine_config['type'], engine_config['name'], engine_config['apikey'])
       
     signal.signal(signal.SIGINT, self.signal_handler)
 
@@ -47,12 +47,12 @@ class Engine(object):
 
   def run(self):
     if not background:
-      print "Running engine only one time..."
+      print "Running cur_engine only one time..."
       self.running = False
       for cur_engine in self.engines:
         self.download(cur_engine)
     else:
-      print "Running the engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)"
+      print "Running the cur_engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)"
       self.running = True
 
       while (self.running):
@@ -61,7 +61,7 @@ class Engine(object):
         time.sleep(self.waittime)
 
   def download(self, cur_engine):
-    print "Starting download from engine %s" % cur_engine.GetEngineName()
+    print "Starting download from cur_engine %s" % cur_engine.GetEngineName()
     
     if os.path.exists(cur_engine.GetLockFileDownload()):
       print "Stopping because another process is already running."
@@ -100,5 +100,5 @@ def parseargs(name, argv):
     
 if __name__ == "__main__":
   (background, start_name) = parseargs(sys.argv[0], sys.argv[1:])
-  engine = Engine(instances.INSTANCES, instances.LANGUAGE)
-  engine.run()
+  cur_engine = Engine(instances.INSTANCES, instances.LANGUAGE)
+  cur_engine.run()
