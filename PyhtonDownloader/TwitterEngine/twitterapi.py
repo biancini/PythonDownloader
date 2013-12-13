@@ -42,11 +42,12 @@ class TwitterApiCall(object):
   backend = None
   analyzer = None
   auth_type = None
+  initial_apiid = -1
   apiid = -1
   
   logger = None
 
-  def __init__(self, engine_name, language, filters, auth_type='oAuth2'):
+  def __init__(self, engine_name, api_key, language, filters, auth_type='oAuth2'):
     self.engine_name = engine_name
     self.language = language
     self.filters = filters
@@ -54,6 +55,7 @@ class TwitterApiCall(object):
     self.logger = Logger(engine_name)
     self.InitializeTwitterApi()
     # self.analyzer = HappyAnalyzer(self.language)
+    self.apiid = api_key
     
   def GetEngineName(self):
     return self.engine_name
@@ -78,8 +80,13 @@ class TwitterApiCall(object):
 
   def InitializeTwitterApi(self):
     self.apiid += 1
-    if self.apiid > len(consumer_key):
-      raise Exception("Application keys terminated.")
+    self.apiid %= len(consumer_key)
+    
+    if self.apiid == self.initial_apiid:
+      raise Exception("Tried to use every application key, no more available.")
+    
+    if self.initial_apiid == -1:
+      self.initial_apiid = self.apiid
 
     if self.auth_type == 'oAuth2':
       self.api = TwitterAPI(consumer_key=consumer_key[self.apiid],

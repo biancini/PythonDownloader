@@ -10,8 +10,8 @@ from backend import BackendChooser, BackendError
 class DownloadTweetsREST(TwitterApiCall):
   bulk = True
   
-  def __init__(self, engine_name, language, filters, auth_type):
-    super(DownloadTweetsREST, self).__init__(engine_name, language, filters, auth_type)
+  def __init__(self, engine_name, api_key, language, filters, auth_type):
+    super(DownloadTweetsREST, self).__init__(engine_name, api_key, language, filters, auth_type)
     self.backend = BackendChooser.GetBackend(self.logger)
     
   def getMechanism(self):
