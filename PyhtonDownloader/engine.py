@@ -22,8 +22,8 @@ class Engine(object):
     for cur_engine in engines:
       engine_index += 1
       try:
-        if cur_engine['type'] == 'rest': engine = DownloadTweetsREST(cur_engine['name'], cur_engine['api_key'], language, cur_engine['filters'], 'oAuth2')
-        else: engine = DownloadTweetsStream(cur_engine['name'], cur_engine['api_key'], language, cur_engine['filters'], 'oAuth1')
+        if cur_engine['type'] == 'rest': engine = DownloadTweetsREST(cur_engine['name'], cur_engine['apikey'], language, cur_engine['filters'], 'oAuth2')
+        else: engine = DownloadTweetsStream(cur_engine['name'], cur_engine['apikey'], language, cur_engine['filters'], 'oAuth1')
         
         engine.SetLockFileDownload('/var/lock/twitter_%s_download.lock' % cur_engine['name'])
         self.engines.append(engine)
