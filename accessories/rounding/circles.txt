@@ -1,0 +1,17 @@
+WestCoast -> key 0
+39, -115, "1050km"
+
+MiddleWest1 -> key 1
+41, -100, "650km"
+
+MiddleWest2 -> key 2
+33, -98, "750km"
+
+GreatLakes -> key 3
+40, -86, "600km"
+
+SouthEast -> key 4
+30, -83, "650km"
+
+NorthEast -> key 5
+40, -71, "700km"
