@@ -66,7 +66,7 @@ class Engine(object):
     if os.path.exists(cur_engine.GetLockFileDownload()):
       print "Stopping because another process is already running."
       print "This script is locked with %s" % cur_engine.GetLockFileDownload()
-      sys.exit(-1)
+      return
     else:
       open(cur_engine.GetLockFileDownload(), "w").write("1")
       try:
