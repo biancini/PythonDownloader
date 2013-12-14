@@ -78,30 +78,31 @@ class DownloadTweetsREST(TwitterApiCall):
           reached_limit = False
           for error in errors:
             if 'code' in error and error['code'] == 88:
-              error_88 = True
               try:
                 self.InitializeTwitterApi()
                 callbykey.append(calls)
                 calls = 0
                 ratelimit = self.GetCurrentLimit()
                 self.log("\nUsing another set of credentials because reached limit.")
+                error_88 = True
                 break
               except Exception as e:
                 self.log("\nExiting because reached ratelimit.")
-                twits.append(inserted)
-                ritorno = [top_id, max_id, since_id]
-                reached_limit = True
                 break
               
-            if error_88:
-              if reached_limit: break
-              else: continue
-
-            if error['code'] != last_errcode:
-              self.log("\nGot error from API, retrying in 5 seconds: %s" % jsonresp)
-              time.sleep(5)
-              last_errcode = error['code']
+          if error_88:
+            if reached_limit: break
+            else:
+              twits.append(inserted)
+              ritorno = [top_id, max_id, since_id]
+              reached_limit = True
               continue
+
+          if error['code'] != last_errcode:
+            self.log("\nGot error from API, retrying in 5 seconds: %s" % jsonresp)
+            time.sleep(5)
+            last_errcode = error['code']
+            continue
 
         self.log("\nExiting because call did not return expected results.\n%s" % jsonresp)
         twits.append(inserted)
