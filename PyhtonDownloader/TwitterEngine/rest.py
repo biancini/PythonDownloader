@@ -29,14 +29,14 @@ class DownloadTweetsREST(TwitterApiCall):
   def GetNextCreds(self, ratelimit=0):
     try:
       while ratelimit <= 2:
-        self.log('\nUsing another set of credentials because reached limit.')
+        self.log('Using another set of credentials because reached limit.')
         self.InitializeTwitterApi()
         ratelimit = self.GetCurrentLimit()
         self.log('New limit for this set of credentials: %d' % ratelimit)
       
       return ratelimit
     except Exception as e:
-      self.log('\Reached ratelimit.')
+      self.log('Reached ratelimit.')
       raise e
     
   def BulkInsert(self, statuses):
@@ -48,7 +48,7 @@ class DownloadTweetsREST(TwitterApiCall):
       [inserted, max_tweetid, min_tweetid] = self.backend.BulkInsertTweetIntoDb(vals)
       return [inserted, max_tweetid, min_tweetid]
     except BackendError as be:
-      self.log('\nBackend error during bulk insert: %s' % be)
+      self.log('Backend error during bulk insert: %s' % be)
       return [0, None, None]
     
   def SingleInsert(self, statuses):
@@ -70,7 +70,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
         return [inserted, max_tweetid, min_tweetid]
       except BackendError as be:
-        self.log('\nBackend error during insert: %s' % be)
+        self.log('Backend error during insert: %s' % be)
         return [inserted, max_tweetid, min_tweetid]
   
   def ManagingCallError(self, jsonresp, last_errcode, ratelimit):
@@ -85,11 +85,11 @@ class DownloadTweetsREST(TwitterApiCall):
           break
           
       if error['code'] != last_errcode:
-        self.log('\nGot error from API, retrying in 5 seconds: %s' % jsonresp)
+        self.log('Got error from API, retrying in 5 seconds: %s' % jsonresp)
         time.sleep(5)
         must_continue = True
       else:
-        self.log('\nCall did not return expected results.\n%s' % jsonresp)
+        self.log('Call did not return expected results: %s' % jsonresp)
         raise Exception()
 
     return [must_continue, last_errcode, ratelimit]
@@ -105,7 +105,7 @@ class DownloadTweetsREST(TwitterApiCall):
       
       return [ratelimit, jsonresp]
     except Exception as e:
-      self.log('\nError during API call: %s.' % e)
+      self.log('Error during API call: %s.' % e)
       raise e
     
   def ProcessCallResults(self, jsonresp):
@@ -117,7 +117,7 @@ class DownloadTweetsREST(TwitterApiCall):
       statuses = jsonresp['statuses']
       
       if len(statuses) is 0:
-        self.log('\nAPI returned no tweet.')
+        self.log('API returned no tweet.')
         return [inserted, None, None]
   
       if self.bulk: [newins, max_tweetid, min_tweetid] = self.BulkInsert(statuses)
@@ -151,7 +151,7 @@ class DownloadTweetsREST(TwitterApiCall):
         if calls == 0: self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
         max_id = min_tweetid
         if since_id is None:
-          self.log('\nPerforming only one call to initialize DB.')
+          self.log('Performing only one call to initialize DB.')
           break
         
         calls += 1
@@ -173,7 +173,7 @@ class DownloadTweetsREST(TwitterApiCall):
 
     try:
       call_ids = self.backend.GetLastCallIds(self.engine_name)
-      self.log("Obtained call_ids = %s" % call_ids)
+      self.log('Obtained call_ids = %s' % call_ids)
     except BackendError as be:
       self.log('Error while checking last call state: %s' % be)
 
