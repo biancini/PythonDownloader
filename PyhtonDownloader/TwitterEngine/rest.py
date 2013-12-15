@@ -21,6 +21,7 @@ class DownloadTweetsREST(TwitterApiCall):
   def GetCurrentLimit(self):
     try:
       limits = self.GetRateLimits()['resources']['search']['/search/tweets']
+      self.log("---> %s" % limits)
       return int(limits['remaining'])
     except BackendError as be:
       self.log('Error while retrieving current limit: %s' % be)
