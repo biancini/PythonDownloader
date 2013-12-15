@@ -29,9 +29,10 @@ class DownloadTweetsREST(TwitterApiCall):
   def GetNextCreds(self, ratelimit=0):
     try:
       while ratelimit <= 2:
+        self.log('\nUsing another set of credentials because reached limit.')
         self.InitializeTwitterApi()
         ratelimit = self.GetCurrentLimit()
-        self.log('\nUsing another set of credentials because reached limit.')
+        self.log('New limit for this set of credentials: %d' % ratelimit)
       
       return ratelimit
     except Exception as e:

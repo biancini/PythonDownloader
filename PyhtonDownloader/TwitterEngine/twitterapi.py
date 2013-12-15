@@ -92,6 +92,7 @@ class TwitterApiCall(object):
     if self.initial_apiid == -1:
       self.initial_apiid = self.apiid
 
+    self.logger.log("Initializing engine with consumer_key = %s" % consumer_key[self.apiid])
     if self.auth_type == 'oAuth2':
       self.api = TwitterAPI(consumer_key=consumer_key[self.apiid],
                             consumer_secret=consumer_secret[self.apiid],
