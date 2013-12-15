@@ -23,145 +23,146 @@ class DownloadTweetsREST(TwitterApiCall):
       limits = self.GetRateLimits()['resources']['search']['/search/tweets']
       return int(limits['remaining'])
     except BackendError as be:
-      self.log("Error while retrieving current limit: %s" % be)
+      self.log('Error while retrieving current limit: %s' % be)
       return 0
+    
+  def GetNextCreds(self, ratelimit=0):
+    try:
+      while ratelimit <= 2:
+        self.InitializeTwitterApi()
+        ratelimit = self.GetCurrentLimit()
+        self.log('\nUsing another set of credentials because reached limit.')
+      
+      return ratelimit
+    except Exception as e:
+      self.log('\Reached ratelimit.')
+      raise e
+    
+  def BulkInsert(self, statuses):
+    vals = []
+    for s in statuses:
+      vals.append(self.FromTweetToVals(s, False, False))
 
-  def PartialProcessTweets(self, params, top_id, max_id, since_id):
-    calls = 0
-    callbykey = []
-    twits = []
+    try:
+      [inserted, max_tweetid, min_tweetid] = self.backend.BulkInsertTweetIntoDb(vals)
+      return [inserted, max_tweetid, min_tweetid]
+    except BackendError as be:
+      self.log('\nBackend error during bulk insert: %s' % be)
+      return [0, None, None]
+    
+  def SingleInsert(self, statuses):
+    max_tweetid = None
+    min_tweetid = None
+    inserted = 0
+    
+    for s in statuses:
+      vals = self.FromTweetToVals(s, False, False)
+  
+      try:
+        newins = self.backend.InsertTweetIntoDb(vals)
+        inserted += newins
 
-    ratelimit = self.GetCurrentLimit()
-    self.log('Executing Twitter API calls ', False)
+        if max_tweetid is None or max_tweetid < long(vals['id']):
+            max_tweetid = long(vals['id'])
+        if min_tweetid is None or min_tweetid > long(vals['id']):
+          min_tweetid = long(vals['id'])
 
-    cycle = True
-    ritorno = [top_id, None, None]
-
-    last_errcode = None
-
-    while cycle and TwitterApiCall.continuing():
-      calls += 1
-      inserted = 0
-
-      if calls >= ratelimit - 2:
-        try:
-          self.InitializeTwitterApi()
-          callbykey.append(calls)
-          calls = 0
-          ratelimit = self.GetCurrentLimit()
-          self.log("\nUsing another set of credentials because reached limit.")
-          continue
-        except Exception as e:
-          self.log("\nExiting because reached ratelimit.")
-          twits.append(inserted)
-          ritorno = [top_id, max_id, since_id]
+        return [inserted, max_tweetid, min_tweetid]
+      except BackendError as be:
+        self.log('\nBackend error during insert: %s' % be)
+        return [inserted, max_tweetid, min_tweetid]
+  
+  def ManagingCallError(self, jsonresp, last_errcode, ratelimit):
+    must_continue = False
+    if 'errors' in jsonresp:
+      if type(jsonresp['errors']).__name__ == 'list': errors = jsonresp['errors']
+      else: errors = [jsonresp['errors']]
+      
+      for error in errors:
+        if 'code' in error and error['code'] == 88:
+          ratelimit = self.GetNextCreds()
           break
+          
+      if error['code'] != last_errcode:
+        self.log('\nGot error from API, retrying in 5 seconds: %s' % jsonresp)
+        time.sleep(5)
+        must_continue = True
+      else:
+        self.log('\nCall did not return expected results.\n%s' % jsonresp)
+        raise Exception()
 
+    return [must_continue, last_errcode, ratelimit]
+  
+  def ExecuteCall(self, params, max_id, since_id):
+    try:
       params['max_id'] = max_id
       params['since_id'] = since_id
-
-      try:
-        response = self.api.request('search/tweets', params)
-        jsonresp = json.loads(response.text)
-      except Exception as e:
-        self.log("\nExiting because of an error during API call: %s." % e)
-        twits.append(inserted)
-        ritorno = [top_id, max_id, since_id]
-        break
-
-      if not 'statuses' in jsonresp:
-        if 'errors' in jsonresp:
-          if type(jsonresp['errors']).__name__ == 'list': errors = jsonresp['errors']
-          else: errors = [jsonresp['errors']]
-          
-          error_88 = False
-          reached_limit = False
-          for error in errors:
-            if 'code' in error and error['code'] == 88:
-              try:
-                self.InitializeTwitterApi()
-                callbykey.append(calls)
-                calls = 0
-                ratelimit = self.GetCurrentLimit()
-                self.log("\nUsing another set of credentials because reached limit.")
-                error_88 = True
-                break
-              except Exception as e:
-                self.log("\nExiting because reached ratelimit.")
-                break
-              
-          if error_88:
-            if reached_limit: break
-            else:
-              twits.append(inserted)
-              ritorno = [top_id, max_id, since_id]
-              reached_limit = True
-              continue
-
-          if error['code'] != last_errcode:
-            self.log("\nGot error from API, retrying in 5 seconds: %s" % jsonresp)
-            time.sleep(5)
-            last_errcode = error['code']
-            continue
-
-        self.log("\nExiting because call did not return expected results.\n%s" % jsonresp)
-        twits.append(inserted)
-        ritorno = [top_id, max_id, since_id]
-        break
-
+      
+      response = self.api.request('search/tweets', params)
+      ratelimit = response.headers['x-rate-limit-remaining']
+      jsonresp = json.loads(response.text)
+      
+      return [ratelimit, jsonresp]
+    except Exception as e:
+      self.log('\nError during API call: %s.' % e)
+      raise e
+    
+  def ProcessCallResults(self, jsonresp):
+    max_tweetid = None
+    min_tweetid = None
+    inserted = 0
+    
+    if 'statuses' in jsonresp:
       statuses = jsonresp['statuses']
+      
       if len(statuses) is 0:
-        self.log("\nExiting because API returned no tweet.")
-        twits.append(inserted)
-        ritorno = [top_id, None, None]
-        break
-
-      if self.bulk:
-        vals = []
-        for s in statuses:
-          vals.append(self.FromTweetToVals(s, False, False))
+        self.log('\nAPI returned no tweet.')
+        return [inserted, None, None]
   
-        try:
-          (newins, new_topid) = self.backend.BulkInsertTweetIntoDb(vals)
-          inserted += newins
-          if top_id is None or top_id < new_topid:
-            top_id = new_topid
-        except BackendError as be:
-          self.log("\nExiting as requested by backend: %s" % be)
-          twits.append(inserted)
-          ritorno = [top_id, max_id, since_id]
-          cycle = False
-      else:
-        for s in statuses:
-          vals = self.FromTweetToVals(s, False, False)
-  
-          try:
-            newins = self.backend.InsertTweetIntoDb(vals)
-            inserted += newins
-            if top_id is None or top_id < long(vals['id']):
-              top_id = long(vals['id'])
-          except BackendError as be:
-            self.log("\nExiting as requested by backend: %s" % be)
-            twits.append(inserted)
-            ritorno = [top_id, max_id, since_id]
-            cycle = False
-            break
+      if self.bulk: [newins, max_tweetid, min_tweetid] = self.BulkInsert(statuses)
+      else: [newins, max_tweetid, min_tweetid] = self.SingleInsert(statuses)
 
+      inserted += newins
       self.log('.', False)
-      if since_id is None:
-        self.log("\nExiting because performing only one call to initialize DB.")
-        twits.append(inserted)
-        ritorno = [top_id, None, None]
+      
+      if newins != len(statuses): raise Exception()
+
+    return [inserted, max_tweetid, min_tweetid]
+
+  def PartialProcessTweets(self, params, max_id, since_id):
+    calls = 0
+    inserted = 0
+    
+    ratelimit = self.GetCurrentLimit()
+    last_errcode = None
+    
+    self.log('Executing Twitter API calls ', False)
+
+    while TwitterApiCall.continuing():
+      try:
+        if ratelimit <= 2: ratelimit = self.GetNextCreds(ratelimit)
+        [ratelimit, jsonresp] = self.ExecuteCall(params, max_id, since_id)
+        
+        [must_continue, last_errcode, ratelimit] = self.ManagingCallError(jsonresp, last_errcode, ratelimit)
+        if must_continue: continue
+        
+        [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
+        if calls == 0: self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
+        max_id = min_tweetid
+        if since_id is None:
+          self.log('\nPerforming only one call to initialize DB.')
+          break
+        
+        calls += 1
+        inserted += newinserted
+        if max_id is None: raise Exception()
+      except Exception as e:
+        self.log('Exiting download cycle: %s' % e)
         break
 
-      twits.append(inserted)
-      # self.log("Numer of tweets inserted:\t%d." % inserted)
-      max_id = min([s['id'] for s in statuses]) - 1
-
-    callbykey.append(calls)
-    self.log("Total number of calls executed: \t%d." % sum(callbykey))
-    self.log("Total number of tweets inserted:\t%d." % sum(twits))
-    return ritorno
+    self.log('Total number of calls executed: \t%d.' % calls)
+    self.log('Total number of tweets inserted:\t%d.' % inserted)
+    return [max_id, since_id]
 
   def ProcessTweets(self):
     lat = self.filters[0]
@@ -169,20 +170,11 @@ class DownloadTweetsREST(TwitterApiCall):
     radius = self.filters[2]
     count = 100  # Number of tweets to retrieve (max. 100)
 
-    max_ids = [None, None]
-    since_ids = [None, None]
-    top_id = None
-
     try:
-      ret = self.backend.GetLastCallIds(self.engine_name)
-      max_ids[0] = ret[0]
-      since_ids[0] = ret[1]
-
-      top_id = ret[2]
-      max_ids[1] = None
-      since_ids[1] = top_id
+      call_ids = self.backend.GetLastCallIds(self.engine_name)
+      self.log("Obtained call_ids = %s" % call_ids)
     except BackendError as be:
-      self.log("Error while checking last call state: %s" % be)
+      self.log('Error while checking last call state: %s' % be)
 
     params = { 'geocode':     ','.join(map(str, (lat, lng, radius))),
                'count':       count,
@@ -191,18 +183,18 @@ class DownloadTweetsREST(TwitterApiCall):
                'max_id':      None,
                'since_id':    None }
 
-    if max_ids[0] is not None and since_ids[0] is not None:
-      self.log("Executing set of calls to fill previously unfilled gap...")
-      self.log("Executing call with max_id = %s and since_id = %s" % (max_ids[0], since_ids[0]))
-      ret = self.PartialProcessTweets(params, top_id, max_ids[0], since_ids[0])
-      self.backend.UpdateLastCallIds(self.engine_name, ret[0], ret[1], ret[2])
-      if ret[0] is not None and ret[1] is not None:
-        self.log("Error with the fill-the-gaps mechanisms.")
-        return
-
-    self.log("Executing call with max_id = %s and since_id = %s" % (max_ids[1], since_ids[1]))
-    ret = self.PartialProcessTweets(params, top_id, max_ids[1], since_ids[1])
-    self.backend.UpdateLastCallIds(self.engine_name, ret[0], ret[1], ret[2])
+    if len(call_ids) == 0:
+      self.log('Executing call with max_id = %s and since_id = %s' % (None, None))      
+      [max_id, since_id] = self.PartialProcessTweets(params, None, None)
+    else:
+      # TODO multithread executing for each call id to add parallelism
+      for call_id in call_ids:
+        self.log('Executing call with max_id = %s and since_id = %s' % (call_id['max_id'], call_id['since_id']))
+        self.backend.DeleteLastCallId(self.engine_name, call_id['id'])
+        
+        [max_id, since_id] = self.PartialProcessTweets(params, call_id['max_id'], call_id['since_id'])
+        if max_id is not None:
+          self.backend.InsertLastCallIds(self.engine_name, max_id, since_id)
 
   def AggregateByPerson(self, date):
     tweeters = self.backend.GetAllTweetByPerson(date, date)
@@ -211,4 +203,3 @@ class DownloadTweetsREST(TwitterApiCall):
       tweets = self.backend.GetAllTweetsForUserId(tweeter[0], tweeter[1], date, date)
       byperson = self.analyzer.AggretateTweetsByPerson(tweets)
       self.backend.InsertByPersonData(byperson)
-

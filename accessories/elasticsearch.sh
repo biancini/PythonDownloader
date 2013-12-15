@@ -5,6 +5,17 @@ SERVER="http://localhost:9200"
 curl -XDELETE "${SERVER}/twitter"
 
 #curl -XPUT "${SERVER}/twitter/"
+
+# ByPerson aggregation
+#		},
+#		"byperson": {
+#			"properties" : {
+#				"userid": { "type": "long", "index": "not_analyzed" },
+# 				"date": { "type": "date", "format" : "yyyy-MM-dd||date_time" },
+#				"location" : { "type": "string", "index": "not_analyzed" },
+#				"num_friends" : { "type": "integer", "index": "not_analyzed" },
+#				"coordinates": { "type": "geo_point" },
+#			}
 curl -XPOST "${SERVER}/twitter/" -d '{
 	"settings": {
 		"analysis" : {
@@ -24,20 +35,7 @@ curl -XPOST "${SERVER}/twitter/" -d '{
 				"num_friends" : { "type": "integer", "index": "not_analyzed" },
 				"coordinates": { "type": "geo_point" },
         	        	"text": { "type": "string", "store": "yes", "analyzer": "tweettext" },
-	        	        "userid": { "type": "long", "index": "not_analyzed" },
-                                "happiness": { "type": "float" },
-                                "relevance": { "type": "float" }
-			}
-		},
-		"byperson": {
-			"properties" : {
-				"userid": { "type": "long", "index": "not_analyzed" },
- 				"date": { "type": "date", "format" : "yyyy-MM-dd||date_time" },
-				"location" : { "type": "string", "index": "not_analyzed" },
-				"num_friends" : { "type": "integer", "index": "not_analyzed" },
-				"coordinates": { "type": "geo_point" },
-                                "happiness": { "type": "float" },
-                                "relevance": { "type": "float" }
+	        	        "userid": { "type": "long", "index": "not_analyzed" }
 			}
 		}
 	}

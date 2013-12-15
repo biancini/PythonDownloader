@@ -15,8 +15,10 @@ class ElasticSearchBackend(Backend):
     Backend.__init__(self, logger)
 
   def BulkInsertTweetIntoDb(self, vals):
-    top_id = None
-    if vals is None or len(vals) == 0: return (0, top_id)
+    max_tweetid = None
+    min_tweetid = None
+    
+    if vals is None or len(vals) == 0: return [0, max_tweetid, min_tweetid]
     
     try:
       bulk_uploads = ""
@@ -48,15 +50,17 @@ class ElasticSearchBackend(Backend):
       for item in ret["items"]:
         if item["index"]["ok"]:
           inserted += 1
-          if top_id is None or top_id < long(item["index"]['_id']):
-            top_id = long(item["index"]['_id'])
+          if max_tweetid is None or max_tweetid < long(item["index"]['_id']):
+            max_tweetid = long(item["index"]['_id'])
+          if min_tweetid is None or min_tweetid > long(item["index"]['_id']):
+            min_tweetid = long(item["index"]['_id'])
         else:
           self.logger.log("Bulk insert not ok for tweet: " % item["index"]["_id"])
           
-      return (inserted, top_id)
+      return [inserted, max_tweetid, min_tweetid]
     except Exception as e:
       self.logger.log("Exception while bulk inserting tweets: %s" % e)
-      return (0, top_id)
+      return [0, max_tweetid, min_tweetid]
     
   def InsertTweetIntoDb(self, vals):
     try:
@@ -128,35 +132,46 @@ class ElasticSearchBackend(Backend):
 
   def GetLastCallIds(self, engine_name):
     try:
-      data = { 'query' : { 'match_all' : { } } }
+      data = { 'query' : { 'match_all' : { } }, 'size': 100 }
       data_json = json.dumps(data, indent=2)
       host = "%s/twitter/%s_lastcall/_search" % (es_server, engine_name)
       req = requests.get(host, data=data_json)
       ret = json.loads(req.content)
 
-      ids = [None, None, None]
+      ids = []
       for hit in ret['hits']['hits']:
-        ids[0] = hit['_source']['max_id']
-        ids[1] = hit['_source']['since_id']
-        ids[2] = hit['_source']['top_id']
-
+        new_id = {}
+        new_id['id'] = hit['_id']
+        new_id['max_id'] = hit['_source']['max_id']
+        new_id['since_id'] = hit['_source']['since_id']
+        ids.append(new_id)
       return ids
     except Exception as e:
       raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
-
-  def UpdateLastCallIds(self, engine_name, top_id, max_id=None, since_id=None):
-    self.logger.log("Updating lastcall with values top_id = %s, max_id = %s and since_id = %s." % (top_id, max_id, since_id))
+    
+  def DeleteLastCallId(self, engine_name, lastcall_id):
+    self.logger.log("Deleting lastcall id = %s." % (lastcall_id))
+        
     try:
-      data = { 'top_id'   : top_id,
-               'max_id'   : max_id,
+      host = "%s/twitter/%s_lastcall/%s" % (es_server, engine_name, lastcall_id)
+      req = requests.delete(host)
+      ret = json.loads(req.content)
+      if not ret["ok"]: raise BackendError("Error during delete: %s" % ret)
+    except Exception as e:
+      raise BackendError("Error while deleting lastcall id %s from ElasticSearch: %s" % (lastcall_id, e))    
+
+  def InsertLastCallIds(self, engine_name, max_id=None, since_id=None):
+    self.logger.log("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
+    try:
+      data = { 'max_id'   : max_id,
                'since_id' : since_id }
       data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/%s_lastcall/1" % (es_server, engine_name)
-      req = requests.put(host, data=data_json)
+      host = "%s/twitter/%s_lastcall/" % (es_server, engine_name)
+      req = requests.post(host, data=data_json)
       ret = json.loads(req.content)
-      if not ret["ok"]: raise BackendError("Insert not ok")
+      if not ret["ok"]: raise BackendError("Insert not ok: %s" % ret)
     except Exception as e:
-      raise BackendError("Error while updating last call ids into ElasticSearch: %s" % e)
+      raise BackendError("Error while inserting lastcall ids into ElasticSearch: %s" % e)
 
   def GetAllTweetCoordinates(self):
     try:

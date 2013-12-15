@@ -47,7 +47,7 @@ class TwitterApiCall(object):
   
   logger = None
 
-  def __init__(self, engine_config, language, auth_type='oAuth2'):
+  def __init__(self, engine_config, language, locking, auth_type='oAuth2'):
     self.engine_name = engine_config['name']
     self.apiid = engine_config['apikey']
     self.language = language
@@ -60,6 +60,9 @@ class TwitterApiCall(object):
     
   def GetEngineName(self):
     return self.engine_name
+  
+  def IsLocking(self):
+    return self.lock_file_download is not None
   
   def SetLockFileDownload(self, lock_file_download):
     self.lock_file_download = lock_file_download

@@ -117,6 +117,14 @@ class TwitterResponse(object):
     :returns: A UTF-8 string with the raw text response
     """
     return self.response.text
+  
+  @property
+  def headers(self):
+    """A property containing the headers returned by the Twitter call
+    
+    :returns: A UTF-8 string with the raw text response
+    """
+    return self.response.headers
 
   def get_iterator(self):
     """Gets an iterator for the data returned by Twitter
