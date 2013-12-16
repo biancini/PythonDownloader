@@ -99,6 +99,7 @@ class DownloadTweetsREST(TwitterApiCall):
       params['max_id'] = max_id
       params['since_id'] = since_id
       
+
       response = self.api.request('search/tweets', params)
       ratelimit = response.headers['x-rate-limit-remaining']
       jsonresp = json.loads(response.text)
@@ -155,9 +156,12 @@ class DownloadTweetsREST(TwitterApiCall):
           self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
         
         if min_tweetid is not None:
-          max_id = min_tweetid - 1
+          max_id = min_tweetid
           calls += 1
           inserted += newinserted
+          if max_id <= since_id:
+            max_id = None
+            raise Exception()
         else:
           max_id = None
           since_id = None
@@ -176,7 +180,6 @@ class DownloadTweetsREST(TwitterApiCall):
     return [max_id, since_id]
 
   def runcall(self, params, call_id, db_initialization):
-    self.log('Executing call with max_id = %s and since_id = %s' % (call_id['max_id'], call_id['since_id']))
     if not db_initialization:
       self.backend.DeleteLastCallId(self.engine_name, call_id['id'])
     
