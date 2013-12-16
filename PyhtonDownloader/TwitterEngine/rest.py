@@ -150,13 +150,14 @@ class DownloadTweetsREST(TwitterApiCall):
         [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
         if calls == 0: self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
         max_id = min_tweetid
-        if since_id is None:
-          self.log('Performing only one call to initialize DB.')
-          break
         
         calls += 1
         inserted += newinserted
+        
         if max_id is None: raise Exception()
+        if since_id is None:
+          self.log('Performing only one call to initialize DB.')
+          raise Exception()
       except Exception as e:
         self.log('Exiting download cycle: %s' % e)
         break
