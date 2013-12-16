@@ -17,8 +17,11 @@ class ElasticSearchBackend(Backend):
   def BulkInsertTweetIntoDb(self, vals):
     max_tweetid = None
     min_tweetid = None
+    inserted = 0
     
-    if vals is None or len(vals) == 0: return [0, max_tweetid, min_tweetid]
+    if vals is None or len(vals) == 0:
+      self.log("Asked to bulk insert 0 tweets.")
+      return [inserted, max_tweetid, min_tweetid]
     
     try:
       bulk_uploads = ""
@@ -45,8 +48,6 @@ class ElasticSearchBackend(Backend):
       host = "%s/_bulk" % es_server
       req = requests.put(host, data=bulk_uploads)
       ret = json.loads(req.content)
-  
-      inserted = 0
       for item in ret["items"]:
         if item["index"]["ok"]:
           inserted += 1
@@ -60,7 +61,7 @@ class ElasticSearchBackend(Backend):
       return [inserted, max_tweetid, min_tweetid]
     except Exception as e:
       self.logger.log("Exception while bulk inserting tweets: %s" % e)
-      return [0, max_tweetid, min_tweetid]
+      return [inserted, max_tweetid, min_tweetid]
     
   def InsertTweetIntoDb(self, vals):
     try:

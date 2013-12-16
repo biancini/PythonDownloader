@@ -3,6 +3,7 @@ __date__ = "October 2, 2013"
 
 import json
 import time
+import threading
 
 from twitterapi import TwitterApiCall
 from backend import BackendChooser, BackendError
@@ -45,8 +46,7 @@ class DownloadTweetsREST(TwitterApiCall):
       vals.append(self.FromTweetToVals(s, False, False))
 
     try:
-      [inserted, max_tweetid, min_tweetid] = self.backend.BulkInsertTweetIntoDb(vals)
-      return [inserted, max_tweetid, min_tweetid]
+      return self.backend.BulkInsertTweetIntoDb(vals)
     except BackendError as be:
       self.log('Backend error during bulk insert: %s' % be)
       return [0, None, None]
@@ -126,7 +126,9 @@ class DownloadTweetsREST(TwitterApiCall):
       inserted += newins
       self.log('.', False)
       
-      if newins != len(statuses): raise Exception()
+      if newins != len(statuses):
+        self.log("Error inserted %d tweets instead of %d." % (newins, len(statuses)))
+        raise Exception()
 
     return [inserted, max_tweetid, min_tweetid]
 
@@ -137,7 +139,8 @@ class DownloadTweetsREST(TwitterApiCall):
     ratelimit = self.GetCurrentLimit()
     last_errcode = None
     
-    self.log('Executing Twitter API calls ', False)
+    self.log('Executing Twitter API calls with max_id = %s and since_id = %s' % (max_id, since_id))
+    isGap = max_id is not None
 
     while TwitterApiCall.continuing():
       try:
@@ -148,24 +151,39 @@ class DownloadTweetsREST(TwitterApiCall):
         if must_continue: continue
         
         [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
-        if calls == 0: self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
-        max_id = min_tweetid
+        if not isGap and calls == 0 and max_tweetid is not None:
+          self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
         
-        calls += 1
-        inserted += newinserted
+        if min_tweetid is not None:
+          max_id = min_tweetid - 1
+          calls += 1
+          inserted += newinserted
+        else:
+          max_id = None
+          since_id = None
+          raise Exception()
         
-        if max_id is None: raise Exception()
         if since_id is None:
           self.log('Performing only one call to initialize DB.')
           raise Exception()
+        if max_id is None: raise Exception()
       except Exception as e:
-        self.log('Exiting download cycle: %s' % e)
+        self.log('Exiting download cycle %s' % e)
         break
 
     self.log('Total number of calls executed: \t%d.' % calls)
     self.log('Total number of tweets inserted:\t%d.' % inserted)
     return [max_id, since_id]
 
+  def runcall(self, params, call_id, db_initialization):
+    self.log('Executing call with max_id = %s and since_id = %s' % (call_id['max_id'], call_id['since_id']))
+    if not db_initialization:
+      self.backend.DeleteLastCallId(self.engine_name, call_id['id'])
+    
+    [max_id, since_id] = self.PartialProcessTweets(params, call_id['max_id'], call_id['since_id'])
+    if not db_initialization and max_id is not None:
+      self.backend.InsertLastCallIds(self.engine_name, max_id, since_id)
+      
   def ProcessTweets(self):
     lat = self.filters[0]
     lng = self.filters[1]
@@ -185,18 +203,13 @@ class DownloadTweetsREST(TwitterApiCall):
                'max_id':      None,
                'since_id':    None }
 
+    first_call = False
     if len(call_ids) == 0:
-      self.log('Executing call with max_id = %s and since_id = %s' % (None, None))      
-      [max_id, since_id] = self.PartialProcessTweets(params, None, None)
-    else:
-      # TODO multithread executing for each call id to add parallelism
-      for call_id in call_ids:
-        self.log('Executing call with max_id = %s and since_id = %s' % (call_id['max_id'], call_id['since_id']))
-        self.backend.DeleteLastCallId(self.engine_name, call_id['id'])
-        
-        [max_id, since_id] = self.PartialProcessTweets(params, call_id['max_id'], call_id['since_id'])
-        if max_id is not None:
-          self.backend.InsertLastCallIds(self.engine_name, max_id, since_id)
+      first_call = True
+      call_ids = [{ 'max_id': None, 'since_id': None}]
+
+    for call_id in call_ids:
+      threading.Thread(target=self.runcall, args=[params, call_id, first_call]).start()
 
   def AggregateByPerson(self, date):
     tweeters = self.backend.GetAllTweetByPerson(date, date)
