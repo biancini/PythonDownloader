@@ -75,6 +75,7 @@ class DownloadTweetsREST(TwitterApiCall):
   
   def ManagingCallError(self, jsonresp, last_errcode, ratelimit):
     must_continue = False
+    
     if 'errors' in jsonresp:
       if type(jsonresp['errors']).__name__ == 'list': errors = jsonresp['errors']
       else: errors = [jsonresp['errors']]
@@ -85,6 +86,7 @@ class DownloadTweetsREST(TwitterApiCall):
           break
           
       if error['code'] != last_errcode:
+        last_errcode = error['code']
         self.log('Got error from API, retrying in 5 seconds: %s' % jsonresp)
         time.sleep(5)
         must_continue = True
@@ -130,6 +132,8 @@ class DownloadTweetsREST(TwitterApiCall):
       if newins != len(statuses):
         self.log("Error inserted %d tweets instead of %d." % (newins, len(statuses)))
         raise Exception()
+    else:
+      self.log('Unespected call result: %s' % jsonresp)
 
     return [inserted, max_tweetid, min_tweetid]
 
@@ -145,13 +149,17 @@ class DownloadTweetsREST(TwitterApiCall):
 
     while TwitterApiCall.continuing():
       try:
-        if ratelimit <= 2: ratelimit = self.GetNextCreds(ratelimit)
-        [ratelimit, jsonresp] = self.ExecuteCall(params, max_id, since_id)
+        try:
+          if ratelimit <= 2: ratelimit = self.GetNextCreds(ratelimit)
+          [ratelimit, jsonresp] = self.ExecuteCall(params, max_id, since_id)
+          
+          [must_continue, last_errcode, ratelimit] = self.ManagingCallError(jsonresp, last_errcode, ratelimit)
+          if must_continue: continue
         
-        [must_continue, last_errcode, ratelimit] = self.ManagingCallError(jsonresp, last_errcode, ratelimit)
-        if must_continue: continue
-        
-        [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
+          [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
+        finally:
+          if not isGap and calls == 0 and max_tweetid is not None:
+            self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
         
         if min_tweetid is not None:
           max_id = min_tweetid
@@ -172,9 +180,6 @@ class DownloadTweetsREST(TwitterApiCall):
       except Exception as e:
         self.log('Exiting download cycle %s' % e)
         break
-      finally:
-        if not isGap and calls == 0 and max_tweetid is not None:
-          self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
 
     self.log('Total number of calls executed: \t%d.' % calls)
     self.log('Total number of tweets inserted:\t%d.' % inserted)

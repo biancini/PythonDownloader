@@ -25,6 +25,7 @@ class ElasticSearchBackend(Backend):
     
     try:
       bulk_uploads = ""
+      
       for val in vals:
         bulk_uploads += '{ "index" : { "_index" : "twitter", "_type" : "tweets", "_id" : "%s" } }\n' % val['id']
         
@@ -48,6 +49,7 @@ class ElasticSearchBackend(Backend):
       host = "%s/_bulk" % es_server
       req = requests.put(host, data=bulk_uploads)
       ret = json.loads(req.content)
+      
       for item in ret["items"]:
         if item["index"]["ok"]:
           inserted += 1
