@@ -152,8 +152,6 @@ class DownloadTweetsREST(TwitterApiCall):
         if must_continue: continue
         
         [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
-        if not isGap and calls == 0 and max_tweetid is not None:
-          self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
         
         if min_tweetid is not None:
           max_id = min_tweetid
@@ -174,6 +172,9 @@ class DownloadTweetsREST(TwitterApiCall):
       except Exception as e:
         self.log('Exiting download cycle %s' % e)
         break
+      finally:
+        if not isGap and calls == 0 and max_tweetid is not None:
+          self.backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
 
     self.log('Total number of calls executed: \t%d.' % calls)
     self.log('Total number of tweets inserted:\t%d.' % inserted)
@@ -183,21 +184,26 @@ class DownloadTweetsREST(TwitterApiCall):
     if not db_initialization:
       self.backend.DeleteLastCallId(self.engine_name, call_id['id'])
     
-    [max_id, since_id] = self.PartialProcessTweets(params, call_id['max_id'], call_id['since_id'])
-    if not db_initialization and max_id is not None:
-      self.backend.InsertLastCallIds(self.engine_name, max_id, since_id)
+    max_id = call_id['max_id']
+    since_id = call_id['since_id']
+    
+    try:
+      [max_id, since_id] = self.PartialProcessTweets(params, max_id, since_id)
+    finally:
+      if not db_initialization and max_id is not None:
+        self.backend.InsertLastCallIds(self.engine_name, max_id, since_id)
       
   def ProcessTweets(self):
-    lat = self.filters[0]
-    lng = self.filters[1]
-    radius = self.filters[2]
-    count = 100  # Number of tweets to retrieve (max. 100)
-
     try:
       call_ids = self.backend.GetLastCallIds(self.engine_name)
       self.log('Obtained call_ids = %s' % call_ids)
     except BackendError as be:
       self.log('Error while checking last call state: %s' % be)
+
+    lat = self.filters[0]
+    lng = self.filters[1]
+    radius = self.filters[2]
+    count = 100  # Number of tweets to retrieve (max. 100)
 
     params = { 'geocode':     ','.join(map(str, (lat, lng, radius))),
                'count':       count,
