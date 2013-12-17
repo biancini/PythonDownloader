@@ -150,6 +150,7 @@ class DownloadTweetsREST(TwitterApiCall):
     while TwitterApiCall.continuing():
       try:
         try:
+          max_tweetid = since_id
           if ratelimit <= 2: ratelimit = self.GetNextCreds(ratelimit)
           [ratelimit, jsonresp] = self.ExecuteCall(params, max_id, since_id)
           
