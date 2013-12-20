@@ -7,6 +7,7 @@ import signal
 import time
 import getopt
 import threading
+import logging
 
 from TwitterEngine import instances
 from TwitterEngine import TwitterApiCall
@@ -15,7 +16,7 @@ from TwitterEngine import DownloadTweetsREST, DownloadTweetsStream
 class Engine(object):
   engines = []
   running = False
-  waittime = 5 * 60
+  waittime = 1 * 60
 
   def __init__(self, engine_instances, language):
     engine_index = -1
@@ -29,29 +30,29 @@ class Engine(object):
           cur_engine.SetLockFileDownload('/var/lock/twitter_%s_download.lock' % engine_config['name'])
         self.engines.append(cur_engine)
       except Exception as e:
-        print 'Received exception: %s' % e
+        logger.error('Received exception: %s' % e)
       
-      print 'Initialized %s cur_engine %s to use key number %d' % (engine_config['type'], engine_config['name'], engine_config['apikey'])
+      logger.info('Initialized %s cur_engine %s to use key number %d' % (engine_config['type'], engine_config['name'], engine_config['apikey']))
       
     signal.signal(signal.SIGINT, self.signal_handler)
 
   def signal_handler(self, signum, frame):
     if not self.running:
-      print 'You pressed Ctrl+C! The program will be interrupted IMMEDIATELY!'
+      logger.warning('You pressed Ctrl+C! The program will be interrupted IMMEDIATELY!')
       sys.exit(-1)
     else:
-      print 'You pressed Ctrl+C! The program will be interrupted after this execution.'
+      logger.warning('You pressed Ctrl+C! The program will be interrupted after this execution.')
       self.running = False
       TwitterApiCall.stop_run()
 
   def run(self):
     if not background:
-      print 'Running cur_engine only one time...'
+      logger.info('Running cur_engine only one time...')
       self.running = False
       for cur_engine in self.engines:
         self.download(cur_engine)
     else:
-      print 'Running the cur_engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)'
+      logger.info('Running the cur_engine in background mode, continuously.... (press Ctrl+C or send SIGINT to interrupt)')
       self.running = True
 
       while (self.running):
@@ -60,11 +61,11 @@ class Engine(object):
         time.sleep(self.waittime)
 
   def download(self, cur_engine):
-    print 'Starting download from cur_engine %s' % cur_engine.GetEngineName()
+    logger.debug('Starting download from cur_engine %s' % cur_engine.GetEngineName())
     
     if cur_engine.IsLocking() and os.path.exists(cur_engine.GetLockFileDownload()):
-      print 'Stopping because another process is already running.'
-      print 'This script is locked with %s' % cur_engine.GetLockFileDownload()
+      logger.debug('Stopping because another process is already running.')
+      logger.debug('This script is locked with %s' % cur_engine.GetLockFileDownload())
       return
     else:
       if cur_engine.IsLocking():
@@ -73,7 +74,7 @@ class Engine(object):
       try:
         cur_engine.ProcessTweets()
       except Exception as e:
-        print 'Received exception: %s' % e
+        logger.error('Received exception: %s' % e)
       finally:
         if cur_engine.IsLocking() and os.path.exists(cur_engine.GetLockFileDownload()):
           os.remove(cur_engine.GetLockFileDownload())
@@ -85,7 +86,7 @@ def parseargs(name, argv):
   try:
     opts, _args = getopt.getopt(argv, 'hbe:', ['background', 'enginename='])
   except getopt.GetoptError:
-    print '%s [-b]' % name
+    logger.error('%s [-b]' % name)
     sys.exit(2)
 
   for opt, arg in opts:
