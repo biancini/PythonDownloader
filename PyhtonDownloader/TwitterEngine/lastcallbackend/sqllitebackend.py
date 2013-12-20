@@ -22,7 +22,7 @@ class SQLiteBackend(Backend):
     super(SQLiteBackend, self).__init__(engine_config)
   
   def _GetLastCallDb(self):
-    db = sqlite3.connect(secrets.'/usr/share/twitter/lastcall.db')
+    db = sqlite3.connect('%s/lastcall.db' % sqlite_db_path)
     cursor = db.cursor()
     cursor.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='lastcall';''')
 
