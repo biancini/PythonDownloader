@@ -8,22 +8,16 @@ __date__ = "October 2, 2013"
 from .rest import DownloadTweetsREST
 from .stream import DownloadTweetsStream
 
-from .twitterapi import TwitterApiCall
-from .backend import Backend, BackendChooser, BackendError
-from .mysqlbackend import MySQLBackend
-from .elasticsearchbackend import ElasticSearchBackend
-
 from .drawmap import DrawMap
-from .geolocate import GeolocateBackend
+from .backend import TwitterApiCall, BackendChooser, BackendError, MySQLBackend, ElasticSearchBackend, GeolocateBackend
 
 __all__ = [
            'TwitterApiCall',
            'DownloadTweetsREST',
            'DownloadTweetsStream',
-           'Backend',
            'BackendError',
+           'DrawMap'
            'MySQLBackend',
            'ElasticSearchBackend',
-           'DrawMap',
            'GeolocateBackend'
 ]

@@ -4,6 +4,7 @@ __date__ = "November 11, 2013"
 from collections import Counter
 import Stemmer
 
+import logging
 import sys
 reload(sys)
 sys.setdefaultencoding("UTF-8")
@@ -15,9 +16,10 @@ sys.path.insert(0, lib_path)
 
 class HappyAnalyzer(object):
   word_list = {}
+  logger = logging.getLogger('analyzer')
 
   def __init__(self, language):
-    print "Initializing Happiness Analyzer..."
+    self.logger.info("Initializing Happiness Analyzer...")
     dict_path = os.path.abspath(os.path.join(root_path, 'dictionaries'))
     dict_path = os.path.join(dict_path, 'words_%s.txt' % language)
     file_words = open(dict_path, 'r')
@@ -33,7 +35,7 @@ class HappyAnalyzer(object):
 
   def ScoreTweetHappiness(self, tweet_text):
     try:
-      stemmer = Stemmer.Stemmer('french')
+      stemmer = Stemmer.Stemmer('english')
       tweet_words = stemmer.stemWords(tweet_text.split(' '))
 
       total_length = len(tweet_words)
@@ -59,9 +61,9 @@ class HappyAnalyzer(object):
       happiness = 0.0 if denominator == 0 else numerator / denominator
       relevance = 0.0 if total_length == 0 else relevant_words / total_length
 
-      # print "Computed happiness %d with relevance %.2f." % (happiness, relevance)
+      self.logger.debug("Computed happiness %d with relevance %.2f." % (happiness, relevance))
       return [round(happiness, 2), round(relevance, 2)]
     except Exception as e:
-      print "Received exception during happiness scoring: %s" % e.message
+      self.logger.error("Received exception during happiness scoring: %s" % e.message)
       return [0, 0]
 

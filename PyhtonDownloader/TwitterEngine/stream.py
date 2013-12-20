@@ -1,9 +1,7 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-from twitterapi import TwitterApiCall
-from backend import BackendChooser, BackendError
-
+from backend import TwitterApiCall, BackendChooser, BackendError
 
 class DownloadTweetsStream(TwitterApiCall):
 

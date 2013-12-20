@@ -5,9 +5,8 @@ import os
 
 from PIL import Image, ImageDraw, ImageFont
 
-from twitterapi import TwitterApiCall
-#from mysqlbackend import MySQLBackend
-from elasticsearchbackend import ElasticSearchBackend
+# from backend import  TwitterApiCall,MySQLBackend
+from backend import TwitterApiCall, ElasticSearchBackend
 
 
 class DrawMap(TwitterApiCall): 
