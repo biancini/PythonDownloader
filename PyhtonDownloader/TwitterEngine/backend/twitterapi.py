@@ -4,6 +4,7 @@ __date__ = "October 2, 2013"
 import pprint
 import sys
 import json
+import logging
 
 import os
 root_path = os.path.abspath(os.path.join(__file__, '..', '..'))
@@ -16,10 +17,7 @@ from geopy import geocoders
 
 from shapely.geometry import shape, Point
 from shapely.geometry.collection import GeometryCollection
-from secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
-
-from logger import Logger
-# from happyanalyzer import HappyAnalyzer
+from ..secrets import consumer_key, consumer_secret, access_token_key, access_token_secret
 
 class TwitterApiCall(object):
   continuerun = True
@@ -53,7 +51,7 @@ class TwitterApiCall(object):
     self.language = language
     self.filters = engine_config['filters']
     self.auth_type = auth_type
-    self.logger = Logger(engine_config['name'])
+    self.logger = logging.getLogger('engine-%s' % engine_config['name'])
     # self.analyzer = HappyAnalyzer(self.language)
     
     self.InitializeTwitterApi()
@@ -72,28 +70,19 @@ class TwitterApiCall(object):
 
   def getMechanism(self):
     raise NotImplementedError
-  
-  def log(self, message, newline=True):
-    if self.logger is None:
-      if newline:
-          print message
-      else:
-        sys.stdout.write('.')
-        sys.stdout.flush()
-    else: self.logger.log(message, newline)
 
   def InitializeTwitterApi(self):
     self.apiid += 1
     self.apiid %= len(consumer_key)
     
     if self.apiid == self.initial_apiid:
-      self.log("Tried to use every application key, no more available.")
+      self.logger.warning("Tried to use every application key, no more available.")
       raise Exception()
     
     if self.initial_apiid == -1:
       self.initial_apiid = self.apiid
 
-    self.log("Initializing engine with consumer_key = %s" % consumer_key[self.apiid])
+    self.logger.info("Initializing engine with consumer_key = %s" % consumer_key[self.apiid])
     if self.auth_type == 'oAuth2':
       self.api = TwitterAPI(consumer_key=consumer_key[self.apiid],
                             consumer_secret=consumer_secret[self.apiid],
@@ -106,9 +95,6 @@ class TwitterApiCall(object):
                             access_token_secret=access_token_secret[self.apiid])
 
   def ProcessTweets(self):
-    raise NotImplementedError
-
-  def AggregateByPerson(self, date):
     raise NotImplementedError
 
   def GetRateLimits(self):
@@ -127,10 +113,10 @@ class TwitterApiCall(object):
  
     try:
       for _place, (lat, lng) in g.geocode(location, exactly_one=False):
-        # print "Computed coordinates for %s: %s, %s." % (location, lat, lng)
+        self.logger.debug("Computed coordinates for %s: %s, %s." % (location, lat, lng))
         coordinates = [str(lat), str(lng)]
     except Exception as e:
-      print "Error while geocoding: %s" % e
+      self.logger.error("Error while geocoding: %s" % e)
       coordinates = ['NULL', 'NULL']
 
     return coordinates
@@ -173,9 +159,9 @@ class TwitterApiCall(object):
         elif type(geom) == Point:
           coordinates = [geom.y, geom.x]
         else:
-          print "Tweet place is of unknown type: %s." % type(geom)
+          self.logger.warning("Tweet place is of unknown type: %s." % type(geom))
     except Exception as e:
-      print "Error while parsing coordinates: %s" % e
+      self.logger.error("Error while parsing coordinates: %s" % e)
       
     if (coordinates[0] == 'NULL' or coordinates[1] == 'NULL') and geolocate:
       coordinates = self.Geolocate(location)
@@ -185,10 +171,6 @@ class TwitterApiCall(object):
       if coordinates[0] == 'NULL' or coordinates[1] == 'NULL': return None
       kmls = self.backend.GetKmls()
     if kmls and not self.CheckPointInKml(kmls, float(coordinates[0]), float(coordinates[1])): return None
-
-    # pp = pprint.PrettyPrinter(depth=6)
-    # pp.pprint(tweet)
-    # sys.exit("Fine")
 
     ret_vals = {}
     ret_vals['id'] = tweet['id']

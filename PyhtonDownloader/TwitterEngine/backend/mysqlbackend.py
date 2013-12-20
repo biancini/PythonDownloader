@@ -4,8 +4,7 @@ __date__ = "October 2, 2013"
 import MySQLdb
 
 from backend import Backend, BackendError
-from secrets import dbhost, dbuser, dbpass, dbname
-
+from ..secrets import dbhost, dbuser, dbpass, dbname
 
 class MySQLBackend(Backend):
   con = None
@@ -18,7 +17,7 @@ class MySQLBackend(Backend):
                                  passwd=dbpass,
                                  db=dbname,
                                  charset='utf8')
-      self.logger.log("Connected to MySQL db %s:%s." % (dbhost, dbname))
+      self.logger.info("Connected to MySQL db %s:%s." % (dbhost, dbname))
       self.cur = self.con.cursor()
     except Exception as e:
       raise BackendError("Error connecting to MySQL db %s:%s: %s" % (dbhost, dbname, e))
@@ -36,7 +35,7 @@ class MySQLBackend(Backend):
         if top_id is None or top_id < long(val['id']):
             top_id = long(val['id'])
     except BackendError as e:
-      self.logger.log("Bulk insert not ok for tweet %s: %s " % (val['id'], e))
+      self.logger.error("Bulk insert not ok for tweet %s: %s " % (val['id'], e))
       
     return (num_inserted, top_id)
 
@@ -68,7 +67,7 @@ class MySQLBackend(Backend):
         self.con.rollback()
         raise BackendError("Tried to insert a tweet already present in the DB: %s" % vals[0])
       else:
-        self.logger.log("Exception while inserting tweet %s: %s" % (vals[0], e))
+        self.logger.error("Exception while inserting tweet %s: %s" % (vals[0], e))
 
       self.con.rollback()
       return 0
@@ -85,47 +84,6 @@ class MySQLBackend(Backend):
       return kmls
     except Exception as e:
       raise BackendError("Error while retrieving kmls from DB: %s" % e)
-
-  def GetLastCallIds(self, engine_name):
-    try:
-      self.cur.execute("SELECT `key`, `value` from lastcall WHERE `enginename` = '%s'" % engine_name)
-      rows = self.cur.fetchall()
-
-      ids = [None, None, None]
-      for row in rows:
-        if row[0] == 'max_id': ids[0] = row[1]
-        elif row[0] == 'since_id': ids[1] = row[1]
-        elif row[0] == 'top_id': ids[2] = row[1]
-
-      return ids
-    except Exception as e:
-      raise BackendError("Error while retrieving last call ids from DB: %s" % e)
-
-  def UpdateLastCallIds(self, engine_name, top_id, max_id=None, since_id=None):
-    self.logger.log("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
-    try:
-      if top_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'top_id'" % (engine_name, top_id)
-      else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `enginename` = '%s' AND `key` = 'top_id'" % engine_name
-      self.cur.execute(sql)
-      self.con.commit()
-
-      if max_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'max_id'" % (engine_name, max_id)
-      else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `enginename` = '%s' AND `key` = 'max_id'" % engine_name
-      self.cur.execute(sql)
-      self.con.commit()
-
-      if since_id:
-        sql = "UPDATE lastcall SET `value` = '%s' WHERE `enginename` = '%s' AND `key` = 'since_id'" % (engine_name, since_id)
-      else:
-        sql = "UPDATE lastcall SET `value` = NULL WHERE `enginename` = '%s' AND `key` = 'since_id'" % engine_name
-      self.cur.execute(sql)
-      self.con.commit()
-    except Exception as e:
-      raise BackendError("Error while updating last call ids into DB: %s" % e)
 
   def GetAllTweetCoordinates(self):
     try:
@@ -155,7 +113,7 @@ class MySQLBackend(Backend):
       raise BackendError("Error while retrieving locations from DB: %s" % e)
 
   def UpdateCoordinates(self, location, lat, lng):
-    self.logger.log("Updating coordinate for location %s: [%s, %s]." % (location, lat, lng))
+    self.logger.info("Updating coordinate for location %s: [%s, %s]." % (location, lat, lng))
     try:
       self.cur.execute("UPDATE tweets SET latitude = %s, longitude = %s WHERE user_location = '%s'" % (lat, lng, location.replace('\\', '\\\\').replace('\'', '\\\'')))
       self.con.commit()
@@ -163,7 +121,7 @@ class MySQLBackend(Backend):
       raise BackendError("Error while updating coordinates for location into DB: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
-    self.logger.log("Inserting row for %s, %s." % (vals[2], vals[4]))
+    self.logger.info("Inserting row for %s, %s." % (vals[2], vals[4]))
     field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
     try:
       sql = "INSERT INTO french_deps (%s) " % field_list

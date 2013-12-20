@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 
 from backend import Backend, BackendError
-from secrets import es_server
+from ..secrets import es_server
 
 
 class ElasticSearchBackend(Backend):

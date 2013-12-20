@@ -2,6 +2,7 @@ __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
 import MySQLdb
+import threading
 
 from backend import Backend, LastcallBackendError
 from ..secrets import dbhost, dbuser, dbpass, dbname
