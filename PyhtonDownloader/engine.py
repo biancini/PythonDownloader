@@ -13,6 +13,9 @@ from TwitterEngine import instances
 from TwitterEngine import TwitterApiCall
 from TwitterEngine import DownloadTweetsREST, DownloadTweetsStream
 
+logging.config.fileConfig("logging.conf")
+logger = logging.getLogger('root')
+
 class Engine(object):
   engines = []
   running = False
