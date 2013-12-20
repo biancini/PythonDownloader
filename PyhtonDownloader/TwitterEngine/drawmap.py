@@ -47,7 +47,7 @@ class DrawMap(TwitterApiCall):
     start_time = tweets[0][0]
     end_time = tweets[-1][0]
 
-    font = ImageFont.truetype("%s/freesansbold.ttf" % root_path, 16)
+    font = ImageFont.truetype("%s/../utilites/freesansbold.ttf" % root_path, 16)
 
     print "Creating images of France for all tweets in DB."
     print "Will be creating %d images." % ((end_time - start_time).seconds / interval)
@@ -62,7 +62,7 @@ class DrawMap(TwitterApiCall):
       if delta_secs <= interval:
         show[persistence - 1].append([tweet[2], tweet[1]])
       else:
-        img = Image.open("%s/france.png" % root_path)
+        img = Image.open("%s/../utilites/france.png" % root_path)
         draw = ImageDraw.Draw(img)
 
         allpoints = [item for sublist in show for item in sublist]

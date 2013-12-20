@@ -9,7 +9,6 @@ from datetime import datetime
 from backend import Backend, BackendError
 from ..secrets import es_server
 
-
 class ElasticSearchBackend(Backend):
   def __init__(self, logger):
     Backend.__init__(self, logger)
@@ -132,49 +131,6 @@ class ElasticSearchBackend(Backend):
       return rows
     except Exception as e:
       raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
-
-  def GetLastCallIds(self, engine_name):
-    try:
-      data = { 'query' : { 'match_all' : { } }, 'size': 100 }
-      data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/%s_lastcall/_search" % (es_server, engine_name)
-      req = requests.get(host, data=data_json)
-      ret = json.loads(req.content)
-
-      ids = []
-      for hit in ret['hits']['hits']:
-        new_id = {}
-        new_id['id'] = hit['_id']
-        new_id['max_id'] = hit['_source']['max_id']
-        new_id['since_id'] = hit['_source']['since_id']
-        ids.append(new_id)
-      return ids
-    except Exception as e:
-      raise BackendError("Error while retrieving last call ids from ElasticSearch: %s" % e)
-    
-  def DeleteLastCallId(self, engine_name, lastcall_id):
-    self.logger.log("Deleting lastcall id = %s." % (lastcall_id))
-        
-    try:
-      host = "%s/twitter/%s_lastcall/%s" % (es_server, engine_name, lastcall_id)
-      req = requests.delete(host)
-      ret = json.loads(req.content)
-      if not ret["ok"]: raise BackendError("Error during delete: %s" % ret)
-    except Exception as e:
-      raise BackendError("Error while deleting lastcall id %s from ElasticSearch: %s" % (lastcall_id, e))    
-
-  def InsertLastCallIds(self, engine_name, max_id=None, since_id=None):
-    self.logger.log("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
-    try:
-      data = { 'max_id'   : max_id,
-               'since_id' : since_id }
-      data_json = json.dumps(data, indent=2)
-      host = "%s/twitter/%s_lastcall/" % (es_server, engine_name)
-      req = requests.post(host, data=data_json)
-      ret = json.loads(req.content)
-      if not ret["ok"]: raise BackendError("Insert not ok: %s" % ret)
-    except Exception as e:
-      raise BackendError("Error while inserting lastcall ids into ElasticSearch: %s" % e)
 
   def GetAllTweetCoordinates(self):
     try:
