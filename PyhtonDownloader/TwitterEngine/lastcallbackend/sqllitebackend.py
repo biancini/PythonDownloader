@@ -83,6 +83,10 @@ class SQLiteBackend(Backend):
       self.logger.error("Wrong parameters in lastcall update, since_id cannot be None.")
       return
 
+    if max_id is not None and max_id <= since_id:
+      self.logger.error("Wrong parameters in lastcall update, max_id smaller than since_id: %s, %s." % (max_id, since_id))
+      return
+
     self.logger.info("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
 
     db = None
