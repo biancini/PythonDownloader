@@ -195,10 +195,10 @@ class DownloadTweetsREST(TwitterApiCall):
     max_tweetid = max_id if max_id is not None else since_id
     if max_tweetid is None: return
 
-    self.logger.warn("No lastcall in database, rescuing engine.")
     try:
       call_ids = self.lastcall_backend.GetLastCallIds(self.engine_name, False)
       if len(call_ids) == 0:
+        self.logger.warn("No lastcall in database, rescuing engine.")
         self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
     except Exception as e:
       self.logger.error("Error in rescuing last call: %s" % e)

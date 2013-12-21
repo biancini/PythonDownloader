@@ -51,7 +51,7 @@ class SQLiteBackend(Backend):
         ids.append(new_id)
 
         if pop:   
-          self.logger.info("Deleting lastcall id = %s." % row[0])
+          self.logger.info('Deleting lastcall id = %s.' % row[0])
           cursor.execute('''DELETE FROM lastcall WHERE engine_name = ? AND id = ?''', (engine_name, row[0]))
 
       db.commit()
@@ -113,6 +113,7 @@ class SQLiteBackend(Backend):
         db.commit()
       else:
         self.logger.warn("Doing nothing.. database already updated...")
+        db.commit()
     except Exception as e:
       if cursor is not None: db.rollback()
       raise LastcallBackendError("Error while inserting lastcall ids into SQLite: %s" % e)
