@@ -112,7 +112,7 @@ class SQLiteBackend(Backend):
         cursor.execute('''UPDATE lastcall SET since_id = ? WHERE engine_name = ? AND since_id = ? AND max_id IS NULL;''', (since_id, engine_name, row[0]))
         db.commit()
       else:
-        self.logger.warn("Doing nothing.. database already updated...")
+        self.logger.info("Doing nothing.. database already updated...")
         db.commit()
     except Exception as e:
       if cursor is not None: db.rollback()
