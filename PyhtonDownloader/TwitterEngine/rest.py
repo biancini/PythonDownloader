@@ -216,7 +216,7 @@ class DownloadTweetsREST(TwitterApiCall):
       self.logger.error("Exception during runcall: %s" % e)
     finally:
       if not db_initialization:
-        if isGap: self.lastcall_backend.InsertLastCallIds(self.engine_name, max_id, since_id)
+        if isGap and since_id is not None: self.lastcall_backend.InsertLastCallIds(self.engine_name, max_id, since_id)
         elif max_id is not None: self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_id)
       self.rescue_lastcall(max_id, since_id)
       
