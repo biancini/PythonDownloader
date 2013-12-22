@@ -84,7 +84,7 @@ class DownloadTweetsREST(TwitterApiCall):
       for error in errors:
         if 'code' in error and error['code'] == 88:
           ratelimit = self.GetNextCreds()
-          break
+          return [must_continue, last_errcode, ratelimit]
           
       if error['code'] != last_errcode:
         last_errcode = error['code']
@@ -137,6 +137,7 @@ class DownloadTweetsREST(TwitterApiCall):
         raise Exception()
     else:
       self.logger.error('Unexpected call result: %s' % jsonresp)
+      raise Exception()
 
     return [inserted, max_tweetid, min_tweetid]
 
@@ -204,16 +205,17 @@ class DownloadTweetsREST(TwitterApiCall):
       self.logger.error("Error in rescuing last call: %s" % e)
 
   def runcall(self, params, call_id, db_initialization):
+    isGap = True
     try:
       max_id = call_id['max_id']
       since_id = call_id['since_id']
+      isGap = since_id is not None
     
       [max_id, since_id] = self.PartialProcessTweets(params, max_id, since_id)
     except Exception as e:
       self.logger.error("Exception during runcall: %s" % e)
     finally:
       if not db_initialization:
-        isGap = since_id is not None
         if isGap: self.lastcall_backend.InsertLastCallIds(self.engine_name, max_id, since_id)
         elif max_id is not None: self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_id)
       self.rescue_lastcall(max_id, since_id)
