@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+import os.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+
 import urllib
 import urllib2
 import json
 
 from TwitterEngine import BackendChooser
+from TwitterEngine.instances import INSTANCES
 from TwitterEngine.secrets import google_refresh_token, google_client_id, google_client_secret
 
 def getGoogleAccessToken():
@@ -33,7 +38,7 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 if __name__ == "__main__":
-  backend = BackendChooser.GetBackend()
+  backend = BackendChooser.GetBackend(INSTANCES[0])
 
   access_token = getGoogleAccessToken()
   tablename = '1_r_DC9mlrFCJB93hNfzD9P8murmI4_2tmgaQcZ4'
