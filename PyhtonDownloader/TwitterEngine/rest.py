@@ -114,24 +114,6 @@ class DownloadTweetsREST(TwitterApiCall):
       
       return [ratelimit, jsonresp]
     except Exception as e:
-
-    return [must_continue, last_errcode, ratelimit]
-  
-  def ExecuteCall(self, params, max_id, since_id):
-    params['max_id'] = max_id
-    params['since_id'] = since_id
-    
-    if max_id is not None and since_id is not None:
-      if max_id < since_id:
-        raise Exception("Wrong max and min id")
-
-    try:
-      response = self.api.request('search/tweets', params)
-      ratelimit = response.headers['x-rate-limit-remaining']
-      jsonresp = json.loads(response.text)
-      
-      return [ratelimit, jsonresp]
-    except Exception as e:
       self.logger.error('Error during API call: %s.' % e)
       raise e
     
