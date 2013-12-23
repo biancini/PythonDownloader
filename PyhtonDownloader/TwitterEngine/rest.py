@@ -170,13 +170,13 @@ class DownloadTweetsREST(TwitterApiCall):
           inserted += newinserted
           if max_tweetid < since_id or max_tweetid == min_tweetid:
             max_id = None
-            raise Exception()
-          else:
-            max_id = min_tweetid
+            since_id = None
+            break
+          max_id = min_tweetid
         else:
           max_id = None
           since_id = None
-          raise Exception()
+          break
         
         if since_id is None:
           self.logger.info('Performing only one call to initialize DB.')
