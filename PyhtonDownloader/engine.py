@@ -21,7 +21,7 @@ logger = logging.getLogger('root')
 class Engine(object):
   engines = []
   running = False
-  waittime = 1 * 60
+  waittime = 3 * 60
 
   def __init__(self, engine_instances, language):
     engine_index = -1

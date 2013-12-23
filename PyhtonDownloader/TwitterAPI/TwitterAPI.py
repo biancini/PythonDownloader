@@ -35,7 +35,7 @@ class BearerAuth(requests.auth.AuthBase):
       data = json.loads(response.read())
       return data['access_token']
     except urllib2.HTTPError as e:
-      print >> sys.stderr, 'Error while requesting bearer access token: %s' % e
+      #print >> sys.stderr, 'Error while requesting bearer access token: %s' % e
       raise Exception('Twitter error in retrieving bearer access token')
 
   def __call__(self, r):
