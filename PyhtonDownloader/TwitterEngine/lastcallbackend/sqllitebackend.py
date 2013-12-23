@@ -49,8 +49,10 @@ class SQLiteBackend(Backend):
         new_id['max_id'] = row[1]
         new_id['since_id'] = row[2]
         ids.append(new_id)
-        
-        if pop: self.DeleteLastCallId(engine_name, row[0])
+
+        if pop:   
+          self.logger.info('Deleting lastcall id = %s.' % row[0])
+          cursor.execute('''DELETE FROM lastcall WHERE engine_name = ? AND id = ?''', (engine_name, row[0]))
 
       db.commit()
       return ids
@@ -79,11 +81,15 @@ class SQLiteBackend(Backend):
 
   @synchronized
   def InsertLastCallIds(self, engine_name, max_id=None, since_id=None):
+    self.logger.info("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
+
     if since_id is None:
       self.logger.error("Wrong parameters in lastcall update, since_id cannot be None.")
       return
 
-    self.logger.info("Updating lastcall with values max_id = %s and since_id = %s." % (max_id, since_id))
+    if max_id is not None and max_id <= since_id:
+      self.logger.error("Wrong parameters in lastcall update, max_id smaller than since_id: %s, %s." % (max_id, since_id))
+      return
 
     db = None
     cursor = None
@@ -93,6 +99,10 @@ class SQLiteBackend(Backend):
       
       cursor.execute('''SELECT MAX(since_id) FROM lastcall WHERE engine_name = ? AND max_id IS NULL;''', (engine_name,))
       row = cursor.fetchone()
+
+      if row[0] is None: self.logger.debug("No lastcall with max_id = None found in DB.")
+      else: self.logger.debug("Lastcall with max_id = None and since_id = %s found in DB." % row[0])
+
       if max_id is not None or row[0] is None:
         self.logger.debug("Inserting lastcall since no clashing lastcall already present into DB")
         cursor.execute('''INSERT INTO lastcall (engine_name, max_id, since_id) VALUES (?, ?, ?);''', (engine_name, max_id, since_id))
@@ -102,7 +112,8 @@ class SQLiteBackend(Backend):
         cursor.execute('''UPDATE lastcall SET since_id = ? WHERE engine_name = ? AND since_id = ? AND max_id IS NULL;''', (since_id, engine_name, row[0]))
         db.commit()
       else:
-        self.logger.warn("Doing nothing.. database already updated...")
+        self.logger.info("Doing nothing.. database already updated...")
+        db.commit()
     except Exception as e:
       if cursor is not None: db.rollback()
       raise LastcallBackendError("Error while inserting lastcall ids into SQLite: %s" % e)

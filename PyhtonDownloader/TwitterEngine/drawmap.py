@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from backend import TwitterApiCall, ElasticSearchBackend
 
 
-class DrawMap(TwitterApiCall): 
+class DrawMap(TwitterApiCall):
   color = (255, 0, 0)
   lower_left = [41.0, -5.5]
   top_right = [51.6, 10.0]
@@ -71,7 +71,7 @@ class DrawMap(TwitterApiCall):
           self.DrawPoint(draw, x, y)
 
         draw.text((0, 0), tweet[0].strftime("%d/%m/%Y %H:%M"), self.color, font=font)
-        img.save("%s/../images/france%05d.png" % (root_path, imgnum))
+        img.save("%s/../map/france%05d.png" % (root_path, imgnum))
         del draw
 
         advancement += 1

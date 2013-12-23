@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 # parse_qsl moved to urlparse module in v2.6
 
+import sys
+import os.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+
 import webbrowser
 import oauth2 as oauth
 
