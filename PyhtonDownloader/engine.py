@@ -77,7 +77,7 @@ class Engine(object):
         open(cur_engine.GetLockFileDownload(), 'w').write('1')
       
       try:
-        cur_engine.ProcessTweets()
+        cur_engine.ProcessTweets(initializedb)
       except Exception as e:
         logger.error('Received exception: %s' % e)
       finally:
@@ -86,26 +86,29 @@ class Engine(object):
 
 def parseargs(name, argv):
   background = False
+  initializedb = False
   engine_name = None
   
   try:
-    opts, _args = getopt.getopt(argv, 'hbe:', ['background', 'enginename='])
+    opts, _args = getopt.getopt(argv, 'hbie:', ['background', 'initializedb', 'enginename='])
   except getopt.GetoptError:
     logger.error('%s [-b]' % name)
     sys.exit(2)
 
   for opt, arg in opts:
     if opt == '-h':
-      print '%s [-b] [-e default]' % name
+      print '%s [-b] [-i] [-e default]' % name
       sys.exit()
     elif opt in ('-b', '--background'):
       background = True
+    elif opt in ('-i', '--initializedb'):
+      initializedb = True
     elif opt in ('-e', '--enginename'):
       engine_name = arg
 
-  return (background, engine_name)
+  return (background, initializedb, engine_name)
     
 if __name__ == '__main__':
-  (background, start_name) = parseargs(sys.argv[0], sys.argv[1:])
+  (background, initializedb, start_name) = parseargs(sys.argv[0], sys.argv[1:])
   cur_engine = Engine(instances.INSTANCES, instances.LANGUAGE)
   cur_engine.run()

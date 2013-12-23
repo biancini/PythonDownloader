@@ -84,6 +84,7 @@ class DownloadTweetsREST(TwitterApiCall):
       for error in errors:
         if 'code' in error and error['code'] == 88:
           ratelimit = self.GetNextCreds()
+          must_continue = True
           return [must_continue, last_errcode, ratelimit]
           
       if error['code'] != last_errcode:
@@ -220,7 +221,7 @@ class DownloadTweetsREST(TwitterApiCall):
         elif max_id is not None: self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_id)
       self.rescue_lastcall(max_id, since_id)
       
-  def ProcessTweets(self):
+  def ProcessTweets(self, initialize=False):
     try:
       call_ids = self.lastcall_backend.GetLastCallIds(self.engine_name, True)
       self.logger.debug('Obtained call_ids = %s' % call_ids)
@@ -241,8 +242,12 @@ class DownloadTweetsREST(TwitterApiCall):
 
     first_call = False
     if len(call_ids) == 0:
-      first_call = True
-      call_ids = [{ 'max_id': None, 'since_id': None}]
+      if initialize:
+        first_call = True
+        call_ids = [{ 'max_id': None, 'since_id': None}]
+      else:
+        self.logger.info("Engine colliding with other executions. Exiting.")
+        return
 
     for call_id in call_ids:
       threading.Thread(target=self.runcall, args=[params, call_id, first_call]).start()
