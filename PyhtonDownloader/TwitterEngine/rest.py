@@ -77,7 +77,9 @@ class DownloadTweetsREST(TwitterApiCall):
   def ManagingCallError(self, jsonresp, last_errcode, ratelimit):
     must_continue = False
     
-    if 'errors' in jsonresp:
+    if 'statuses' in jsonresp:
+      return [must_continue, last_errcode, ratelimit]
+    elif 'errors' in jsonresp:
       if type(jsonresp['errors']).__name__ == 'list': errors = jsonresp['errors']
       else: errors = [jsonresp['errors']]
       
@@ -92,9 +94,26 @@ class DownloadTweetsREST(TwitterApiCall):
         self.logger.warning('Got error from API, retrying in 5 seconds: %s' % jsonresp)
         time.sleep(5)
         must_continue = True
-      else:
-        self.logger.error('Call did not return expected results: %s' % jsonresp)
-        raise Exception()
+        return [must_continue, last_errcode, ratelimit]
+
+    self.logger.error('Call did not return expected results: %s' % jsonresp)
+    raise Exception()
+  
+  def ExecuteCall(self, params, max_id, since_id):
+    params['max_id'] = max_id
+    params['since_id'] = since_id
+    
+    if max_id is not None and since_id is not None:
+      if max_id < since_id:
+        raise Exception("Wrong max and min id")
+
+    try:
+      response = self.api.request('search/tweets', params)
+      ratelimit = response.headers['x-rate-limit-remaining']
+      jsonresp = json.loads(response.text)
+      
+      return [ratelimit, jsonresp]
+    except Exception as e:
 
     return [must_continue, last_errcode, ratelimit]
   
@@ -121,23 +140,19 @@ class DownloadTweetsREST(TwitterApiCall):
     min_tweetid = None
     inserted = 0
     
-    if 'statuses' in jsonresp:
-      statuses = jsonresp['statuses']
+    statuses = jsonresp['statuses']
       
-      if len(statuses) is 0:
-        self.logger.info('API returned no tweet.')
-        return [inserted, None, None]
+    if len(statuses) is 0:
+      self.logger.info('API returned no tweet.')
+      return [inserted, None, None]
   
-      if self.bulk: [newins, max_tweetid, min_tweetid] = self.BulkInsert(statuses)
-      else: [newins, max_tweetid, min_tweetid] = self.SingleInsert(statuses)
+    if self.bulk: [newins, max_tweetid, min_tweetid] = self.BulkInsert(statuses)
+    else: [newins, max_tweetid, min_tweetid] = self.SingleInsert(statuses)
 
-      inserted += newins
+    inserted += newins
       
-      if newins != len(statuses):
-        self.logger.error("Error inserted %d tweets instead of %d." % (newins, len(statuses)))
-        raise Exception()
-    else:
-      self.logger.error('Unexpected call result: %s' % jsonresp)
+    if newins != len(statuses):
+      self.logger.error("Error inserted %d tweets instead of %d." % (newins, len(statuses)))
       raise Exception()
 
     return [inserted, max_tweetid, min_tweetid]
@@ -164,6 +179,7 @@ class DownloadTweetsREST(TwitterApiCall):
         [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
         if not isGap and calls == 0 and max_tweetid is not None:
           self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
+          idGap = True
         
         if min_tweetid is not None:
           calls += 1
@@ -206,19 +222,26 @@ class DownloadTweetsREST(TwitterApiCall):
       self.logger.error("Error in rescuing last call: %s" % e)
 
   def runcall(self, params, call_id, db_initialization):
-    isGap = True
+    orig_max_id = None
+    orig_since_id = None
+
     try:
       max_id = call_id['max_id']
       since_id = call_id['since_id']
-      isGap = since_id is not None
+      orig_max_id = max_id
+      orig_since_id = since_id
     
       [max_id, since_id] = self.PartialProcessTweets(params, max_id, since_id)
     except Exception as e:
       self.logger.error("Exception during runcall: %s" % e)
     finally:
       if not db_initialization:
-        if isGap and since_id is not None: self.lastcall_backend.InsertLastCallIds(self.engine_name, max_id, since_id)
-        elif max_id is not None: self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_id)
+        if since_id is None and max_id is not None:
+          self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_id)
+        elif since_id is not None:
+          if max_id is not None and orig_max_id is not None and max_id > orig_max_id:
+            self.logger.warning("Attention, the gap seems to be widening! Old max_id = %s new max_id = %s." % (orig_max_id, max_id))
+          self.lastcall_backend.InsertLastCallIds(self.engine_name, max_id, since_id)
       self.rescue_lastcall(max_id, since_id)
       
   def ProcessTweets(self, initialize=False):
