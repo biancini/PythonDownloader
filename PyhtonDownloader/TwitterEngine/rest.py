@@ -192,13 +192,25 @@ class DownloadTweetsREST(TwitterApiCall):
       
     return [min_tweetid, since_id]
 
-  def RescueLastcall(self):
+  #def RaescueLastcall(self):
+  #  try:
+  #    call_ids = self.lastcall_backend.GetLastCallIds(self.engine_name, False)
+  #    if len(call_ids) == 0:
+  #      self.logger.warn("No lastcall in database, rescuing engine.")
+  #      max_tweetid = self.backend.GetMaxId()
+  #      self.logger.debug("Found max_tweetid = %s in database." % max_tweetid)
+  #      self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
+  #  except Exception as e:
+  #    self.logger.error("Error in rescuing last call: %s" % e)
+
+  def RescueLastcall(self, max_id, since_id):
+    max_tweetid = max_id if max_id is not None else since_id
+    if max_tweetid is None: return
+
     try:
       call_ids = self.lastcall_backend.GetLastCallIds(self.engine_name, False)
       if len(call_ids) == 0:
         self.logger.warn("No lastcall in database, rescuing engine.")
-        max_tweetid = self.backend.GetMaxId()
-        self.logger.debug("Found max_tweetid = %s in database." % max_tweetid)
         self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
     except Exception as e:
       self.logger.error("Error in rescuing last call: %s" % e)
@@ -235,7 +247,8 @@ class DownloadTweetsREST(TwitterApiCall):
       self.logger.error("Exception during RunCallEngine: %s" % e)
     finally:
       if not db_initialization: self.UpdateLastCallAfterCallExecution(orig_max_id, max_id, since_id)
-      self.RescueLastcall()
+      #self.RescueLastcall()
+      self.RescueLastcall(max_id, since_id)
       
   def ProcessTweets(self, initialize=False):
     try:
