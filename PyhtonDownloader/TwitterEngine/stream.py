@@ -15,18 +15,18 @@ class DownloadTweetsStream(TwitterApiCall):
   def ProcessTweets(self):
     squares = self.filters
     lang = self.language
-    self.log('Executing Twitter API calls')
+    self.logger.info('Executing Twitter API calls')
 
     params = {'locations':','.join(squares)}
     r = self.api.request('statuses/filter', params)
 
     for item in r.get_iterator():
       if lang and item['lang'] != lang: continue
-      # self.log(item['text'])
+      self.logger.debug(item['text'])
 
       sql_vals = self.FromTweetToSQLVals(item, True, True)
       if not sql_vals: continue
       try:
         self.backend.InsertTweetIntoDb(sql_vals)
       except BackendError as be:
-        self.log("Error inserting tweet in the backend: %s" % be)
+        self.logger.error("Error inserting tweet in the backend: %s" % be)

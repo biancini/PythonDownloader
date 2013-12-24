@@ -19,7 +19,7 @@ class ElasticSearchBackend(Backend):
     inserted = 0
     
     if vals is None or len(vals) == 0:
-      self.log("Asked to bulk insert 0 tweets.")
+      self.logger.info("Asked to bulk insert 0 tweets.")
       return [inserted, max_tweetid, min_tweetid]
     
     try:
@@ -57,12 +57,17 @@ class ElasticSearchBackend(Backend):
           if min_tweetid is None or min_tweetid > long(item["index"]['_id']):
             min_tweetid = long(item["index"]['_id'])
         else:
-          self.logger.log("Bulk insert not ok for tweet: " % item["index"]["_id"])
-          
-      return [inserted, max_tweetid, min_tweetid]
+          self.logger.error("Bulk insert not ok for tweet: " % item["index"]["_id"])
+      
+      if max_tweetid is None or min_tweetid is None:
+        self.logger.error("Unexpected max_tweetid or min_tweetid is None.")
+        raise Exception()
+      
     except Exception as e:
-      self.logger.log("Exception while bulk inserting tweets: %s" % e)
-      return [inserted, max_tweetid, min_tweetid]
+      self.logger.error("Exception while bulk inserting tweets: %s" % e)
+      if max_tweetid is None or min_tweetid is None: raise e
+    
+    return [inserted, max_tweetid, min_tweetid]
     
   def InsertTweetIntoDb(self, vals):
     try:
@@ -71,7 +76,7 @@ class ElasticSearchBackend(Backend):
       host = "%s/twitter/tweets/%s" % (es_server, vals['id'])
       present = requests.head(host)
       if int(present.status_code) != 404:
-        # self.logger.log("HEAD returned %s" % present.status_code)
+        self.logger.debug("HEAD returned %s" % present.status_code)
         return 0
 
       data = {}
@@ -97,11 +102,11 @@ class ElasticSearchBackend(Backend):
       if ret["_version"] > 1: raise BackendError("Tweet already present in the DB.")
       return 1
     except Exception as e:
-      self.logger.log("Exception while inserting tweet %s: %s" % (vals['id'], e))
+      self.logger.error("Exception while inserting tweet %s: %s" % (vals['id'], e))
       return 0
 
   def GetKmls(self):
-    self.logger.log("Retrieving all French departments")
+    self.logger.info("Retrieving all French departments")
     try:
       start = 0
       pagesize = 10
@@ -163,7 +168,7 @@ class ElasticSearchBackend(Backend):
               curhit.append(None)
               curhit.append(None)
             tweets.append(curhit)
-            # self.logger.log("new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1]))
+            self.logger.debug("new google.maps.LatLng(%s, %s)," % (curhit[2], curhit[1]))
 
         last = ret['hits']['total']
         start += pagesize
@@ -220,7 +225,7 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
     
   def UpdateCoordinates(self, location, lat, lng):
-    self.logger.log("Updating coordinate for location %s: [%s, %s]." % (location, lat, lng))
+    self.logger.info("Updating coordinate for location %s: [%s, %s]." % (location, lat, lng))
     try:
       tweetids = self._GetTweetsIdForLocation(location)
 
@@ -236,7 +241,7 @@ class ElasticSearchBackend(Backend):
       raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
-    self.logger.log("Inserting row for %s, %s." % (vals[2], vals[6]))
+    self.logger.info("Inserting row for %s, %s." % (vals[2], vals[6]))
     try:
       data = { 'ID_GEOFLA' : vals[0],
                'CODE_DEPT' : vals[1],

@@ -1,8 +1,6 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
-import sys
-
 class BackendChooser(object):
   @staticmethod
   def GetBackend(logger):
@@ -18,15 +16,6 @@ class Backend(object):
   def __init__(self, logger):
     self.logger = logger
     
-  def log(self, message, newline=True):
-    if self.logger is None:
-      if newline:
-          print message
-      else:
-        sys.stdout.write('.')
-        sys.stdout.flush()
-    else: self.logger.log(message, newline)
-  
   def BulkInsertTweetIntoDb(self, vals):
     raise NotImplementedError
   

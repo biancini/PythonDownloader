@@ -126,7 +126,7 @@ class MySQLBackend(Backend):
     try:
       sql = "INSERT INTO french_deps (%s) " % field_list
       sql += "VALUES (%d,'%s','%s','%s','%s','%s','%s','%s')" % vals
-      # self.logger.log(sql)
+      self.logger.debug(sql)
 
       self.cur.execute(sql)
       self.con.commit()
