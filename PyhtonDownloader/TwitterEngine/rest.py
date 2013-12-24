@@ -4,15 +4,18 @@ __date__ = "October 2, 2013"
 import json
 import time
 import threading
+import logging
 
 from backend import TwitterApiCall, BackendChooser, BackendError
 from lastcallbackend import LastcallBackendChooser 
 
 class DownloadTweetsREST(TwitterApiCall):
   bulk = True
+  logger = None
   
   def __init__(self, engine_config, language, auth_type):
     super(DownloadTweetsREST, self).__init__(engine_config, language, auth_type)
+    self.logger = logging.getLogger('engine-%s' % engine_config['name'])
     self.backend = BackendChooser.GetBackend(engine_config)
     self.lastcall_backend = LastcallBackendChooser.GetBackend(engine_config)
     self.bulk = engine_config['bulk']
@@ -160,7 +163,7 @@ class DownloadTweetsREST(TwitterApiCall):
       
         [newinserted, max_tweetid, min_tweetid] = self.ProcessCallResults(jsonresp)
         if updateAfterFirstCall and calls == 0 and max_tweetid is not None:
-          self.UpdateLastCallAfterCallExecution(max_id, max_tweetid, since_id)
+          self.UpdateLastCallAfterCallExecution(None, None, max_tweetid)
 
         calls += 1
         inserted += newinserted
@@ -189,19 +192,20 @@ class DownloadTweetsREST(TwitterApiCall):
       
     return [min_tweetid, since_id]
 
-  def RescueLastcall(self, max_id, since_id):
-    max_tweetid = max_id if max_id is not None else since_id
-    if max_tweetid is None: return
-
+  def RescueLastcall(self):
     try:
       call_ids = self.lastcall_backend.GetLastCallIds(self.engine_name, False)
       if len(call_ids) == 0:
         self.logger.warn("No lastcall in database, rescuing engine.")
+        max_tweetid = self.backend.GetMaxId()
+        self.logger.debug("Found max_tweetid = %s in database." % max_tweetid)
         self.lastcall_backend.InsertLastCallIds(self.engine_name, None, max_tweetid)
     except Exception as e:
       self.logger.error("Error in rescuing last call: %s" % e)
 
   def UpdateLastCallAfterCallExecution(self, orig_max_id, max_id, since_id):
+    self.logger.info("Updating lastcall with values orig_max_id = %s, max_id = %s, since_id = %s." % (orig_max_id, max_id, since_id))
+
     if since_id is None and max_id is None:
       self.logger.debug("Performed all calls, no insert in lastcall needed.")
       return
@@ -231,7 +235,7 @@ class DownloadTweetsREST(TwitterApiCall):
       self.logger.error("Exception during RunCallEngine: %s" % e)
     finally:
       if not db_initialization: self.UpdateLastCallAfterCallExecution(orig_max_id, max_id, since_id)
-      self.RescueLastcall(max_id, since_id)
+      self.RescueLastcall()
       
   def ProcessTweets(self, initialize=False):
     try:

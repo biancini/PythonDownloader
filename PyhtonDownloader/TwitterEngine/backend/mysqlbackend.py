@@ -10,7 +10,8 @@ class MySQLBackend(Backend):
   con = None
   cur = None
 
-  def __init__(self):
+  def __init__(self, engine_config):
+    Backend.__init__(self, engine_config)
     try:
       self.con = MySQLdb.connect(host=dbhost,
                                  user=dbuser,
@@ -84,6 +85,16 @@ class MySQLBackend(Backend):
       return kmls
     except Exception as e:
       raise BackendError("Error while retrieving kmls from DB: %s" % e)
+
+  def GetMaxId(self):
+    self.logger.info("Retrieving max tweet id from database.")
+    try:
+      self.cur.execute("SELECT max(`tweetid`) FROM tweets")
+      row = self.cur.fetchone()
+
+      return long(row[0])
+    except Exception as e:
+      raise BackendError("Error while retrieving max tweet id from DB: %s" % e)
 
   def GetAllTweetCoordinates(self):
     try:

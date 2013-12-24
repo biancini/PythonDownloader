@@ -1,6 +1,8 @@
 __author__ = "Andrea Biancini"
 __date__ = "October 2, 2013"
 
+import logging
+
 class BackendChooser(object):
   @staticmethod
   def GetBackend(logger):
@@ -13,8 +15,8 @@ class BackendChooser(object):
 class Backend(object):
   logger = None
   
-  def __init__(self, logger):
-    self.logger = logger
+  def __init__(self, engine_config):
+    self.logger = logging.getLogger('engine-%s' % engine_config['name'])
     
   def BulkInsertTweetIntoDb(self, vals):
     raise NotImplementedError
@@ -25,10 +27,7 @@ class Backend(object):
   def GetKmls(self):
     raise NotImplementedError
 
-  def GetLastCallIds(self):
-    raise NotImplementedError
-
-  def UpdateLastCallIds(self, max_id=None, since_id=None):
+  def GetMaxId(self):
     raise NotImplementedError
 
   def GetAllTweetCoordinates(self):

@@ -10,8 +10,8 @@ from backend import Backend, BackendError
 from ..secrets import es_server
 
 class ElasticSearchBackend(Backend):
-  def __init__(self, logger):
-    Backend.__init__(self, logger)
+  def __init__(self, engine_config):
+    Backend.__init__(self, engine_config)
 
   def BulkInsertTweetIntoDb(self, vals):
     max_tweetid = None
@@ -136,6 +136,22 @@ class ElasticSearchBackend(Backend):
       return rows
     except Exception as e:
       raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
+
+  def GetMaxId(self):
+    self.logger.info("Retrieving max tweet id from database.")
+    try:
+      data = { 'query' : { 'match_all' : { } },
+               'sort' : { '_id' : 'desc' },
+               'size' : 1 }
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/tweets/_search" % es_server
+      req = requests.get(host, data=data_json)
+      ret = json.loads(req.content)
+
+      hit = ret['hits']['hits'][0]
+      return long(hit['_id'])
+    except Exception as e:
+      raise BackendError("Error while retrieving max tweet id from ElasticSearch: %s" % e)
 
   def GetAllTweetCoordinates(self):
     try:
