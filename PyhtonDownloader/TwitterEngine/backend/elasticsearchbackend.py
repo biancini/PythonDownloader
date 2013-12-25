@@ -105,6 +105,23 @@ class ElasticSearchBackend(Backend):
       self.logger.error("Exception while inserting tweet %s: %s" % (vals['id'], e))
       return 0
 
+  def DeleteTweetFromDb(self, tweet_id):
+    if tweet_id is None: raise BackendError("Wrong tweet id = %s" % tweet_id)
+
+    try:
+      host = "%s/twitter/tweets/%s" % (es_server, tweet_id)
+      present = requests.head(host)
+      if int(present.status_code) == 404:
+        self.logger.debug("HEAD returned %s" % present.status_code)
+        raise BackendError("Tweet not present in DB, id = %s" % tweet_id)
+      
+      req = requests.delete(host)
+      ret = json.loads(req.content)
+
+      if not ret["ok"]: raise BackendError("Delete not ok")
+    except Exception as e:
+      self.logger.error("Exception while deleting tweet %s: %s" % (tweet_id, e))
+
   def GetKmls(self):
     self.logger.info("Retrieving all French departments")
     try:
@@ -152,6 +169,52 @@ class ElasticSearchBackend(Backend):
       return long(hit['_id'])
     except Exception as e:
       raise BackendError("Error while retrieving max tweet id from ElasticSearch: %s" % e)
+
+  def _GetOldTweets(self, max_date):
+    try:
+      start = 0
+      pagesize = 1000
+      last = None
+
+      hits = []
+      while True:
+        data = { 'query' : { 'filtered' : { 'query' : { 'match_all' : { } },
+                                            'filter' : { 'range' : { 'created_at' : { 'to' : max_date.strftime('%Y-%m-%d %H:%M:%S') } } } } },
+                 'from' : start,
+                 'size' : pagesize }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/tweets/_search" % es_server
+        req = requests.get(host, data=data_json)
+        ret = json.loads(req.content)
+
+        for hit in ret['hits']['hits']:
+          hits.append(hit['_id'])
+
+        last = ret['hits']['total']
+        start += pagesize
+        if start > last: break
+
+      return hits
+    except Exception as e:
+      raise BackendError("Error while retrieving old tweets from ElasticSearch: %s" % e)
+
+  def RemoveOldTweets(self, max_date, execute):
+    print("%s all tweets older than max_date = %s." % ("Deleting" if execute else "Evaluating delete of", max_date))
+
+    hits_id = self._GetOldTweets(max_date)
+    print("Old tweets that should be removed are: %s." % len(hits_id))
+
+    if execute:
+      deleted = 0
+      for tweet_id in hits_id:
+        try:
+          self.DeleteTweetFromDb(tweet_id)
+          deleted += 1
+        except Exception as e:
+          print("Error while deleting tweet with id = %s: %s." % (tweet_id, e))
+      print("Deleted %s tweets." % deleted)
+    else:
+      print("If this query is good, you can delete tweets by calling this same command with -e flag.")
 
   def GetAllTweetCoordinates(self):
     try:

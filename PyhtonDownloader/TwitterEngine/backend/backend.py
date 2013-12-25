@@ -24,10 +24,16 @@ class Backend(object):
   def InsertTweetIntoDb(self, sql_vals):
     raise NotImplementedError
 
+  def DeleteTweetFromDb(self, tweet_id):
+    raise NotImplementedError
+
   def GetKmls(self):
     raise NotImplementedError
 
   def GetMaxId(self):
+    raise NotImplementedError
+
+  def RemoveOldTweets(self, max_date):
     raise NotImplementedError
 
   def GetAllTweetCoordinates(self):
