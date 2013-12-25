@@ -120,7 +120,7 @@ class ElasticSearchBackend(Backend):
 
       if not ret["ok"]: raise BackendError("Delete not ok")
     except Exception as e:
-      self.logger.error("Exception while deleting tweet %s: %s" % (tweet_id, e))
+      raise BackendError("Exception while deleting tweet %s: %s" % (tweet_id, e))
 
   def GetKmls(self):
     self.logger.info("Retrieving all French departments")
