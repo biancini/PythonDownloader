@@ -3,10 +3,15 @@
 
 import logging
 import logging.config
+
+import math
+import requests
+import json
+
 from functools import wraps
 
 from PyGtalkRobot import GtalkRobot
-from secrets import google_user_name, google_password, administrator_jid
+from secrets import google_user_name, google_password, administrator_jid, es_server
 
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger('root')
@@ -53,10 +58,47 @@ class TwitterDownloaderBot(GtalkRobot):
     jid = user.getStripped()
     
     self.logger.info("Received setstate message from jid: %s." % jid)
-    # self.logger.debug("Jid: %s, resources: %s, show: %s, status: %s" % (jid, bot.getResources(jid), bot.getShow(jid), bot.getStatus(jid)))
-
     self.setState(show, status)
     self.replyMessage(user, "State settings changed!")
+
+  def _get_index_stats(self, item):
+    self.logger.debug("Retrieving index statistics from database.")
+    try:
+      host = "%s/twitter/_stats" % es_server
+      
+      req = requests.get(host)
+      ret = json.loads(req.content)
+      
+      if not 'indices' in ret or not 'twitter' in ret['indices'] or not 'total' in ret['indices']['twitter']: raise Exception("%s" % ret)
+      return ret['indices']['twitter']['total'][item]
+    except Exception as e:
+      raise Exception("Error while retrieving index statistics from ElasticSearch: %s" % e)
+
+  def _convert_size(self, size_in_bytes):
+    size = long(size_in_bytes) / 1024
+    size_name = ("KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size, 1024)))
+    p = math.pow(1024, i)
+    s = round(size / p, 2)
+    if (s > 0): return '%s %s' % (s, size_name[i])
+    else: return '0B'
+
+  @authorized
+  def command_003_index_stats(self, user, message, args):
+    '''index (docs|store)'''
+    operation = args[0]
+    jid = user.getStripped()
+    
+    self.logger.info("Received index %s message from jid: %s." % (operation, jid))
+    ret = self._get_index_stats(operation)
+    if operation == 'docs':
+      message = "The twitter index currently contains %s records." % '{0:,}'.format(long(ret['count']))
+    elif operation == 'store':
+      message = "The twitter index currently occupy %s." % self._convert_size(ret['size_in_bytes'])
+    else:
+      message = "Error in executing request."
+    
+    self.replyMessage(user, message)
   
 if __name__ == "__main__":
   bot = TwitterDownloaderBot(logger)
