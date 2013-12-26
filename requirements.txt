@@ -5,4 +5,4 @@ wsgiref==0.1.2
 requests
 requests_oauthlib
 shapely
-http://pypi.python.org/packages/source/k/keytree/keytree-0.2.1.tar.gz
+https://pypi.python.org/packages/source/k/keytree/keytree-0.2.1.tar.gz
