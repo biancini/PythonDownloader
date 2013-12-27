@@ -1,3 +1,6 @@
 [submodule "Elasticsearch-Exporter"]
 	path = Elasticsearch-Exporter
 	url = git://github.com/mallocator/Elasticsearch-Exporter.git
+[submodule "TwitterAPI"]
+	path = TwitterAPI
+	url = git@github.com:biancini/TwitterAPI.git
