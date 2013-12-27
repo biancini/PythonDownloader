@@ -4,3 +4,6 @@
 [submodule "TwitterAPI"]
 	path = TwitterAPI
 	url = git@github.com:biancini/TwitterAPI.git
+[submodule "geopy"]
+	path = geopy
+	url = https://github.com/geopy/geopy.git
