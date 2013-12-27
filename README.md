@@ -10,10 +10,9 @@ PyhtonDownloader
 This is the engine which is able to download tweets from Twitter API as by its configuration.
 It can be configured to use REST or STREAM API and to access Twitter it needs to have some authorization key specified.
 
-The configuration of the downloading engines can be specified here: ```TwitterEngine/secrets.py``` as specified in
-```TwitterEngine/secrets.py.txt```.
+The configuration of the downloading engines can be specified here: ``TwitterEngine/secrets.py`` as specified in ``TwitterEngine/secrets.py.txt``.
 
-This engine also permits to configure logging facilities by modifying the file ```logging.conf```.
+This engine also permits to configure logging facilities by modifying the file ``logging.conf``.
 
 JavaAnalyzer
 ------------
@@ -25,7 +24,7 @@ This project uses Maven and is itself a Maven module.
 JavaUtilities
 -------------
 
-This project contains classes to be used by ```JavaAnalyzer```.
+This project contains classes to be used by ``JavaAnalyzer``.
 
 This project uses Maven and is itself a Maven module.
 
@@ -41,11 +40,11 @@ This project contains a set of scripts to be used for configuration purposes.
 
 Among them the more relevant scripts are:
 
- * ```elasticsearch.sh```: creates the needed indexes on the backend when using Elasticsearch
- * ```mysql.sql```: creates the needed indexes on the backend when using MySQL
- * ```kibana```: contains the dashboard configuration for Kibana interface over Elasticsearch
- * ```rounding```: permits to create geographical circles to cover all the US territory
- * ```heatmap```: creates an heatmap of tweets based on geolocalization information
+ * ``elasticsearch.sh``: creates the needed indexes on the backend when using Elasticsearch
+ * ``mysql.sql``: creates the needed indexes on the backend when using MySQL
+ * ``kibana``: contains the dashboard configuration for Kibana interface over Elasticsearch
+ * ``rounding``: permits to create geographical circles to cover all the US territory
+ * ``heatmap``: creates an heatmap of tweets based on geolocalization information
 
 License
 =======
