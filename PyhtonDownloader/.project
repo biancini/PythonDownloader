@@ -3,6 +3,8 @@
 	<name>PyhtonDownloader</name>
 	<comment></comment>
 	<projects>
+		<project>geopy</project>
+		<project>TwitterAPI</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
