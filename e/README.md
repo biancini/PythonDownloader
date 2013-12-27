@@ -4,11 +4,10 @@ A small script to export data from one Elasticsearch cluster into another.
 
 Features:
 * Node.js based command line tool
-* Export to ElasticSearch or (compressed) flat files
+* Export to ElasticSearch or flat files
 * Recreates mapping on target
 * Source data can be filtered by query
 * Specify scope as type, index or whole cluster
-* Sync Index settings along with existing mappings
 * Run in test mode without modifying any data
 
 ## Usage
@@ -20,10 +19,10 @@ node exporter.js -a localhost -b foreignhost
 
 // copy entire index1 to index2 on same machine
 node exporter.js -i index1 -j index2
-
+	
 // copy type1 to type2 in same index
 node exporter.js -i index -t type1 -u type2
-
+	
 // copy type1 from index1 to type2 in index2
 node exporter.js -i index1 -t type1 -j index2 -u type2
 
@@ -40,21 +39,14 @@ node exporter.js -a localhost -b foreignhost -s '{"bool":{"must":{"field":{"fiel
 node exporter.js -a localhost -b foreignhost -r true
 ```
 
-From database to file or vice versa you can use the following commands. Note that data file are now compressed by default. To disable this feature use additional flags:
+From database to file or vice versa
 ```JavaScript
 // Export to file from database
-node exporter.js -a localhost -i index1 -t type1 -g filename
+node exports.js -a localhost -i index1 -t type1 -g filename
 
 // Import from file to database
-node exporter.js -f filename -b foreignhost -i index2 -t type2
-
-// To override the compression for a given source file
-node exporter.js -f filename -c false -b foreignhost -j index2 -u type2
-
-// To override the compression for a target file
-node exporter.js -a localhost -i index1 -t type1 -g filename -d false
-```
-
+node exports.js -f filename -b foreignhost -i index2 -t type2
+```    
 
 If memory is an issue pass these parameters and the process will try to run garbage collection before reaching memory limitations
 ```
@@ -68,50 +60,17 @@ tools/ex.sh ...
 
 ## Requirements
 
-To run this script you will need at least node v0.10, as well as the nomnom, colors and through package installed (which will be installed automatically via npm).
+To run this script you will need at least node v0.10, as well as the nomnom package installed (which will be installed automatically via npm).
 
 ## Installation
 
 Run the following command in the directory where you want the tools installed
 
-	npm install elasticsearch-exporter --production
-
-The required packages will be installed automatically as a dependency, you won't have to do anything else to use the tool. If you install the package with the global flag (```npm -g```) there will also be a new executable available in the system called "eexport".
-
-## Tests
-
-To run the tests you must install the development dependencies along with the production dependencies
-
-	npm install elasticsearch-exporter
-
-After that you can just run ```npm test``` to see an output of all existing tests.
-
-## Bugs
-
-I try to find all the bugs and and have tests to cover all cases, but since I'm working on this project alone, it's easy to miss something.
-So please report any bugs you can find to mallox@pyxzl.net or file a bug directly on [Github](https://github.com/mallocator/Elasticsearch-Exporter/issues).
-Thanks!
+	npm install git://github.com/mallocator/Elasticsearch-Exporter.git
+	
+The nom-nom package will be installed automatically as a dependency, you won't have to do anything else to use the tool. If you install the package with the global flag (npm -g) there will also be a new executable available in the system called "eexport".
 
 ## Changelog
-
-### 1.2.1 (Upcoming)
-* Exporter can now do an export with only changed data, by using the _timestamp field (must be activated)
-* Deprecated the sourceCompression flag (it's useless since we're auto-detecting compression)
-* ElasticSearch driver now supports basic authentication
-* Mappings/Settings can now be overridden by using a file.
-* Options can now be read from file additionally to parsing program arguments
-
-### 1.2.0
-* New File Layout (incompatible with 1.1.x)
-* Index settings are now also exported, when exporting in scope all or index
-* On errors the connection will be retried for fetching and writing data
-* Colors dependencies is now included explicitly
-* Project is now available from npm repo
-* Data files are now compressed by default (compressed source files are auto detected)
-* Parent directories are now created for target file if they don't exist
-* Tweaked V8 options in tools/ex.sh for better memory usage
-* Added option to mute all standard output (errors will still be displayed)
-* Tests for all operations
 
 ### 1.1.4
 * ES driver can now fetch more hits per scroll request

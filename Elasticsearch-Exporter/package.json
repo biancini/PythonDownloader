@@ -1,43 +1,40 @@
 {
-  "name": "elasticsearchExporter",
-  "description": "A utility for exporting data from one Elasticsearch cluster to another",
-  "version": "1.1.4",
-  "author": {
-    "name": "Ravi Gairola",
-    "email": "mallox@pyxzl.net"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/mallocator/Elasticsearch-Exporter.git"
-  },
-  "main": "./exporter.js",
-  "bin": {
-    "eexport": "tools/ex.sh"
-  },
-  "keywords": [
-    "export",
-    "import",
-    "elastichsearch",
-    "data pump"
-  ],
-  "dependencies": {
-    "nomnom": "1.6"
-  },
-  "engine": {
-    "node": ">=0.10"
-  },
-  "_id": "elasticsearchExporter@1.1.4",
-  "devDependencies": {},
-  "optionalDependencies": {},
-  "engines": {
-    "node": "*"
-  },
-  "_engineSupported": true,
-  "_npmVersion": "1.1.4",
-  "_nodeVersion": "v0.6.19",
-  "_defaultsLoaded": true,
-  "dist": {
-    "shasum": "6e7d763be0cafab137f00dea17fc55973ca83a3b"
-  },
-  "_from": "../Elasticsearch-Exporter/"
+	"name": "elasticsearch-exporter",
+	"description": "A utility for exporting data from one Elasticsearch cluster to another",
+    "keywords": [ "elasticsearch", "export", "import", "synchronize"],
+    "homepage": "http://github.com/mallocator/Elasticsearch-Exporter",
+    "bugs": {
+        "url": "http://github.com/mallocator/Elasticsearch-Exporter/issues",
+        "email": "mallox@pyxzl.net"
+    },
+    "license": "Apache 2.0",
+	"version": "1.2.0",
+	"author": "Ravi Gairola <mallox@pyxzl.net>",
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/mallocator/Elasticsearch-Exporter.git"
+	},
+    "files": ["drivers","options.js","exporter.js","tools","README.md","LICENSE"],
+	"main": "./exporter.js",
+	"bin": {
+		"eexport": "tools/ex.sh"
+	},
+	"keywords": ["export", "import", "elastichsearch", "data pump"],
+	"dependencies": {
+		"nomnom": "1.6.x",
+		"through": "2.3.x",
+		"colors": ">=0.5.x"
+	},
+    "devDependencies": {
+        "mocha": "1.13.x",
+        "gently": "0.9.x",
+        "chai": "1.8.x",
+        "nock": "0.22.x"
+    },
+	"engine": {
+		"node": ">=0.10"
+	},
+    "scripts": {
+        "test": "mocha"
+    }
 }
