@@ -5,8 +5,10 @@ __copyright__ = 'Copyright 2013 Andrea Biancini'
 __date__ = "December 26, 2013"
 
 
-from .gtalk import GTalkHandler
+from .handler import GTalkHandler
+from .talkbot import TwitterDownloaderBot
 
 __all__ = [
-           'GTalkHandler'
+           'GTalkHandler',
+           'TwitterDownloaderBot'
 ]

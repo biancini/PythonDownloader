@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 # PyGtalkRobot: A simple jabber/xmpp bot framework using Regular Expression Pattern as command controller
 # Copyright (c) 2008 Demiao Lin <ldmiao@gmail.com>
 #
@@ -24,6 +21,17 @@ import sys, traceback
 import xmpp
 import re
 import inspect
+import logging
+import threading
+
+def synchronized(func):
+  func.__lock__ = threading.Lock()
+
+  def synced_func(*args, **kws):
+    with func.__lock__:
+      return func(*args, **kws)
+
+  return synced_func
 
 """A simple jabber/xmpp bot framework
 
@@ -86,10 +94,10 @@ class GtalkRobot:
 
   def getState(self):
     return self.show, self.status
-  
+
+  @synchronized  
   def replyMessage(self, user, message):
-    status_code = self.conn.send(xmpp.Message(user, message, typ='chat'))
-    self.logger.debug("Status code: %s" % status_code)
+    self.conn.send(xmpp.Message(user, message, typ='chat'))
   
   def getRoster(self):
     return self.conn.getRoster()
@@ -169,18 +177,24 @@ class GtalkRobot:
   # "debug" parameter specifies the debug IDs that will go into debug output.
   # You can either specifiy an "include" or "exclude" list. The latter is done via adding "always" pseudo-ID to the list.
   # Full list: ['nodebuilder', 'dispatcher', 'gen_auth', 'SASL_auth', 'bind', 'socket', 'CONNECTproxy', 'TLS', 'roster', 'browser', 'ibb'].
-  def __init__(self, logger, server_host="talk.google.com", server_port=5223, debug=[]):
+  def __init__(self, server_host=None, server_port=None, debug=[]):
     self.debug = debug
     self.server_host = server_host
     self.server_port = server_port
-    self.logger = logger
+    self.logger = logging.getLogger('bot')
 
   def start(self, gmail_account, password):
     jid = xmpp.JID(gmail_account)
     user, server, password = jid.getNode(), jid.getDomain(), password
     
     self.conn = xmpp.Client(server, debug=self.debug)
-    conres = self.conn.connect(server=(self.server_host, self.server_port))
+    if self.server_host is not None and self.server_port is not None:
+      server = (self.server_host, self.server_port)
+    elif self.server_host is not None and self.server_port is None:
+      server = (self.server_host, 443)
+    else:
+      server = None
+    conres = self.conn.connect(server=server)
 
     if not conres:
       self.logger.error("Unable to connect to server %s!" % server)

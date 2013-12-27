@@ -1,28 +1,28 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import logging
-import logging.config
+import sys
+import os.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 import math
 import requests
 import json
 
 from functools import wraps
+from TwitterEngine.secrets import administrator_jid, es_server
 
-from PyGtalkRobot import GtalkRobot
-from secrets import google_user_name, google_password, administrator_jid, es_server
-
-logging.config.fileConfig("logging.conf")
-logger = logging.getLogger('root')
+from pygtalkrobot import GtalkRobot
 
 def authorized(command_function):
   @wraps(command_function)
   def authorized_command(self, user, message, args):
     self.logger.debug('Authorizing command: %s' % message)
     
+    authorized = False
     jid = user.getStripped()
-    if not jid == administrator_jid:
+    for cur_admin_jid in administrator_jid:
+      if jid == cur_admin_jid:
+        authorized = True
+        
+    if not authorized:
       self.logger.warning("Tried to call unauthorized command with jid: %s, message: %s" % (jid, message))
       self.replyMessage(user, "You do not have access to this command!!")
     else:
@@ -32,8 +32,10 @@ def authorized(command_function):
   return authorized_command
 
 class TwitterDownloaderBot(GtalkRobot):
-  def __init__(self, logger):
-    GtalkRobot.__init__(self, logger, debug=[])
+  recipients = None
+  
+  def __init__(self):
+    GtalkRobot.__init__(self, debug=[])
   
   # Regular Expression Pattern Tips:
   # I or IGNORECASE <=> (?i)      case insensitive matching
@@ -92,15 +94,34 @@ class TwitterDownloaderBot(GtalkRobot):
     self.logger.info("Received index %s message from jid: %s." % (operation, jid))
     ret = self._get_index_stats(operation)
     if operation == 'docs':
+      self.logger.debug("The twitter index currently contains %s records." % '{0:,}'.format(long(ret['count'])))      
       message = "The twitter index currently contains %s records." % '{0:,}'.format(long(ret['count']))
     elif operation == 'store':
+      self.logger.debug("The twitter index currently occupy %s." % self._convert_size(ret['size_in_bytes']))
       message = "The twitter index currently occupy %s." % self._convert_size(ret['size_in_bytes'])
     else:
+      self.logger.warning("Error in executing request.")
       message = "Error in executing request."
-    
+      
     self.replyMessage(user, message)
-  
-if __name__ == "__main__":
-  bot = TwitterDownloaderBot(logger)
-  bot.setState('available', 'Twitter Downloader')
-  bot.start(google_user_name, google_password)
+      
+  @authorized
+  def command_004_enabledisable_log(self, user, message, args):
+    '''log (enable|disable)'''
+    operation = args[0]
+    jid = user.getStripped()
+    
+    self.logger.info("Received log %s message from jid: %s." % (operation, jid))
+    if operation == 'enable':
+      if not jid in self.recipients: self.recipients.append(jid)
+      self.logger.info("The list of recipients for logs is now: %s." % self.recipients)
+      message = "You will receive logs from this moment on."
+    elif operation == 'disable':
+      if jid in self.recipients: self.recipients.remove(jid)
+      self.logger.info("The list of recipients for logs is now: %s." % self.recipients)
+      message = "The will not receive any logs from this moment on."
+    else:
+      self.logger.warning("Error in executing request.")
+      message = "Error in executing request."
+
+    self.replyMessage(user, message)
