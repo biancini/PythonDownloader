@@ -1,0 +1,3 @@
+[submodule "Elasticsearch-Exporter"]
+	path = Elasticsearch-Exporter
+	url = git://github.com/mallocator/Elasticsearch-Exporter.git
