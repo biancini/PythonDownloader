@@ -6,4 +6,4 @@
 	url = git@github.com:biancini/TwitterAPI.git
 [submodule "geopy"]
 	path = geopy
-	url = https://github.com/geopy/geopy.git
+	url = git@github.com:biancini/geopy.git
