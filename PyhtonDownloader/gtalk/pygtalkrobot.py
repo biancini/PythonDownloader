@@ -24,6 +24,8 @@ import inspect
 import logging
 import threading
 
+from TwitterEngine import TwitterApiCall
+
 def synchronized(func):
   func.__lock__ = threading.Lock()
 
@@ -171,7 +173,8 @@ class GtalkRobot:
     return 1
 
   def GoOn(self):
-    while self.StepOn(): pass
+    while self.StepOn() and TwitterApiCall.continuing():
+      pass
 
   ########################################################################################################################
   # "debug" parameter specifies the debug IDs that will go into debug output.
