@@ -35,3 +35,7 @@ images/*.png
 images/*.avi
 images/*.mp4
 images/*.mov
+
+# Links to submodules
+PythonDownloader/geopy/*
+PythonDownloader/TwitterAPI/*

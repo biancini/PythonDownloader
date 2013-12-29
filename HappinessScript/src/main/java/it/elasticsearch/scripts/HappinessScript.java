@@ -1,6 +1,6 @@
 package it.elasticsearch.scripts;
 
-import it.elasticsearch.script.utilities.HappinessWords;
+import it.elasticsearch.scripts.utilities.HappinessWords;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,6 +14,7 @@ import org.elasticsearch.script.AbstractDoubleSearchScript;
 public class HappinessScript extends AbstractDoubleSearchScript {
 
 	public static final String TEXT_FIELDNAME = "text";
+	public static final String SPACE = " ";
 
 	private final ESLogger logger = Loggers.getLogger("happiness.script");
 	Map<String, Object> params = null;
@@ -38,18 +39,21 @@ public class HappinessScript extends AbstractDoubleSearchScript {
 	protected double computeHappiness(String tweetText) {
 		try {
 			HashMap<String, Double> wordHappiness = HappinessWords.getWordHappiness(params);
-			String[] tweetWords = tweetText.split(" ");
+			String[] tweetWords = tweetText.split(SPACE);
 
 			double happiness = 0.0;
+			double words = 0.0;
+
 			for (String word : tweetWords) {
 				if (wordHappiness.containsKey(word)) {
 					happiness += wordHappiness.get(word);
 				} else {
 					happiness += 5.0;
 				}
+				words++;
 			}
 
-			happiness /= tweetWords.length;
+			happiness /= words;
 			return happiness;
 		} catch (IOException e) {
 			logger.error("Error while computing happiness: {}.", e);
