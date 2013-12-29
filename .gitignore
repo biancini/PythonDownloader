@@ -31,11 +31,13 @@ pip-log.txt
 secrets.py
 
 # Img files and movies
-images/*.png
-images/*.avi
-images/*.mp4
-images/*.mov
+PyhtonDownloader/utilities/map/*.png
+PyhtonDownloader/utilities/map/*.avi
+PyhtonDownloader/utilities/map/*.mp4
+PyhtonDownloader/utilities/map/*.mov
 
 # Links to submodules
-PythonDownloader/geopy/*
-PythonDownloader/TwitterAPI/*
+PyhtonDownloader/geopy/*
+PyhtonDownloader/TwitterAPI/*
+
+
