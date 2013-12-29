@@ -1,0 +1,4 @@
+############################### Custom Scripts ###############################
+
+script.native:
+	happinessscript.type: it.elasticsearch.scripts.HappinessScriptFactory
