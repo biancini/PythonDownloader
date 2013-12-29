@@ -39,25 +39,29 @@ public class HappinessScript extends AbstractDoubleSearchScript {
 	protected double computeHappiness(String tweetText) {
 		try {
 			HashMap<String, Double> wordHappiness = HappinessWords.getWordHappiness(params);
-			String[] tweetWords = tweetText.split(SPACE);
-
-			double happiness = 0.0;
-			double words = 0.0;
-
-			for (String word : tweetWords) {
-				if (wordHappiness.containsKey(word)) {
-					happiness += wordHappiness.get(word);
-				} else {
-					happiness += 5.0;
-				}
-				words++;
-			}
-
-			happiness /= words;
-			return happiness;
+			return computeHappiness(tweetText, wordHappiness);
 		} catch (IOException e) {
 			logger.error("Error while computing happiness: {}.", e);
 			return -1;
 		}
+	}
+
+	protected double computeHappiness(String tweetText, HashMap<String, Double> wordHappiness) {
+		String[] tweetWords = tweetText.split(SPACE);
+
+		double happiness = 0.0;
+		double words = 0.0;
+
+		for (String word : tweetWords) {
+			if (wordHappiness.containsKey(word)) {
+				happiness += wordHappiness.get(word);
+			} else {
+				happiness += 5.0;
+			}
+			words++;
+		}
+
+		happiness /= words;
+		return happiness;
 	}
 }
