@@ -51,6 +51,12 @@ class Engine(object):
       TwitterApiCall.stop_run()
 
   def run(self):
+    if not background and not initializedb:
+      logger.info('Running engine without actually downloading tweets....  (press Ctrl+C or send SIGINT to interrupt)')
+      
+      while (self.running):
+        time.sleep(self.waittime)
+      
     if not background:
       logger.info('Running cur_engine only one time...')
       self.running = False

@@ -3,12 +3,11 @@ package fr.twitteranalyzer;
 import java.text.ParseException;
 import java.util.Date;
 
-import fr.twitteranalyzer.elastic.ByPersonAnalyzer;
 import fr.twitteranalyzer.exceptions.UtilsException;
+//import fr.twitteranalyzer.elastic.ByPersonAnalyzer;
+import fr.twitteranalyzer.mapreduce.ByPersonAnalyzer;
 import fr.twitteranalyzer.model.ElasticSearchConnection;
 import fr.twitteranalyzer.utils.LoggerUtils;
-
-//import fr.twitteranalyzer.mapreduce.ByPersonAnalyzer;
 
 public class Runner {
 
@@ -36,7 +35,9 @@ public class Runner {
 			// date = DateUtils.parseDate(dayOfInterest);
 			Date date = new Date();
 
-			ByPersonAnalyzer analyzer = new ByPersonAnalyzer(source, destination);
+			// ByPersonAnalyzer analyzer = new ByPersonAnalyzer(source,
+			// destination);
+			ByPersonAnalyzer analyzer = new ByPersonAnalyzer();
 			analyzer.runAnalysis(date);
 
 			LoggerUtils.info("Finished.");

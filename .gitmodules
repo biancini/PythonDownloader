@@ -7,3 +7,6 @@
 [submodule "geopy"]
 	path = geopy
 	url = git@github.com:biancini/geopy.git
+[submodule "elasticsearch-hadoop"]
+	path = elasticsearch-hadoop
+	url = git@github.com:biancini/elasticsearch-hadoop.git
