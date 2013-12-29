@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,8 +52,9 @@ public class HappinessWords {
 		return readWordsFile(bufferedReader, dictionarySeparator, happinessColumn, headerRows);
 	}
 
-	protected static HashMap<String, Double> readWordsFile(BufferedReader bufferedReader, String dictionarySeparator,
-			int happinessColumn, int headerRows) throws FileNotFoundException, IOException {
+	protected static HashMap<String, Double> readWordsFile(BufferedReader bufferedReader,
+			String dictionarySeparator, int happinessColumn, int headerRows) throws FileNotFoundException,
+			IOException {
 		HashMap<String, Double> newWordHappiness = new HashMap<String, Double>();
 
 		int count = 0;
@@ -70,6 +72,8 @@ public class HappinessWords {
 
 					logger.trace("Adding word {} with happiness = {}.", word, happiness);
 					newWordHappiness.put(word, happiness);
+				} else {
+					logger.warn("The happiness column is beyond available values.", Arrays.toString(vals));
 				}
 			}
 			count++;

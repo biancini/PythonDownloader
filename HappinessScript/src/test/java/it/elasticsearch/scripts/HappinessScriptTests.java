@@ -35,24 +35,47 @@ public class HappinessScriptTests {
 	}
 
 	@Test
-	public void shouldComputeHappinessWorkWithUnValidWords() throws IOException {
+	public void shouldComputeHappinessWorkWithUnvalidWords() throws IOException {
 		// given
 		String firstWord = "hello";
 		String secondWord = "world";
 		double firstHappiness = 7.0;
+		double defaultHappiness = 5.0;
 
 		String tweetText = secondWord + " " + secondWord;
 		HashMap<String, Double> wordsHappiness = new HashMap<String, Double>();
 		wordsHappiness.put(firstWord, firstHappiness);
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		double expectedHappiness = 5.0;
 		HappinessScript happinessScript = new HappinessScript(params);
 
 		// when
 		double happiness = happinessScript.computeHappiness(tweetText, wordsHappiness);
 
 		// then
-		assertThat(happiness).isEqualTo(expectedHappiness);
+		assertThat(happiness).isEqualTo(defaultHappiness);
+	}
+
+	@Test
+	public void shouldComputeHappinessWorkWithValidAndUnvalidWords() throws IOException {
+		// given
+		String firstWord = "hello";
+		String secondWord = "world";
+		double firstHappiness = 7.0;
+		double defaultHappiness = 5.0;
+
+		String tweetText = firstWord + " " + secondWord;
+		HashMap<String, Double> wordsHappiness = new HashMap<String, Double>();
+		wordsHappiness.put(firstWord, firstHappiness);
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		double computedHappiness = (firstHappiness + defaultHappiness) / 2;
+		HappinessScript happinessScript = new HappinessScript(params);
+
+		// when
+		double happiness = happinessScript.computeHappiness(tweetText, wordsHappiness);
+
+		// then
+		assertThat(happiness).isEqualTo(computedHappiness);
 	}
 }
