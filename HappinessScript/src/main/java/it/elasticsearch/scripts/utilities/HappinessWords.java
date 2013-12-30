@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -25,27 +25,24 @@ public class HappinessWords {
 	private static final ESLogger logger = Loggers.getLogger("happiness.script");
 	private static HashMap<String, Double> wordHappiness = null;
 
-	public synchronized static HashMap<String, Double> getWordHappiness(Map<String, Object> params)
-			throws IOException {
+	public synchronized static HashMap<String, Double> getWordHappiness(Properties properties) throws IOException {
 
 		if (wordHappiness == null) {
-			wordHappiness = initializeWordHappiness(params);
+			wordHappiness = initializeWordHappiness(properties);
 		}
 
 		return wordHappiness;
 	}
 
-	protected static HashMap<String, Double> initializeWordHappiness(Map<String, Object> params)
-			throws IOException {
-
-		if (params == null) {
+	protected static HashMap<String, Double> initializeWordHappiness(Properties properties) throws IOException {
+		if (properties == null) {
 			throw new IOException();
 		}
 
-		String dictionaryFileName = getDictionaryFileName(params);
-		String dictionarySeparator = getDictionaryColumnsSeparator(params);
-		int happinessColumn = getHappinessColumn(params);
-		int headerRows = getHeaderRows(params);
+		String dictionaryFileName = getDictionaryFileName(properties);
+		String dictionarySeparator = getDictionaryColumnsSeparator(properties);
+		int happinessColumn = getHappinessColumn(properties);
+		int headerRows = getHeaderRows(properties);
 
 		logger.debug("Initializing word happiness from file: {}", dictionaryFileName);
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(dictionaryFileName));
@@ -83,35 +80,41 @@ public class HappinessWords {
 		return newWordHappiness;
 	}
 
-	protected static int getHeaderRows(Map<String, Object> params) {
+	protected static int getHeaderRows(Properties properties) {
 		int headerRows = DEFAULT_HEAERS;
-		Integer paramHeadersRow = (Integer) params.get(PARAM_HEADERS);
+		String paramHeadersRow = properties.getProperty(PARAM_HEADERS);
 		logger.debug("Read param header rows = {}.", paramHeadersRow);
 
 		if (paramHeadersRow != null) {
-			if (paramHeadersRow.intValue() >= 1) {
-				headerRows = paramHeadersRow.intValue();
+			int intHeaders = Integer.parseInt(paramHeadersRow);
+			if (intHeaders >= 1) {
+				headerRows = intHeaders;
+			} else {
+				logger.warn("Wrong parameter in configuration for headers: {}.", paramHeadersRow);
 			}
 		}
 		return headerRows;
 	}
 
-	protected static int getHappinessColumn(Map<String, Object> params) {
+	protected static int getHappinessColumn(Properties properties) {
 		int happinessColumn = DEFAULT_COLUMN;
-		Integer paramColumn = (Integer) params.get(PARAM_COLUMN);
+		String paramColumn = properties.getProperty(PARAM_COLUMN);
 		logger.debug("Read param column = {}.", paramColumn);
 
 		if (paramColumn != null) {
-			if (paramColumn.intValue() >= DEFAULT_COLUMN) {
-				happinessColumn = paramColumn.intValue();
+			int intColumn = Integer.parseInt(paramColumn);
+			if (intColumn >= DEFAULT_COLUMN) {
+				happinessColumn = intColumn;
+			} else {
+				logger.warn("Wrong parameter in configuration for column: {}.", paramColumn);
 			}
 		}
 		return happinessColumn;
 	}
 
-	protected static String getDictionaryColumnsSeparator(Map<String, Object> params) {
+	protected static String getDictionaryColumnsSeparator(Properties properties) {
 		String dictionarySeparator = DEFAULT_SEPARATOR;
-		String paramFileSeparator = (String) params.get(PARAM_SEPARATOR);
+		String paramFileSeparator = properties.getProperty(PARAM_SEPARATOR);
 		logger.debug("Read param fileseparator = {}.", paramFileSeparator);
 
 		if (paramFileSeparator != null) {
@@ -120,8 +123,8 @@ public class HappinessWords {
 		return dictionarySeparator;
 	}
 
-	protected static String getDictionaryFileName(Map<String, Object> params) throws IOException {
-		String dictionaryFileName = (String) params.get(PARAM_FILENAME);
+	protected static String getDictionaryFileName(Properties properties) throws IOException {
+		String dictionaryFileName = properties.getProperty(PARAM_FILENAME);
 		logger.debug("Read param filename = {}.", dictionaryFileName);
 
 		if (dictionaryFileName == null) {

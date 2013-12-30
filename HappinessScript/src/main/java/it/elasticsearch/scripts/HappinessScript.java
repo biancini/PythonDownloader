@@ -4,9 +4,8 @@ import it.elasticsearch.scripts.utilities.HappinessWords;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
-import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.script.AbstractDoubleSearchScript;
@@ -17,11 +16,11 @@ public class HappinessScript extends AbstractDoubleSearchScript {
 	public static final String SPACE = " ";
 
 	private final ESLogger logger = Loggers.getLogger("happiness.script");
-	Map<String, Object> params = null;
+	Properties properties = null;
 
-	public HappinessScript(@Nullable Map<String, Object> params) throws IOException {
+	public HappinessScript(Properties properties) throws IOException {
 		logger.debug("Initializing happiness script.");
-		this.params = params;
+		this.properties = properties;
 	}
 
 	@Override
@@ -38,7 +37,7 @@ public class HappinessScript extends AbstractDoubleSearchScript {
 
 	protected double computeHappiness(String tweetText) {
 		try {
-			HashMap<String, Double> wordHappiness = HappinessWords.getWordHappiness(params);
+			HashMap<String, Double> wordHappiness = HappinessWords.getWordHappiness(properties);
 			return computeHappiness(tweetText, wordHappiness);
 		} catch (IOException e) {
 			logger.error("Error while computing happiness: {}.", e);

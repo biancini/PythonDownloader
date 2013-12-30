@@ -4,7 +4,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -23,9 +23,9 @@ public class HappinessScriptTests {
 		wordsHappiness.put(firstWord, firstHappiness);
 		wordsHappiness.put(secondWord, secondHappiness);
 
-		Map<String, Object> params = new HashMap<String, Object>();
+		Properties properties = new Properties();
 		double computedHappiness = (firstHappiness + secondHappiness) / 2;
-		HappinessScript happinessScript = new HappinessScript(params);
+		HappinessScript happinessScript = new HappinessScript(properties);
 
 		// when
 		double happiness = happinessScript.computeHappiness(tweetText, wordsHappiness);
@@ -46,8 +46,8 @@ public class HappinessScriptTests {
 		HashMap<String, Double> wordsHappiness = new HashMap<String, Double>();
 		wordsHappiness.put(firstWord, firstHappiness);
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		HappinessScript happinessScript = new HappinessScript(params);
+		Properties properties = new Properties();
+		HappinessScript happinessScript = new HappinessScript(properties);
 
 		// when
 		double happiness = happinessScript.computeHappiness(tweetText, wordsHappiness);
@@ -68,9 +68,9 @@ public class HappinessScriptTests {
 		HashMap<String, Double> wordsHappiness = new HashMap<String, Double>();
 		wordsHappiness.put(firstWord, firstHappiness);
 
-		Map<String, Object> params = new HashMap<String, Object>();
+		Properties properties = new Properties();
 		double computedHappiness = (firstHappiness + defaultHappiness) / 2;
-		HappinessScript happinessScript = new HappinessScript(params);
+		HappinessScript happinessScript = new HappinessScript(properties);
 
 		// when
 		double happiness = happinessScript.computeHappiness(tweetText, wordsHappiness);
