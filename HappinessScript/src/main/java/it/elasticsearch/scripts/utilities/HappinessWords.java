@@ -103,7 +103,7 @@ public class HappinessWords {
 
 		if (paramColumn != null) {
 			int intColumn = Integer.parseInt(paramColumn);
-			if (intColumn >= DEFAULT_COLUMN) {
+			if (intColumn >= 1) {
 				happinessColumn = intColumn;
 			} else {
 				logger.warn("Wrong parameter in configuration for column: {}.", paramColumn);
