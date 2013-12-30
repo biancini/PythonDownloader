@@ -63,6 +63,17 @@ public class HappinessWordsTests {
 	}
 
 	@Test(expected = IOException.class)
+	public void shouldInitializeWordHappinessThrowExceptionIfPropertiesNull() throws IOException {
+		// given
+		Properties properties = null;
+
+		// when
+		HappinessWords.initializeWordHappiness(properties);
+
+		// then
+	}
+
+	@Test(expected = IOException.class)
 	public void shouldGetWordHappinessThrowExceptionIfNoFileNamePassedAsParam() throws IOException {
 		// given
 		Properties properties = new Properties();

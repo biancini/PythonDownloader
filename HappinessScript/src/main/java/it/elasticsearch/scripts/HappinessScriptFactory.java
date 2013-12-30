@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -35,7 +36,7 @@ public class HappinessScriptFactory implements NativeScriptFactory {
 			return new HappinessScript(properties);
 		} catch (IOException e) {
 			logger.error("Error while getting HappinessScript class: {}", e);
-			return null;
+			throw new ElasticSearchIllegalArgumentException();
 		}
 	}
 }

@@ -25,10 +25,14 @@ public class HappinessWords {
 	private static final ESLogger logger = Loggers.getLogger("happiness.script");
 	private static HashMap<String, Double> wordHappiness = null;
 
-	public synchronized static HashMap<String, Double> getWordHappiness(Properties properties) throws IOException {
-
-		if (wordHappiness == null) {
-			wordHappiness = initializeWordHappiness(properties);
+	public synchronized static HashMap<String, Double> getWordHappiness(Properties properties) {
+		try {
+			if (wordHappiness == null) {
+				wordHappiness = initializeWordHappiness(properties);
+			}
+		} catch (IOException e) {
+			logger.error("Exception while initializing word happiness: {}.", e);
+			wordHappiness = null;
 		}
 
 		return wordHappiness;

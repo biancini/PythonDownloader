@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.script.ExecutableScript;
 import org.junit.Before;
 import org.junit.Rule;
@@ -73,17 +74,16 @@ public class HappinessScriptFactoryTests {
 		assertThat(happinessScript).isNotNull();
 	}
 
-	@Test
-	public void shouldNewScriptReturnNullWhenInvalidPropertyFile() throws IOException {
+	@Test(expected = ElasticSearchIllegalArgumentException.class)
+	public void shouldNewScriptThrowIllegalArgumentExceptionWhenInvalidPropertyFile() throws IOException {
 		// given
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put(HappinessScriptFactory.PARAM_PROPERTIES, "/tmp/file_not_existent.properties");
 		HappinessScriptFactory happinessScriptFactory = new HappinessScriptFactory();
 
 		// when
-		ExecutableScript happinessScript = happinessScriptFactory.newScript(params);
+		happinessScriptFactory.newScript(params);
 
 		// then
-		assertThat(happinessScript).isNull();
 	}
 }
