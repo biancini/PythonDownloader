@@ -14,17 +14,16 @@ The configuration of the downloading engines can be specified here: ``TwitterEng
 
 This engine also permits to configure logging facilities by modifying the file ``logging.conf``.
 
-JavaAnalyzer
-------------
+Kibana
+------
 
-This is a set of classes built to analyze tweets and score them with specific natural language analyzers.
+This folder contains a modified version of the Kibana interface over Elasticsearch.
+This version of the interface implements the needed dashboards to show tweet data and uses the plugins developed within this project.
 
-This project uses Maven and is itself a Maven module.
+HappinessScript
+---------------
 
-JavaUtilities
--------------
-
-This project contains classes to be used by ``JavaAnalyzer``.
+This project contains classes used to implement the scripts to compute happiness on individual or faceted tweets.
 
 This project uses Maven and is itself a Maven module.
 
@@ -42,7 +41,6 @@ Among them the more relevant scripts are:
 
  * ``elasticsearch.sh``: creates the needed indexes on the backend when using Elasticsearch
  * ``mysql.sql``: creates the needed indexes on the backend when using MySQL
- * ``kibana``: contains the dashboard configuration for Kibana interface over Elasticsearch
  * ``rounding``: permits to create geographical circles to cover all the US territory
  * ``heatmap``: creates an heatmap of tweets based on geolocalization information
 
