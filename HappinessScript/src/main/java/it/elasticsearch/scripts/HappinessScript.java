@@ -10,7 +10,6 @@ import java.util.Properties;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.script.AbstractSearchScript;
-import org.elasticsearch.search.lookup.SourceLookup;
 
 public class HappinessScript extends AbstractSearchScript {
 
@@ -27,13 +26,21 @@ public class HappinessScript extends AbstractSearchScript {
 		this.properties = properties;
 	}
 
-	protected SourceLookup getSource() {
-		return source();
+	protected String getTweetText() {
+		String tweetText = (String) source().get(TEXT_FIELDNAME);
+		// ScriptDocValues.Strings fieldValue = (ScriptDocValues.Strings)
+		// doc().get(TEXT_FIELDNAME);
+		// if (fieldValue == null || fieldValue.getValues() == null) {
+		// return null;
+		// }
+		//
+		// String tweetText = fieldValue.getValue();
+		return tweetText;
 	}
 
 	@Override
 	public Object run() {
-		String tweetText = (String) getSource().get(TEXT_FIELDNAME);
+		String tweetText = getTweetText();
 
 		if (tweetText == null) {
 			return null;

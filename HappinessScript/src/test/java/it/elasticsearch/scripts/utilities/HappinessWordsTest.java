@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
-public class HappinessWordsTests {
+public class HappinessWordsTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();

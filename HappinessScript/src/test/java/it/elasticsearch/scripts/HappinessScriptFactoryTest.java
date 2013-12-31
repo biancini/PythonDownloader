@@ -16,7 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class HappinessScriptFactoryTests {
+public class HappinessScriptFactoryTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();

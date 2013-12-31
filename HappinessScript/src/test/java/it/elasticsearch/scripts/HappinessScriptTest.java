@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
-public class HappinessScriptTests {
+public class HappinessScriptTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
@@ -37,6 +37,7 @@ public class HappinessScriptTests {
 		BufferedWriter out = new BufferedWriter(new FileWriter(happinessFile));
 		out.write(firstWord + "\t" + firstHappiness + "\n");
 		out.write(secondWord + "\t" + secondHappiness + "\n");
+		out.flush();
 		out.close();
 	}
 
@@ -120,27 +121,6 @@ public class HappinessScriptTests {
 	}
 
 	@Test
-	public void shouldComputeHappinessWork() throws IOException {
-		// given
-		assertThat(happinessFile.exists()).isTrue();
-
-		String tweetText = firstWord + " " + secondWord;
-		Properties properties = new Properties();
-		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
-		double computedHappiness = (firstHappiness + secondHappiness) / 2;
-		double computedRelevance = 1.0;
-		HappinessScript happinessScript = new HappinessScript(properties);
-
-		// when
-		Map<String, Double> happiness = happinessScript.computeHappiness(tweetText);
-
-		// then
-		assertThat(happiness).isNotNull();
-		assertThat(happiness.get(HappinessScript.SCORE_KEY)).isEqualTo(computedHappiness);
-		assertThat(happiness.get(HappinessScript.RELEVANCE_KEY)).isEqualTo(computedRelevance);
-	}
-
-	@Test
 	public void shouldRunReturnNullIfNoTextInSource() throws IOException {
 		// given
 		assertThat(happinessFile.exists()).isTrue();
@@ -148,11 +128,10 @@ public class HappinessScriptTests {
 		Properties properties = new Properties();
 		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
 
-		SourceLookup source = Mockito.mock(SourceLookup.class);
-		Mockito.when(source.get(HappinessScript.TEXT_FIELDNAME)).thenReturn(null);
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
-		Mockito.when(mockHappinessScript.getSource()).thenReturn(source);
+		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(HappinessScript.TEXT_FIELDNAME);
+		mockHappinessScript.logger = Loggers.getLogger("happiness.script");
 
 		// when
 		Object happiness = mockHappinessScript.run();
@@ -175,10 +154,8 @@ public class HappinessScriptTests {
 		computedHappiness.put(HappinessScript.SCORE_KEY, 5.0);
 		computedHappiness.put(HappinessScript.RELEVANCE_KEY, 1.0);
 
-		SourceLookup source = Mockito.mock(SourceLookup.class);
-		Mockito.when(source.get(HappinessScript.TEXT_FIELDNAME)).thenReturn(tweetText);
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getSource()).thenReturn(source);
+		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
 		Mockito.when(mockHappinessScript.computeHappiness(Mockito.anyString())).thenReturn(computedHappiness);
 
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
@@ -203,10 +180,8 @@ public class HappinessScriptTests {
 		String tweetText = firstWord + " " + secondWord;
 		Properties properties = new Properties();
 
-		SourceLookup source = Mockito.mock(SourceLookup.class);
-		Mockito.when(source.get(HappinessScript.TEXT_FIELDNAME)).thenReturn(tweetText);
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getSource()).thenReturn(source);
+		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
 		Mockito.when(mockHappinessScript.computeHappiness(Mockito.anyString())).thenReturn(null);
 
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
@@ -231,10 +206,8 @@ public class HappinessScriptTests {
 
 		Map<String, Double> computedHappiness = new HashMap<String, Double>();
 		computedHappiness.put(HappinessScript.RELEVANCE_KEY, 1.0);
-		SourceLookup source = Mockito.mock(SourceLookup.class);
-		Mockito.when(source.get(HappinessScript.TEXT_FIELDNAME)).thenReturn(tweetText);
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getSource()).thenReturn(source);
+		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
 		Mockito.when(mockHappinessScript.computeHappiness(Mockito.anyString())).thenReturn(computedHappiness);
 
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
@@ -262,7 +235,7 @@ public class HappinessScriptTests {
 		SourceLookup source = Mockito.mock(SourceLookup.class);
 		Mockito.when(source.get(HappinessScript.TEXT_FIELDNAME)).thenReturn(tweetText);
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getSource()).thenReturn(source);
+		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(HappinessScript.TEXT_FIELDNAME);
 		Mockito.when(mockHappinessScript.computeHappiness(Mockito.anyString())).thenReturn(computedHappiness);
 
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
