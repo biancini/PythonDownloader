@@ -1,4 +1,0 @@
-JavaAnalyzer
-============
-
-The analysis engine.
