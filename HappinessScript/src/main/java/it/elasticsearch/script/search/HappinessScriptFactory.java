@@ -18,21 +18,25 @@ public class HappinessScriptFactory implements NativeScriptFactory {
 	public static final String PROPERTIES_FILENAME = "/etc/elasticsearch/happiness.properties";
 	public static final String PARAM_PROPERTIES = "properties";
 
+	public Properties getScriptProperties(@Nullable Map<String, Object> params) throws IOException {
+		String fileName = PROPERTIES_FILENAME;
+
+		if (params != null) {
+			String paramsFilename = (String) params.get(PARAM_PROPERTIES);
+			if (paramsFilename != null) {
+				fileName = paramsFilename;
+			}
+		}
+
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(fileName));
+		return properties;
+	}
+
 	@Override
 	public ExecutableScript newScript(@Nullable Map<String, Object> params) {
 		try {
-			String fileName = PROPERTIES_FILENAME;
-
-			if (params != null) {
-				String paramsFilename = (String) params.get(PARAM_PROPERTIES);
-				if (paramsFilename != null) {
-					fileName = paramsFilename;
-				}
-			}
-
-			Properties properties = new Properties();
-			properties.load(new FileInputStream(fileName));
-
+			Properties properties = getScriptProperties(params);
 			return new HappinessScript(properties);
 		} catch (IOException e) {
 			logger.error("Error while getting HappinessScript class: {}", e);
