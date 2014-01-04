@@ -1,7 +1,7 @@
 package it.elasticsearch.scripts;
 
 import static org.fest.assertions.Assertions.assertThat;
-import it.elasticsearch.scripts.utilities.Analyzer;
+import it.elasticsearch.scripts.models.ComputedHappiness;
 import it.elasticsearch.scripts.utilities.HappinessAnalyzer;
 import it.elasticsearch.scripts.utilities.HappinessWords;
 
@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.elasticsearch.common.logging.Loggers;
-import org.elasticsearch.search.lookup.SourceLookup;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,9 +71,11 @@ public class HappinessScriptTest {
 		Properties properties = new Properties();
 		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
 
-		Map<String, Double> computedHappiness = new HashMap<String, Double>();
-		computedHappiness.put(Analyzer.SCORE_KEY, 5.0);
-		computedHappiness.put(Analyzer.RELEVANCE_KEY, 1.0);
+		ComputedHappiness computedHappiness = new ComputedHappiness(5.0, 1.0);
+
+		Map<String, Double> expectedHappiness = new HashMap<String, Double>();
+		expectedHappiness.put(ComputedHappiness.SCORE_KEY, 5.0);
+		expectedHappiness.put(ComputedHappiness.RELEVANCE_KEY, 1.0);
 
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
 		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
@@ -95,7 +96,7 @@ public class HappinessScriptTest {
 		assertThat(objHappiness).isNotNull();
 		assertThat(objHappiness instanceof Map<?, ?>).isTrue();
 		Map<String, Double> happiness = (Map<String, Double>) objHappiness;
-		assertThat(happiness).isEqualTo(computedHappiness);
+		assertThat(happiness).isEqualTo(expectedHappiness);
 	}
 
 	@Test
@@ -125,65 +126,4 @@ public class HappinessScriptTest {
 		assertThat(objHappiness).isNull();
 	}
 
-	@Test
-	public void shouldRunReturnNullWhenComputedHappinessScoreIsNotPresent() throws IOException {
-		// given
-		assertThat(happinessFile.exists()).isTrue();
-
-		String tweetText = firstWord + " " + secondWord;
-		Properties properties = new Properties();
-		properties.put(HappinessWords.PARAM_FILENAME, "/tmp/not_existent_file.txts");
-
-		Map<String, Double> computedHappiness = new HashMap<String, Double>();
-		computedHappiness.put(Analyzer.RELEVANCE_KEY, 1.0);
-		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
-
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
-		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
-				.thenReturn(computedHappiness);
-
-		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
-		mockHappinessScript.properties = properties;
-		mockHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockHappinessScript.logger = Loggers.getLogger("happiness.script");
-
-		// when
-		Object objHappiness = mockHappinessScript.run();
-
-		// then
-		assertThat(objHappiness).isNull();
-	}
-
-	@Test
-	public void shouldRunReturnNullWhenComputedHappinessRelevanceIsNotPresent() throws IOException {
-		// given
-		assertThat(happinessFile.exists()).isTrue();
-
-		String tweetText = firstWord + " " + secondWord;
-		Properties properties = new Properties();
-		properties.put(HappinessWords.PARAM_FILENAME, "/tmp/not_existent_file.txts");
-
-		Map<String, Double> computedHappiness = new HashMap<String, Double>();
-		computedHappiness.put(Analyzer.SCORE_KEY, 5.0);
-		SourceLookup source = Mockito.mock(SourceLookup.class);
-		Mockito.when(source.get(HappinessScript.TEXT_FIELDNAME)).thenReturn(tweetText);
-		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(HappinessScript.TEXT_FIELDNAME);
-
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
-		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
-				.thenReturn(computedHappiness);
-
-		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
-		mockHappinessScript.properties = properties;
-		mockHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockHappinessScript.logger = Loggers.getLogger("happiness.script");
-
-		// when
-		Object objHappiness = mockHappinessScript.run();
-
-		// then
-		assertThat(objHappiness).isNull();
-	}
 }

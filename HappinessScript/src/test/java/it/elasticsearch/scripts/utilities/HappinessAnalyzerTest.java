@@ -1,10 +1,10 @@
 package it.elasticsearch.scripts.utilities;
 
 import static org.fest.assertions.Assertions.assertThat;
+import it.elasticsearch.scripts.models.ComputedHappiness;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class HappinessAnalyzerTest {
 		HappinessAnalyzer happinessAnalyzer = new HappinessAnalyzer();
 
 		// when
-		Map<String, Double> happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
+		ComputedHappiness happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
 
 		// then
 		assertThat(happiness).isNull();
@@ -44,12 +44,12 @@ public class HappinessAnalyzerTest {
 		HappinessAnalyzer happinessAnalyzer = new HappinessAnalyzer();
 
 		// when
-		Map<String, Double> happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
+		ComputedHappiness happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
 
 		// then
 		assertThat(happiness).isNotNull();
-		assertThat(happiness.get(Analyzer.SCORE_KEY)).isEqualTo(computedHappiness);
-		assertThat(happiness.get(Analyzer.RELEVANCE_KEY)).isEqualTo(computedRelevance);
+		assertThat(happiness.getScore()).isEqualTo(computedHappiness);
+		assertThat(happiness.getRelevance()).isEqualTo(computedRelevance);
 	}
 
 	@Test
@@ -63,12 +63,12 @@ public class HappinessAnalyzerTest {
 		HappinessAnalyzer happinessAnalyzer = new HappinessAnalyzer();
 
 		// when
-		Map<String, Double> happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
+		ComputedHappiness happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
 
 		// then
 		assertThat(happiness).isNotNull();
-		assertThat(happiness.get(Analyzer.SCORE_KEY)).isEqualTo(defaultHappiness);
-		assertThat(happiness.get(Analyzer.RELEVANCE_KEY)).isEqualTo(computedRelevance);
+		assertThat(happiness.getScore()).isEqualTo(defaultHappiness);
+		assertThat(happiness.getRelevance()).isEqualTo(computedRelevance);
 	}
 
 	@Test
@@ -83,11 +83,11 @@ public class HappinessAnalyzerTest {
 		HappinessAnalyzer happinessAnalyzer = new HappinessAnalyzer();
 
 		// when
-		Map<String, Double> happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
+		ComputedHappiness happiness = happinessAnalyzer.computeHappiness(tweetText, wordsHappiness);
 
 		// then
 		assertThat(happiness).isNotNull();
-		assertThat(happiness.get(Analyzer.SCORE_KEY)).isEqualTo(computedHappiness);
-		assertThat(happiness.get(Analyzer.RELEVANCE_KEY)).isEqualTo(computedRelevance);
+		assertThat(happiness.getScore()).isEqualTo(computedHappiness);
+		assertThat(happiness.getRelevance()).isEqualTo(computedRelevance);
 	}
 }

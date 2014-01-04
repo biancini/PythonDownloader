@@ -1,5 +1,7 @@
 package it.elasticsearch.scripts.utilities;
 
+import it.elasticsearch.scripts.models.ComputedHappiness;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -7,13 +9,13 @@ import java.util.Properties;
 public class HappinessAnalyzer implements Analyzer {
 
 	@Override
-	public Map<String, Double> computeHappiness(String tweetText, Properties properties) {
+	public ComputedHappiness computeHappiness(String tweetText, Properties properties) {
 		HashMap<String, Double> wordHappiness = HappinessWords.getWordHappiness(properties);
 		return computeHappiness(tweetText, wordHappiness);
 	}
 
 	@Override
-	public Map<String, Double> computeHappiness(String tweetText, Map<String, Double> wordHappiness) {
+	public ComputedHappiness computeHappiness(String tweetText, Map<String, Double> wordHappiness) {
 		if (wordHappiness == null) {
 			return null;
 		}
@@ -37,9 +39,6 @@ public class HappinessAnalyzer implements Analyzer {
 		happiness /= allWords;
 		relevance = relevantWords / allWords;
 
-		Map<String, Double> returnVal = new HashMap<String, Double>();
-		returnVal.put(Analyzer.SCORE_KEY, happiness);
-		returnVal.put(RELEVANCE_KEY, relevance);
-		return returnVal;
+		return new ComputedHappiness(happiness, relevance);
 	}
 }

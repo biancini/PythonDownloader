@@ -1,10 +1,10 @@
 package it.elasticsearch.scripts;
 
+import it.elasticsearch.scripts.models.ComputedHappiness;
 import it.elasticsearch.scripts.utilities.Analyzer;
 import it.elasticsearch.scripts.utilities.HappinessAnalyzer;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 
 import org.elasticsearch.common.logging.ESLogger;
@@ -46,19 +46,14 @@ public class HappinessScript extends AbstractSearchScript {
 		}
 
 		logger.debug("Evaluating happiness on text: {}", tweetText);
-		Map<String, Double> vals = analyzer.computeHappiness(tweetText, properties);
+		ComputedHappiness happiness = analyzer.computeHappiness(tweetText, properties);
 
-		if (vals == null) {
+		if (happiness == null) {
 			logger.error("Returned null value from compute happiness.");
 			return null;
 		}
 
-		if (!vals.containsKey(Analyzer.SCORE_KEY) || !vals.containsKey(Analyzer.RELEVANCE_KEY)) {
-			logger.error("Wrong returned value from compute happiness: {}.", vals);
-			return null;
-		}
-
-		return vals;
+		return happiness.toMap();
 	}
 
 }
