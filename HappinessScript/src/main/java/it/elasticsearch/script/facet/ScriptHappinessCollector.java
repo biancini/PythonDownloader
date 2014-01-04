@@ -15,7 +15,7 @@ import org.elasticsearch.search.facet.FacetExecutor;
 import org.elasticsearch.search.facet.InternalFacet;
 import org.elasticsearch.search.internal.SearchContext;
 
-public class ScriptFacetCollector extends FacetExecutor {
+public class ScriptHappinessCollector extends FacetExecutor {
 
 	private final String scriptLang;
 	private final SearchScript mapScript;
@@ -31,9 +31,8 @@ public class ScriptFacetCollector extends FacetExecutor {
 	private ScriptService scriptService = null;
 	private Client client = null;
 
-	public ScriptFacetCollector(String scriptLang, String initScript, String mapScript, String combineScript,
-			String reduceScript, Map<String, Object> params, Map<String, Object> reduceParams,
-			SearchContext context, Client client) {
+	public ScriptHappinessCollector(String scriptLang, String mapScript, String combineScript, String reduceScript,
+			Map<String, Object> params, Map<String, Object> reduceParams, SearchContext context, Client client) {
 
 		this.scriptService = context.scriptService();
 		this.client = client;
@@ -53,10 +52,6 @@ public class ScriptFacetCollector extends FacetExecutor {
 
 		this.params.put("_ctx", context);
 		this.params.put("_client", client);
-
-		if (initScript != null) {
-			scriptService.executable(scriptLang, initScript, this.params).run();
-		}
 
 		this.mapScript = scriptService.search(context.lookup(), scriptLang, mapScript, this.params);
 
@@ -79,7 +74,7 @@ public class ScriptFacetCollector extends FacetExecutor {
 			facet = params.get("facet");
 		}
 
-		return new InternalScriptFacet(facetName, facet, scriptLang, reduceScript, reduceParams, scriptService,
+		return new InternalHappinessFacet(facetName, facet, scriptLang, reduceScript, reduceParams, scriptService,
 				client);
 	}
 

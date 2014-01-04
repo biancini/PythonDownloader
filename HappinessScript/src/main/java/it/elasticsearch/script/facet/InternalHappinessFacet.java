@@ -19,7 +19,7 @@ import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.InternalFacet;
 
-public class InternalScriptFacet extends InternalFacet implements ScriptFacet {
+public class InternalHappinessFacet extends InternalFacet implements HappinessFacet {
 	private static final BytesReference STREAM_TYPE = new HashedBytesArray(Strings.toUTF8Bytes("script"));
 
 	private Object facet = null;
@@ -33,19 +33,19 @@ public class InternalScriptFacet extends InternalFacet implements ScriptFacet {
 		Streams.registerStream(new ScriptFacetStream(scriptService, client), STREAM_TYPE);
 	}
 
-	private InternalScriptFacet(ScriptService scriptService, Client client) {
+	private InternalHappinessFacet(ScriptService scriptService, Client client) {
 		this.scriptService = scriptService;
 		this.client = client;
 	}
 
-	private InternalScriptFacet(String name, ScriptService scriptService, Client client) {
+	private InternalHappinessFacet(String name, ScriptService scriptService, Client client) {
 		super(name);
 
 		this.scriptService = scriptService;
 		this.client = client;
 	}
 
-	public InternalScriptFacet(String name, Object facet, String scriptLang, String reduceScript,
+	public InternalHappinessFacet(String name, Object facet, String scriptLang, String reduceScript,
 			Map<String, Object> reduceParams, ScriptService scriptService, Client client) {
 
 		this(name, scriptService, client);
@@ -66,11 +66,11 @@ public class InternalScriptFacet extends InternalFacet implements ScriptFacet {
 		List<Object> facetObjects = newArrayList();
 
 		for (Facet facet : reduceContext.facets()) {
-			InternalScriptFacet mapReduceFacet = (InternalScriptFacet) facet;
+			InternalHappinessFacet mapReduceFacet = (InternalHappinessFacet) facet;
 			facetObjects.add(mapReduceFacet.facet());
 		}
 
-		InternalScriptFacet firstFacet = ((InternalScriptFacet) reduceContext.facets().get(0));
+		InternalHappinessFacet firstFacet = ((InternalHappinessFacet) reduceContext.facets().get(0));
 
 		Object facet = null;
 		if (firstFacet.reduceScript() != null) {
@@ -88,13 +88,13 @@ public class InternalScriptFacet extends InternalFacet implements ScriptFacet {
 		} else {
 			facet = facetObjects;
 		}
-		return new InternalScriptFacet(firstFacet.getName(), facet, firstFacet.scriptLang(),
+		return new InternalHappinessFacet(firstFacet.getName(), facet, firstFacet.scriptLang(),
 				firstFacet.reduceScript(), firstFacet.reduceParams(), scriptService, client);
 	}
 
 	@Override
 	public String getType() {
-		return ScriptFacet.TYPE;
+		return HappinessFacet.TYPE;
 	}
 
 	@Override
@@ -147,15 +147,15 @@ public class InternalScriptFacet extends InternalFacet implements ScriptFacet {
 	@Override
 	public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
 		builder.startObject(getName());
-		builder.field(Fields._TYPE, ScriptFacet.TYPE);
+		builder.field(Fields._TYPE, HappinessFacet.TYPE);
 		builder.field(Fields.FACET, facet);
 		builder.endObject();
 		return builder;
 	}
 
-	public static InternalScriptFacet readMapReduceFacet(StreamInput in, ScriptService scriptService,
+	public static InternalHappinessFacet readMapReduceFacet(StreamInput in, ScriptService scriptService,
 			Client client) throws IOException {
-		InternalScriptFacet facet = new InternalScriptFacet(scriptService, client);
+		InternalHappinessFacet facet = new InternalHappinessFacet(scriptService, client);
 		facet.readFrom(in);
 		return facet;
 	}
@@ -171,7 +171,7 @@ public class InternalScriptFacet extends InternalFacet implements ScriptFacet {
 
 		@Override
 		public Facet readFacet(StreamInput in) throws IOException {
-			return InternalScriptFacet.readMapReduceFacet(in, scriptService, client);
+			return InternalHappinessFacet.readMapReduceFacet(in, scriptService, client);
 		}
 
 	}
