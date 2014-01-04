@@ -1,7 +1,8 @@
-package it.elasticsearch.scripts.utilities;
+package it.elasticsearch.utilities;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.MapAssert.entry;
+import it.elasticsearch.utilities.HappinessWords;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

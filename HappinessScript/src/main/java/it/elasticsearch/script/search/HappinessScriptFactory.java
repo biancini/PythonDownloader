@@ -1,4 +1,4 @@
-package it.elasticsearch.scripts;
+package it.elasticsearch.script.search;
 
 import java.io.FileInputStream;
 import java.io.IOException;

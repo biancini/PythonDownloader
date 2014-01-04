@@ -1,6 +1,7 @@
-package it.elasticsearch.scripts.models;
+package it.elasticsearch.models;
 
 import static org.fest.assertions.Assertions.assertThat;
+import it.elasticsearch.models.ComputedHappiness;
 
 import java.io.IOException;
 import java.util.HashMap;

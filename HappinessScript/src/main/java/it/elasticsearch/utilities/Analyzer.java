@@ -1,6 +1,6 @@
-package it.elasticsearch.scripts.utilities;
+package it.elasticsearch.utilities;
 
-import it.elasticsearch.scripts.models.ComputedHappiness;
+import it.elasticsearch.models.ComputedHappiness;
 
 import java.util.Map;
 import java.util.Properties;

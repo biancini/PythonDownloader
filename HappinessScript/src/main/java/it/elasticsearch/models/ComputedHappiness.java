@@ -1,4 +1,4 @@
-package it.elasticsearch.scripts.models;
+package it.elasticsearch.models;
 
 import java.util.HashMap;
 import java.util.Map;

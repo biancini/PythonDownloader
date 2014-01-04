@@ -1,9 +1,10 @@
-package it.elasticsearch.scripts;
+package it.elasticsearch.script.search;
 
 import static org.fest.assertions.Assertions.assertThat;
-import it.elasticsearch.scripts.models.ComputedHappiness;
-import it.elasticsearch.scripts.utilities.HappinessAnalyzer;
-import it.elasticsearch.scripts.utilities.HappinessWords;
+import it.elasticsearch.models.ComputedHappiness;
+import it.elasticsearch.script.search.HappinessScript;
+import it.elasticsearch.utilities.HappinessAnalyzer;
+import it.elasticsearch.utilities.HappinessWords;
 
 import java.io.BufferedWriter;
 import java.io.File;

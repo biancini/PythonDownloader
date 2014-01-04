@@ -1,8 +1,8 @@
-package it.elasticsearch.scripts;
+package it.elasticsearch.script.search;
 
-import it.elasticsearch.scripts.models.ComputedHappiness;
-import it.elasticsearch.scripts.utilities.Analyzer;
-import it.elasticsearch.scripts.utilities.HappinessAnalyzer;
+import it.elasticsearch.models.ComputedHappiness;
+import it.elasticsearch.utilities.Analyzer;
+import it.elasticsearch.utilities.HappinessAnalyzer;
 
 import java.io.IOException;
 import java.util.Properties;

@@ -1,4 +1,4 @@
-package it.elasticsearch.scripts.utilities;
+package it.elasticsearch.utilities;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -26,8 +26,12 @@ public class HappinessWords {
 	private static HashMap<String, Double> wordHappiness = null;
 
 	public synchronized static HashMap<String, Double> getWordHappiness(Properties properties) {
+		return getWordHappiness(properties, false);
+	}
+
+	public synchronized static HashMap<String, Double> getWordHappiness(Properties properties, boolean reInitialize) {
 		try {
-			if (wordHappiness == null) {
+			if (wordHappiness == null || reInitialize) {
 				wordHappiness = initializeWordHappiness(properties);
 			}
 		} catch (IOException e) {
