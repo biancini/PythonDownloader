@@ -1,6 +1,6 @@
 package it.elasticsearch.plugin;
 
-import it.elasticsearch.script.facet.HappinessFacetParser;
+import it.elasticsearch.script.facet.ScriptFacetParser;
 import it.elasticsearch.script.search.HappinessScriptFactory;
 
 import org.elasticsearch.plugins.AbstractPlugin;
@@ -24,6 +24,6 @@ public class HappinessPlugin extends AbstractPlugin {
 	}
 
 	public void onModule(FacetModule module) {
-		module.addFacetProcessor(HappinessFacetParser.class);
+		module.addFacetProcessor(ScriptFacetParser.class);
 	}
 }
