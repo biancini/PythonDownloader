@@ -1,6 +1,7 @@
 package it.elasticsearch.script.facet;
 
 import static org.elasticsearch.common.collect.Lists.newArrayList;
+import it.elasticsearch.utilities.FacetParamsManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentBuilderString;
+import org.elasticsearch.script.ExecutableScript;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.InternalFacet;
@@ -23,9 +25,9 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 	private static final BytesReference STREAM_TYPE = new HashedBytesArray(Strings.toUTF8Bytes("script"));
 
 	private Object facet = null;
-	private String scriptLang = null;
-	private String reduceScript = null;
-	private Map<String, Object> reduceParams = null;
+
+	private Map<String, Object> reduceScript = null;
+
 	private ScriptService scriptService = null;
 	private Client client = null;
 
@@ -45,15 +47,12 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 		this.client = client;
 	}
 
-	public InternalHappinessFacet(String name, Object facet, String scriptLang, String reduceScript,
-			Map<String, Object> reduceParams, ScriptService scriptService, Client client) {
+	public InternalHappinessFacet(String name, Object facet, Map<String, Object> reduceScript,
+			ScriptService scriptService, Client client) {
 
 		this(name, scriptService, client);
-
 		this.facet = facet;
 		this.reduceScript = reduceScript;
-		this.reduceParams = reduceParams;
-		this.scriptLang = scriptLang;
 	}
 
 	@Override
@@ -73,23 +72,19 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 		InternalHappinessFacet firstFacet = ((InternalHappinessFacet) reduceContext.facets().get(0));
 
 		Object facet = null;
-		if (firstFacet.reduceScript() != null) {
-			Map<String, Object> params = null;
-			if (firstFacet.reduceParams() != null) {
-				params = new HashMap<String, Object>(firstFacet.reduceParams());
-			} else {
-				params = new HashMap<String, Object>();
-			}
+		if (firstFacet.reduceScript != null) {
+			Map<String, Object> additionalParams = new HashMap<String, Object>();
+			additionalParams.put("facets", facetObjects);
+			additionalParams.put("_client", client);
 
-			params.put("facets", facetObjects);
-			params.put("_client", client);
-
-			facet = scriptService.executable(firstFacet.scriptLang(), firstFacet.reduceScript(), params).run();
+			ExecutableScript execScript = FacetParamsManager.getExecutableScript(firstFacet.reduceScript,
+					additionalParams, scriptService);
+			facet = execScript.run();
 		} else {
 			facet = facetObjects;
 		}
-		return new InternalHappinessFacet(firstFacet.getName(), facet, firstFacet.scriptLang(),
-				firstFacet.reduceScript(), firstFacet.reduceParams(), scriptService, client);
+
+		return new InternalHappinessFacet(firstFacet.getName(), facet, reduceScript, scriptService, client);
 	}
 
 	@Override
@@ -101,9 +96,7 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 	public void readFrom(StreamInput in) throws IOException {
 		super.readFrom(in);
 
-		scriptLang = in.readOptionalString();
-		reduceScript = in.readOptionalString();
-		reduceParams = in.readMap();
+		reduceScript = in.readMap();
 		facet = in.readGenericValue();
 	}
 
@@ -111,9 +104,7 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 	public void writeTo(StreamOutput out) throws IOException {
 		super.writeTo(out);
 
-		out.writeOptionalString(scriptLang);
-		out.writeOptionalString(reduceScript);
-		out.writeMap(reduceParams);
+		out.writeMap(reduceScript);
 		out.writeGenericValue(facet);
 	}
 
@@ -125,18 +116,6 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 	@Override
 	public Object getFacet() {
 		return facet();
-	}
-
-	public String scriptLang() {
-		return scriptLang;
-	}
-
-	public String reduceScript() {
-		return reduceScript;
-	}
-
-	public Map<String, Object> reduceParams() {
-		return reduceParams;
 	}
 
 	static final class Fields {

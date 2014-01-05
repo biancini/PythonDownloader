@@ -53,6 +53,7 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
+		fields().put("happiness", happiness);
 		return happiness.toMap();
 	}
 

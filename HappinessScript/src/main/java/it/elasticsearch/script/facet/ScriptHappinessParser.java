@@ -43,12 +43,10 @@ public class ScriptHappinessParser extends AbstractComponent implements FacetPar
 
 	@Override
 	public FacetExecutor parse(String facetName, XContentParser parser, SearchContext context) throws IOException {
-		String mapScript = null;
-		String combineScript = null;
-		String reduceScript = null;
-		String scriptLang = null;
-		Map<String, Object> params = null;
-		Map<String, Object> reduceParams = null;
+		Map<String, Object> mapScript = null;
+		Map<String, Object> combineScript = null;
+		Map<String, Object> reduceScript = null;
+
 		XContentParser.Token token = null;
 		String fieldName = null;
 
@@ -56,21 +54,15 @@ public class ScriptHappinessParser extends AbstractComponent implements FacetPar
 			if (token == XContentParser.Token.FIELD_NAME) {
 				fieldName = parser.currentName();
 			} else if (token == XContentParser.Token.START_OBJECT) {
-				if ("params".equals(fieldName)) {
-					params = parser.map();
-				} else if ("reduce_params".equals(fieldName)) {
-					reduceParams = parser.map();
+				if ("map_script".equals(fieldName) || "mapScript".equals(fieldName)) {
+					mapScript = parser.map();
+				} else if ("combine_script".equals(fieldName) || "combineScript".equals(fieldName)) {
+					combineScript = parser.map();
+				} else if ("reduce_script".equals(fieldName) || "reduceScript".equals(fieldName)) {
+					reduceScript = parser.map();
 				}
 			} else if (token.isValue()) {
-				if ("map_script".equals(fieldName) || "mapScript".equals(fieldName)) {
-					mapScript = parser.text();
-				} else if ("combine_script".equals(fieldName) || "combineScript".equals(fieldName)) {
-					combineScript = parser.text();
-				} else if ("reduce_script".equals(fieldName) || "reduceScript".equals(fieldName)) {
-					reduceScript = parser.text();
-				} else if ("lang".equals(fieldName)) {
-					scriptLang = parser.text();
-				}
+				// Do nothing
 			}
 		}
 
@@ -78,8 +70,7 @@ public class ScriptHappinessParser extends AbstractComponent implements FacetPar
 			throw new FacetPhaseExecutionException(facetName, "map_script field is required");
 		}
 
-		return new ScriptHappinessCollector(scriptLang, mapScript, combineScript, reduceScript, params, reduceParams,
-				context, client);
+		return new ScriptHappinessCollector(mapScript, combineScript, reduceScript, context, client);
 	}
 
 }
