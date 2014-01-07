@@ -1,4 +1,6 @@
-package it.elasticsearch.script.search;
+package it.elasticsearch.script.factory;
+
+import it.elasticsearch.script.HappinessScript;
 
 import java.io.FileInputStream;
 import java.io.IOException;

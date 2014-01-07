@@ -1,7 +1,8 @@
-package it.elasticsearch.script.search;
+package it.elasticsearch.script;
 
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
+import it.elasticsearch.script.HappinessScript;
 import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.HappinessWords;
 

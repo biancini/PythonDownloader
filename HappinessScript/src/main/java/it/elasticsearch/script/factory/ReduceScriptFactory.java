@@ -1,4 +1,6 @@
-package it.elasticsearch.script.reduce;
+package it.elasticsearch.script.factory;
+
+import it.elasticsearch.script.reduce.ReduceScript;
 
 import java.util.Map;
 

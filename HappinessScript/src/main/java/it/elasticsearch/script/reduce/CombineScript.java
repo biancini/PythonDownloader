@@ -2,7 +2,7 @@ package it.elasticsearch.script.reduce;
 
 import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.models.ReduceComputedHappiness;
-import it.elasticsearch.script.facet.HappinessInternalFacet;
+import it.elasticsearch.script.HappinessInternalFacet;
 
 import java.util.List;
 import java.util.Map;

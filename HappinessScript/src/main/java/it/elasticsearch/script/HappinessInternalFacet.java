@@ -1,4 +1,4 @@
-package it.elasticsearch.script.facet;
+package it.elasticsearch.script;
 
 import static org.elasticsearch.common.collect.Lists.newArrayList;
 import it.elasticsearch.models.ReduceComputedHappiness;

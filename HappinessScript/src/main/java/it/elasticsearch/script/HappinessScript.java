@@ -1,4 +1,4 @@
-package it.elasticsearch.script.search;
+package it.elasticsearch.script;
 
 import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.utilities.Analyzer;

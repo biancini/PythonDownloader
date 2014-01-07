@@ -1,7 +1,7 @@
-package it.elasticsearch.script.search;
+package it.elasticsearch.script.factory;
 
 import static org.fest.assertions.Assertions.assertThat;
-import it.elasticsearch.script.search.HappinessScriptFactory;
+import it.elasticsearch.script.factory.HappinessScriptFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;

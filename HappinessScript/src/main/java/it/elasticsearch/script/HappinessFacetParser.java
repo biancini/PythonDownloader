@@ -1,4 +1,4 @@
-package it.elasticsearch.script.facet;
+package it.elasticsearch.script;
 
 import java.io.IOException;
 import java.util.Map;
