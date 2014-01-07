@@ -1,0 +1,2 @@
+#Specify plugin for happiness computation as mandatory to this cluster
+plugin.mandatory: happiness-plugin
