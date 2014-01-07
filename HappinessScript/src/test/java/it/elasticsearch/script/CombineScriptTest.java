@@ -4,7 +4,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.models.ReduceComputedHappiness;
 import it.elasticsearch.script.HappinessInternalFacet;
-import it.elasticsearch.script.reduce.CombineScript;
 
 import java.io.IOException;
 import java.util.ArrayList;

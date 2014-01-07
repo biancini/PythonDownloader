@@ -3,7 +3,6 @@ package it.elasticsearch.script;
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ReduceComputedHappiness;
 import it.elasticsearch.script.HappinessInternalFacet;
-import it.elasticsearch.script.reduce.ReduceScript;
 
 import java.io.IOException;
 import java.util.ArrayList;

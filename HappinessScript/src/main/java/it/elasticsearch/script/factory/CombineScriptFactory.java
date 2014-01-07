@@ -1,6 +1,6 @@
 package it.elasticsearch.script.factory;
 
-import it.elasticsearch.script.reduce.CombineScript;
+import it.elasticsearch.script.CombineScript;
 
 import java.util.Map;
 
