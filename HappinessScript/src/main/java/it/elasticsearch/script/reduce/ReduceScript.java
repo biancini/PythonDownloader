@@ -38,8 +38,8 @@ public class ReduceScript extends AbstractExecutableScript {
 		logger.debug("Number of elements in combine results: {}.", combineResults.size());
 
 		for (ReduceComputedHappiness curHappiness : combineResults) {
-			score += curHappiness.getScore();
-			relevance += curHappiness.getRelevance();
+			score += curHappiness.getScore() * curHappiness.getNumelements();
+			relevance += curHappiness.getRelevance() * curHappiness.getNumelements();
 			elems += curHappiness.getNumelements();
 		}
 
