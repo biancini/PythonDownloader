@@ -89,6 +89,9 @@ function (angular, app, _, kbn, moment) {
 
       $scope.$on('refresh',function(){$scope.get_data();});
 
+      fields.list.push("happiness.score");
+      fields.list.push("happiness.relevance");
+
       $scope.fields = fields;
       $scope.get_data();
     };
@@ -192,8 +195,11 @@ function (angular, app, _, kbn, moment) {
         boolQuery = boolQuery.should(querySrv.getEjsObj(id));
       });
 
-      request = request.query(
-        $scope.ejs.FilteredQuery(
+      var scriptField = $scope.ejs.ScriptField("happiness");
+      scriptField.script("hedonometer");
+      scriptField.lang("native");
+
+      request = request.query($scope.ejs.FilteredQuery(
           boolQuery,
           filterSrv.getBoolFilter(filterSrv.ids)
         ))
@@ -203,6 +209,8 @@ function (angular, app, _, kbn, moment) {
           .preTags('@start-highlight@')
           .postTags('@end-highlight@')
         )
+	.scriptField(scriptField)
+	.fields([ "created_at", "userid", "coordinates", "location", "num_friends", "text" ])
         .size($scope.panel.size*$scope.panel.pages)
         .sort($scope.panel.sort[0],$scope.panel.sort[1]);
       $scope.populate_modal(request);
@@ -232,7 +240,8 @@ function (angular, app, _, kbn, moment) {
             //_h._source = kbn.flatten_json(hit._source);
             //_h.highlight = kbn.flatten_json(hit.highlight||{});
             _h.kibana = {
-              _source : kbn.flatten_json(hit._source),
+              //_source : kbn.flatten_json(hit._source),
+              _source : kbn.flatten_json(hit.fields),
               highlight : kbn.flatten_json(hit.highlight||{})
             };
             return _h;
