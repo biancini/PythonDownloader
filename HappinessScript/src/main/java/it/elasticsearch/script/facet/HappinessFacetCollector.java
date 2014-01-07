@@ -1,4 +1,4 @@
-package it.elasticsearch.script;
+package it.elasticsearch.script.facet;
 
 import it.elasticsearch.models.ComputedHappiness;
 

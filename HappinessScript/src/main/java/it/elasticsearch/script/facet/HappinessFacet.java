@@ -1,4 +1,4 @@
-package it.elasticsearch.script;
+package it.elasticsearch.script.facet;
 
 import org.elasticsearch.search.facet.Facet;
 

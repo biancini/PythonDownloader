@@ -1,6 +1,6 @@
 package it.elasticsearch.plugin;
 
-import it.elasticsearch.script.HappinessFacetParser;
+import it.elasticsearch.script.facet.HappinessFacetParser;
 import it.elasticsearch.script.factory.CombineScriptFactory;
 import it.elasticsearch.script.factory.HappinessScriptFactory;
 import it.elasticsearch.script.factory.ReduceScriptFactory;
