@@ -1,6 +1,7 @@
 package it.elasticsearch.script.reduce;
 
 import it.elasticsearch.models.ReduceComputedHappiness;
+import it.elasticsearch.script.facet.HappinessInternalFacet;
 
 import java.util.List;
 import java.util.Map;
@@ -21,15 +22,10 @@ public class ReduceScript extends AbstractExecutableScript {
 	}
 
 	@Override
-	public void setNextVar(String name, Object value) {
-		logger.debug("Called setNextVar params: {} => {}.", name, value);
-		params.put(name, value);
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	public Object run() {
-		List<ReduceComputedHappiness> combineResults = (List<ReduceComputedHappiness>) params.get("facets");
+		List<ReduceComputedHappiness> combineResults = (List<ReduceComputedHappiness>) params
+				.get(HappinessInternalFacet.FACETS_TYPE);
 
 		double score = 0.;
 		double relevance = 0.;

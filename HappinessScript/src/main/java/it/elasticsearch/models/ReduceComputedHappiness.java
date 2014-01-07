@@ -22,10 +22,6 @@ public class ReduceComputedHappiness extends ComputedHappiness {
 		return numelements;
 	}
 
-	public void setNumelements(double numelements) {
-		this.numelements = numelements;
-	}
-
 	public Map<String, Double> toMap() {
 		Map<String, Double> returnVal = super.toMap();
 		returnVal.put(NUMELEMS_KEY, numelements);

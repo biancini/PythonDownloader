@@ -62,7 +62,6 @@ public class HappinessScriptTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void shouldRunWork() throws IOException {
 		// given
 		assertThat(happinessFile.exists()).isTrue();
@@ -95,8 +94,7 @@ public class HappinessScriptTest {
 		// then
 		assertThat(objHappiness).isNotNull();
 		assertThat(objHappiness instanceof Map<?, ?>).isTrue();
-		Map<String, Double> happiness = (Map<String, Double>) objHappiness;
-		assertThat(happiness).isEqualTo(expectedHappiness);
+		assertThat(objHappiness).isEqualTo(expectedHappiness);
 	}
 
 	@Test

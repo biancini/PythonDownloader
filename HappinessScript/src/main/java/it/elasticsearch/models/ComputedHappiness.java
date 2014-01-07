@@ -32,16 +32,8 @@ public class ComputedHappiness {
 		return score;
 	}
 
-	protected void setScore(double score) {
-		this.score = score;
-	}
-
 	public double getRelevance() {
 		return relevance;
-	}
-
-	protected void setRelevance(double relevance) {
-		this.relevance = relevance;
 	}
 
 	@Override

@@ -23,6 +23,12 @@ import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.InternalFacet;
 
 public class HappinessInternalFacet extends InternalFacet implements HappinessFacet {
+	public static final String TYPE_FIELD = "_type";
+	public static final String CLIENT_PARAM = "_client";
+
+	public static final String FACET_TYPE = "facet";
+	public static final String FACETS_TYPE = "facets";
+
 	private static final BytesReference STREAM_TYPE = new HashedBytesArray(
 			Strings.toUTF8Bytes(HappinessFacet.TYPE));
 
@@ -76,8 +82,8 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 		Object facet = null;
 		if (firstFacet.reduceScript != null) {
 			Map<String, Object> additionalParams = new HashMap<String, Object>();
-			additionalParams.put("facets", facetObjects);
-			additionalParams.put("_client", client);
+			additionalParams.put(FACETS_TYPE, facetObjects);
+			additionalParams.put(CLIENT_PARAM, client);
 
 			ExecutableScript execScript = FacetParamsManager.getExecutableScript(firstFacet.reduceScript,
 					additionalParams, scriptService);
@@ -121,8 +127,8 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 	}
 
 	static final class Fields {
-		static final XContentBuilderString _TYPE = new XContentBuilderString("_type");
-		static final XContentBuilderString FACET = new XContentBuilderString("facet");
+		static final XContentBuilderString _TYPE = new XContentBuilderString(TYPE_FIELD);
+		static final XContentBuilderString FACET = new XContentBuilderString(FACET_TYPE);
 	}
 
 	@Override
