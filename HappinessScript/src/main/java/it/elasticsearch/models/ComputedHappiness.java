@@ -16,6 +16,11 @@ public class ComputedHappiness {
 		this.relevance = relevance;
 	}
 
+	public ComputedHappiness(Map<String, Double> vals) {
+		this.score = vals.get(SCORE_KEY);
+		this.relevance = vals.get(RELEVANCE_KEY);
+	}
+
 	public Map<String, Double> toMap() {
 		Map<String, Double> returnVal = new HashMap<String, Double>();
 		returnVal.put(SCORE_KEY, score);
@@ -37,6 +42,11 @@ public class ComputedHappiness {
 
 	protected void setRelevance(double relevance) {
 		this.relevance = relevance;
+	}
+
+	@Override
+	public String toString() {
+		return toMap().toString();
 	}
 
 }

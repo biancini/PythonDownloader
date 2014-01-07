@@ -1,6 +1,7 @@
 package it.elasticsearch.script.facet;
 
 import static org.elasticsearch.common.collect.Lists.newArrayList;
+import it.elasticsearch.models.ReduceComputedHappiness;
 import it.elasticsearch.utilities.FacetParamsManager;
 
 import java.io.IOException;
@@ -21,38 +22,37 @@ import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.InternalFacet;
 
-public class InternalHappinessFacet extends InternalFacet implements HappinessFacet {
-	private static final BytesReference STREAM_TYPE = new HashedBytesArray(Strings.toUTF8Bytes("script"));
+public class HappinessInternalFacet extends InternalFacet implements HappinessFacet {
+	private static final BytesReference STREAM_TYPE = new HashedBytesArray(
+			Strings.toUTF8Bytes(HappinessFacet.TYPE));
 
 	private Object facet = null;
-
 	private Map<String, Object> reduceScript = null;
-
 	private ScriptService scriptService = null;
 	private Client client = null;
 
-	public static void registerStreams(ScriptService scriptService, Client client) {
-		Streams.registerStream(new ScriptFacetStream(scriptService, client), STREAM_TYPE);
-	}
-
-	private InternalHappinessFacet(ScriptService scriptService, Client client) {
+	private HappinessInternalFacet(ScriptService scriptService, Client client) {
 		this.scriptService = scriptService;
 		this.client = client;
 	}
 
-	private InternalHappinessFacet(String name, ScriptService scriptService, Client client) {
+	private HappinessInternalFacet(String name, ScriptService scriptService, Client client) {
 		super(name);
 
 		this.scriptService = scriptService;
 		this.client = client;
 	}
 
-	public InternalHappinessFacet(String name, Object facet, Map<String, Object> reduceScript,
+	public HappinessInternalFacet(String name, Object facet, Map<String, Object> reduceScript,
 			ScriptService scriptService, Client client) {
 
 		this(name, scriptService, client);
 		this.facet = facet;
 		this.reduceScript = reduceScript;
+	}
+
+	public static void registerStreams(ScriptService scriptService, Client client) {
+		Streams.registerStream(new ScriptFacetStream(scriptService, client), STREAM_TYPE);
 	}
 
 	@Override
@@ -61,15 +61,17 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Facet reduce(ReduceContext reduceContext) {
 		List<Object> facetObjects = newArrayList();
 
 		for (Facet facet : reduceContext.facets()) {
-			InternalHappinessFacet mapReduceFacet = (InternalHappinessFacet) facet;
-			facetObjects.add(mapReduceFacet.facet());
+			HappinessInternalFacet mapReduceFacet = (HappinessInternalFacet) facet;
+			Map<String, Double> curFacet = (Map<String, Double>) mapReduceFacet.facet();
+			facetObjects.add(new ReduceComputedHappiness(curFacet));
 		}
 
-		InternalHappinessFacet firstFacet = ((InternalHappinessFacet) reduceContext.facets().get(0));
+		HappinessInternalFacet firstFacet = ((HappinessInternalFacet) reduceContext.facets().get(0));
 
 		Object facet = null;
 		if (firstFacet.reduceScript != null) {
@@ -84,7 +86,7 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 			facet = facetObjects;
 		}
 
-		return new InternalHappinessFacet(firstFacet.getName(), facet, reduceScript, scriptService, client);
+		return new HappinessInternalFacet(firstFacet.getName(), facet, reduceScript, scriptService, client);
 	}
 
 	@Override
@@ -132,9 +134,9 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 		return builder;
 	}
 
-	public static InternalHappinessFacet readMapReduceFacet(StreamInput in, ScriptService scriptService,
+	public static HappinessInternalFacet readMapReduceFacet(StreamInput in, ScriptService scriptService,
 			Client client) throws IOException {
-		InternalHappinessFacet facet = new InternalHappinessFacet(scriptService, client);
+		HappinessInternalFacet facet = new HappinessInternalFacet(scriptService, client);
 		facet.readFrom(in);
 		return facet;
 	}
@@ -150,7 +152,7 @@ public class InternalHappinessFacet extends InternalFacet implements HappinessFa
 
 		@Override
 		public Facet readFacet(StreamInput in) throws IOException {
-			return InternalHappinessFacet.readMapReduceFacet(in, scriptService, client);
+			return HappinessInternalFacet.readMapReduceFacet(in, scriptService, client);
 		}
 
 	}

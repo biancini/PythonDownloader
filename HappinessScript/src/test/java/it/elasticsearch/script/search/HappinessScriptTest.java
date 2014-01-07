@@ -2,7 +2,6 @@ package it.elasticsearch.script.search;
 
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.script.search.HappinessScript;
 import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.HappinessWords;
 
@@ -80,12 +79,12 @@ public class HappinessScriptTest {
 
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
 		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
+		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
 
 		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
-		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
 		mockHappinessScript.properties = properties;
 		mockHappinessScript.analyzer = mockHappinessAnalyzer;
 		mockHappinessScript.logger = Loggers.getLogger("happiness.script");

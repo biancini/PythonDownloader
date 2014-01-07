@@ -27,15 +27,19 @@ public class HappinessScript extends AbstractSearchScript {
 
 	protected String getTweetText() {
 		String tweetText = (String) source().get(TEXT_FIELDNAME);
-		// ScriptDocValues.Strings fieldValue = (ScriptDocValues.Strings)
-		// doc().get(TEXT_FIELDNAME);
-		// if (fieldValue == null || fieldValue.getValues() == null) {
-		// return null;
-		// }
-		//
-		// String tweetText = fieldValue.getValue();
 		return tweetText;
 	}
+
+	// protected String getTweetId() {
+	// ScriptDocValues.Strings fieldValue = (ScriptDocValues.Strings)
+	// doc().get(ID_FIELDNAME);
+	// if (fieldValue == null || fieldValue.getValues() == null) {
+	// return null;
+	// }
+	//
+	// String tweetId = fieldValue.getValue();
+	// return tweetId;
+	// }
 
 	@Override
 	public Object run() {
@@ -45,7 +49,7 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
-		logger.debug("Evaluating happiness on text: {}", tweetText);
+		logger.trace("Evaluating happiness on text: {}", tweetText);
 		ComputedHappiness happiness = analyzer.computeHappiness(tweetText, properties);
 
 		if (happiness == null) {
@@ -53,7 +57,7 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
-		fields().put("happiness", happiness);
+		logger.trace("Computed happiness: {}.", happiness);
 		return happiness.toMap();
 	}
 

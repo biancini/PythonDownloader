@@ -10,6 +10,9 @@ import org.elasticsearch.script.SearchScript;
 import org.elasticsearch.search.internal.SearchContext;
 
 public class FacetParamsManager {
+	public static final String LANG_PARAM = "lang";
+	public static final String SCRIPT_PARAM = "script";
+	public static final String PARAMS_PARAM = "params";
 
 	public static SearchScript getSearchScript(Map<String, Object> scriptTokens,
 			Map<String, Object> additionalParams, SearchContext context) {
@@ -17,9 +20,9 @@ public class FacetParamsManager {
 		ScriptService scriptService = context.scriptService();
 		SearchScript script = null;
 
-		if (scriptTokens != null && scriptTokens.containsKey("script")) {
-			String scriptString = (String) scriptTokens.get("script");
-			String scriptLang = (String) scriptTokens.get("lang");
+		if (scriptTokens != null && scriptTokens.containsKey(SCRIPT_PARAM)) {
+			String scriptString = (String) scriptTokens.get(SCRIPT_PARAM);
+			String scriptLang = (String) scriptTokens.get(LANG_PARAM);
 
 			Map<String, Object> scriptParams = FacetParamsManager.initializeParams(scriptTokens, additionalParams);
 			script = scriptService.search(context.lookup(), scriptLang, scriptString, scriptParams);
@@ -34,8 +37,8 @@ public class FacetParamsManager {
 		ExecutableScript script = null;
 
 		if (scriptTokens != null) {
-			String scriptString = (String) scriptTokens.get("script");
-			String scriptLang = (String) scriptTokens.get("lang");
+			String scriptString = (String) scriptTokens.get(SCRIPT_PARAM);
+			String scriptLang = (String) scriptTokens.get(LANG_PARAM);
 
 			Map<String, Object> scriptParams = FacetParamsManager.initializeParams(scriptTokens, additionalParams);
 			script = scriptService.executable(scriptLang, scriptString, scriptParams);
@@ -48,9 +51,9 @@ public class FacetParamsManager {
 	public static Map<String, Object> initializeParams(Map<String, Object> scriptMap,
 			Map<String, Object> additionalParams) {
 		Map<String, Object> params = newHashMap();
-		if (scriptMap.containsKey("params")) {
-			if (scriptMap.get("params") != null) {
-				params = (Map<String, Object>) scriptMap.get("params");
+		if (scriptMap.containsKey(PARAMS_PARAM)) {
+			if (scriptMap.get(PARAMS_PARAM) != null) {
+				params = (Map<String, Object>) scriptMap.get(PARAMS_PARAM);
 			}
 		}
 
