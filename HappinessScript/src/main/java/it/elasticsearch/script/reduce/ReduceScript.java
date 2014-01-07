@@ -16,7 +16,7 @@ public class ReduceScript extends AbstractExecutableScript {
 
 	public ReduceScript(Map<String, Object> params) {
 		super();
-		logger.debug("Initializing reduce script with params: {}.", params);
+		logger.trace("Initializing reduce script with params: {}.", params);
 		this.params = params;
 	}
 
