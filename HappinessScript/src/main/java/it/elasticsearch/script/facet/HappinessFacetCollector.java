@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.index.AtomicReaderContext;
-import org.apache.lucene.search.Scorer;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.script.SearchScript;
@@ -44,8 +43,7 @@ public class HappinessFacetCollector extends Collector {
 		mapScript.setNextReader(context);
 	}
 
-	@Override
-	public void setScorer(Scorer scorer) throws IOException {
-		mapScript.setScorer(scorer);
+	protected List<ComputedHappiness> getSearchResults() {
+		return searchResults;
 	}
 }

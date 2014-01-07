@@ -67,4 +67,16 @@ public class HappinessFacetExecutor extends FacetExecutor {
 	public Collector collector() {
 		return new HappinessFacetCollector(mapScript, searchResults);
 	}
+
+	protected SearchScript getMapScript() {
+		return mapScript;
+	}
+
+	protected Map<String, Object> getCombineScript() {
+		return combineScript;
+	}
+
+	protected Map<String, Object> getReduceScript() {
+		return reduceScript;
+	}
 }

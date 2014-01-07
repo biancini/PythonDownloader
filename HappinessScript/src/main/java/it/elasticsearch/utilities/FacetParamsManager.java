@@ -17,13 +17,13 @@ public class FacetParamsManager {
 	public static SearchScript getSearchScript(Map<String, Object> scriptTokens,
 			Map<String, Object> additionalParams, SearchContext context) {
 
-		ScriptService scriptService = context.scriptService();
 		SearchScript script = null;
 
-		if (scriptTokens != null && scriptTokens.containsKey(SCRIPT_PARAM)) {
+		if (context != null && scriptTokens != null && scriptTokens.containsKey(SCRIPT_PARAM)) {
 			String scriptString = (String) scriptTokens.get(SCRIPT_PARAM);
 			String scriptLang = (String) scriptTokens.get(LANG_PARAM);
 
+			ScriptService scriptService = context.scriptService();
 			Map<String, Object> scriptParams = FacetParamsManager.initializeParams(scriptTokens, additionalParams);
 			script = scriptService.search(context.lookup(), scriptLang, scriptString, scriptParams);
 		}
