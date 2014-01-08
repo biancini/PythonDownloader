@@ -2,7 +2,6 @@ package it.elasticsearch.script;
 
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.script.HappinessScript;
 import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.HappinessWords;
 
@@ -94,7 +93,6 @@ public class HappinessScriptTest {
 
 		// then
 		assertThat(objHappiness).isNotNull();
-		assertThat(objHappiness instanceof Map<?, ?>).isTrue();
 		assertThat(objHappiness).isEqualTo(expectedHappiness);
 	}
 
