@@ -44,6 +44,9 @@ class Backend(object):
 
   def GetLocations(self):
     raise NotImplementedError
+  
+  def InsertUSAStates(self, vals):
+    raise NotImplementedError
 
   def InsertFrenchDepartments(self, vals):
     raise NotImplementedError

@@ -319,6 +319,21 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Error while updating coordinates for location into ElasticSearch: %s" % e)
 
+  def InsertUSAStates(self, vals):
+    self.logger.info("Inserting row for %s (%s)." % (vals[0], vals[1]))
+    try:
+      data = { 'name'     : vals[0],
+               'id'       : vals[1],
+               'geometry' : vals[2] }
+      
+      data_json = json.dumps(data, indent=2)
+      host = "%s/twitter/usa_states/%s" % (es_server, vals[0])
+      req = requests.put(host, data=data_json)
+      ret = json.loads(req.content)
+      if not ret["ok"]: raise BackendError("Insert not ok")
+    except Exception as e:
+      raise BackendError("Error while inserting USA State into ElasticSearch: %s" % e)
+    
   def InsertFrenchDepartments(self, vals):
     self.logger.info("Inserting row for %s, %s." % (vals[2], vals[6]))
     try:

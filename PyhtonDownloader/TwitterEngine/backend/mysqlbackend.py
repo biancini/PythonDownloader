@@ -131,6 +131,19 @@ class MySQLBackend(Backend):
     except Exception as e:
       raise BackendError("Error while updating coordinates for location into DB: %s" % e)
 
+  def InsertUSAStates(self, vals):
+    self.logger.info("Inserting row for %s (%s)." % (vals[0], vals[1]))
+    field_list = 'id, name, geometry'
+    try:
+      sql = "INSERT INTO usa_states (%s) " % field_list
+      sql += "VALUES ('%s','%s','%s')" % vals
+      self.logger.debug(sql)
+
+      self.cur.execute(sql)
+      self.con.commit()
+    except Exception as e:
+      raise BackendError("Error while inserting USA State into DB: %s" % e)
+
   def InsertFrenchDepartments(self, vals):
     self.logger.info("Inserting row for %s, %s." % (vals[2], vals[4]))
     field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
