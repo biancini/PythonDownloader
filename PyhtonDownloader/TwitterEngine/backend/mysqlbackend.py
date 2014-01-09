@@ -73,7 +73,20 @@ class MySQLBackend(Backend):
       self.con.rollback()
       return 0
 
-  def GetKmls(self):
+  def GetUSAKmls(self):
+    try:
+      self.cur.execute("SELECT name, geometry FROM usa_states")
+      rows = self.cur.fetchall()
+
+      kmls = []
+      for row in rows:
+        kmls.append((row[0], row[1]));
+
+      return kmls
+    except Exception as e:
+      raise BackendError("Error while retrieving USA kmls from DB: %s" % e)
+
+  def GetFrenchKmls(self):
     try:
       self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
       rows = self.cur.fetchall()
@@ -84,7 +97,7 @@ class MySQLBackend(Backend):
 
       return kmls
     except Exception as e:
-      raise BackendError("Error while retrieving kmls from DB: %s" % e)
+      raise BackendError("Error while retrieving French kmls from DB: %s" % e)
 
   def GetMaxId(self):
     self.logger.info("Retrieving max tweet id from database.")

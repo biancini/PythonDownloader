@@ -122,7 +122,39 @@ class ElasticSearchBackend(Backend):
     except Exception as e:
       raise BackendError("Exception while deleting tweet %s: %s" % (tweet_id, e))
 
-  def GetKmls(self):
+  def GetUSAKmls(self):
+    self.logger.info("Retrieving all USA states")
+    try:
+      start = 0
+      pagesize = 10
+      last = None
+
+      rows = []
+      while True:
+        data = { 'query' : { 'match_all' : { } },
+                 'from' : start,
+                 'size' : pagesize }
+        data_json = json.dumps(data, indent=2)
+        host = "%s/twitter/usa_states/_search" % es_server
+        req = requests.get(host, data=data_json)
+        ret = json.loads(req.content)
+
+        for hit in ret['hits']['hits']:
+          curhit = []
+          if 'name' in hit['_source'] and 'geometry' in hit['_source']:
+            curhit.append(hit['_source']['name'].replace('\\\'', '\''))
+            curhit.append(hit['_source']['geometry'].replace('\\\'', '\''))
+            rows.append(curhit)
+
+        last = ret['hits']['total']
+        start += pagesize
+        if start > last: break
+
+      return rows
+    except Exception as e:
+      raise BackendError("Error while retrieving USA kmls from ElasticSearch: %s" % e)
+    
+  def GetFrenchKmls(self):
     self.logger.info("Retrieving all French departments")
     try:
       start = 0
@@ -152,7 +184,7 @@ class ElasticSearchBackend(Backend):
 
       return rows
     except Exception as e:
-      raise BackendError("Error while retrieving kmls from ElasticSearch: %s" % e)
+      raise BackendError("Error while retrieving French kmls from ElasticSearch: %s" % e)
 
   def GetMaxId(self):
     self.logger.info("Retrieving max tweet id from database.")

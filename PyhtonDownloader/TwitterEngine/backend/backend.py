@@ -27,7 +27,10 @@ class Backend(object):
   def DeleteTweetFromDb(self, tweet_id):
     raise NotImplementedError
 
-  def GetKmls(self):
+  def GetUSAKmls(self):
+    raise NotImplementedError
+
+  def GetFrenchKmls(self):
     raise NotImplementedError
 
   def GetMaxId(self):
