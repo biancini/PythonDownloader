@@ -41,4 +41,22 @@ public class ComputedHappiness {
 		return toMap().toString();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ComputedHappiness) {
+			ComputedHappiness happ = (ComputedHappiness) obj;
+
+			if (happ.getScore() != score) {
+				return false;
+			}
+			if (happ.getRelevance() != relevance) {
+				return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 }

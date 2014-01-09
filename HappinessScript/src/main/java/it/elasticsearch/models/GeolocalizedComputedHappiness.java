@@ -29,7 +29,7 @@ public class GeolocalizedComputedHappiness extends ComputedHappiness {
 		super(vals);
 
 		this.lat = vals.get(LATITUDE_KEY);
-		this.lat = vals.get(LONGITUDE_KEY);
+		this.lng = vals.get(LONGITUDE_KEY);
 	}
 
 	public Map<String, Double> toMap() {
@@ -52,6 +52,28 @@ public class GeolocalizedComputedHappiness extends ComputedHappiness {
 	@Override
 	public String toString() {
 		return toMap().toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof GeolocalizedComputedHappiness) {
+			GeolocalizedComputedHappiness happ = (GeolocalizedComputedHappiness) obj;
+
+			if (!super.equals(obj)) {
+				return false;
+			}
+
+			if (happ.getLatitude() != lat) {
+				return false;
+			}
+			if (happ.getLongitude() != lng) {
+				return false;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

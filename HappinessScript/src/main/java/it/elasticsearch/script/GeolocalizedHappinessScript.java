@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.index.fielddata.ScriptDocValues.GeoPoints;
 
 public class GeolocalizedHappinessScript extends HappinessScript {
 
@@ -17,9 +16,19 @@ public class GeolocalizedHappinessScript extends HappinessScript {
 		super(properties);
 	}
 
+	// protected GeoPoint getCoordinates() {
+	// GeoPoints coordinates = (GeoPoints) doc().get(COORDINATES_FIELDNAME);
+	// return (coordinates != null) ? coordinates.getValue() : null;
+	// }
+
 	protected GeoPoint getCoordinates() {
-		GeoPoints coordinates = (GeoPoints) doc().get(COORDINATES_FIELDNAME);
-		return coordinates.getValue();
+		String strCoords = (String) source().get(COORDINATES_FIELDNAME);
+		if (strCoords == null || strCoords.indexOf(',') < 0) {
+			return null;
+		}
+		String[] coords = strCoords.split(",");
+		GeoPoint geopoint = new GeoPoint(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]));
+		return geopoint;
 	}
 
 	@Override

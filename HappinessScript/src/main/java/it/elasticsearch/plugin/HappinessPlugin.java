@@ -18,8 +18,8 @@ public class HappinessPlugin extends AbstractPlugin {
 	public static final String HAPPINESS_SCRIPT = "hedonometer";
 	public static final String GEO_HAPPINESS_SCRIPT = "geo-hedonometer";
 
-	public static final String COMBINE_SCRIPT = "happycombiner";
-	public static final String REDUCE_SCRIPT = "happyreducer";
+	public static final String COMBINE_SCRIPT = "happy-combiner";
+	public static final String REDUCE_SCRIPT = "happy-reducer";
 
 	@Override
 	public String name() {
