@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-a
+# -*- coding: utf-8 -*-
 
 import sys
 import os.path
@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.
 
 import json
 
+from TwitterEngine.instances import INSTANCES
 from TwitterEngine import BackendChooser
 from shapely.geometry import shape, Point
 
@@ -27,8 +28,8 @@ if __name__ == "__main__":
   lat = 48.822768
   lng = 2.345388
 
-  backend = BackendChooser.GetBackend()
-  rows = backend.GetKmls()
+  backend = BackendChooser.GetBackend(INSTANCES[0])
+  rows = backend.GetFrenchKmls()
 
   inside = False
   for row in rows:

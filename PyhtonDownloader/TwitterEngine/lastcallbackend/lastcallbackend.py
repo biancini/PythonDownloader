@@ -24,9 +24,6 @@ class Backend(object):
   def InsertTweetIntoDb(self, sql_vals):
     raise NotImplementedError
 
-  def GetKmls(self):
-    raise NotImplementedError
-
   def GetLastCallIds(self):
     raise NotImplementedError
 
