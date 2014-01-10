@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class HappinessInstantiator {
 
-	public static ComputedHappiness instantiate(Map<String, Double> vals) {
+	public static ComputedHappiness instantiate(Map<String, Object> vals) {
 
 		if (vals.containsKey(GeolocalizedComputedHappiness.LATITUDE_KEY)
 				&& vals.containsKey(GeolocalizedComputedHappiness.LONGITUDE_KEY)) {

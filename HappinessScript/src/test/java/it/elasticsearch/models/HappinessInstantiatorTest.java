@@ -17,7 +17,7 @@ public class HappinessInstantiatorTest {
 	@Test
 	public void shouldInstantiateReturnGeolocalizedIfLatAndLng() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(ComputedHappiness.SCORE_KEY, score);
 		inputMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
 		inputMap.put(GeolocalizedComputedHappiness.LATITUDE_KEY, lat);
@@ -35,7 +35,7 @@ public class HappinessInstantiatorTest {
 	@Test
 	public void shouldInstantiateReturnBaseObjectIfNoAttributeInMap() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(ComputedHappiness.SCORE_KEY, score);
 		inputMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
 

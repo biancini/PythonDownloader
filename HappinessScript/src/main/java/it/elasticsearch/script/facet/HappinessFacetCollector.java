@@ -35,7 +35,7 @@ public class HappinessFacetCollector extends Collector {
 		logger.trace("Executing collect on id = {}.", doc);
 
 		mapScript.setNextDocId(doc);
-		Map<String, Double> scriptResult = (Map<String, Double>) mapScript.run();
+		Map<String, Object> scriptResult = (Map<String, Object>) mapScript.run();
 		if (scriptResult != null) {
 			searchResults.add(HappinessInstantiator.instantiate(scriptResult));
 		}

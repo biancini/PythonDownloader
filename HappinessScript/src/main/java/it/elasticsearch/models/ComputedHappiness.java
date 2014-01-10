@@ -8,21 +8,26 @@ public class ComputedHappiness {
 	public static final String SCORE_KEY = "score";
 	public static final String RELEVANCE_KEY = "relevance";
 
-	private double score = -1.;
-	private double relevance = -1.;
+	protected double score = -1.;
+	protected double relevance = -1.;
+
+	public ComputedHappiness() {
+		this.score = 0.;
+		this.relevance = 0.;
+	}
 
 	public ComputedHappiness(double score, double relevance) {
 		this.score = score;
 		this.relevance = relevance;
 	}
 
-	public ComputedHappiness(Map<String, Double> vals) {
-		this.score = vals.get(SCORE_KEY);
-		this.relevance = vals.get(RELEVANCE_KEY);
+	public ComputedHappiness(Map<String, Object> vals) {
+		this.score = (Double) vals.get(SCORE_KEY);
+		this.relevance = (Double) vals.get(RELEVANCE_KEY);
 	}
 
-	public Map<String, Double> toMap() {
-		Map<String, Double> returnVal = new HashMap<String, Double>();
+	public Map<String, Object> toMap() {
+		Map<String, Object> returnVal = new HashMap<String, Object>();
 		returnVal.put(SCORE_KEY, score);
 		returnVal.put(RELEVANCE_KEY, relevance);
 		return returnVal;

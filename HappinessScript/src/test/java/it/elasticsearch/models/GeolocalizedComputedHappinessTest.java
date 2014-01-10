@@ -18,7 +18,7 @@ public class GeolocalizedComputedHappinessTest {
 	@Test
 	public void shouldToStringProduceNicePrint() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(GeolocalizedComputedHappiness.SCORE_KEY, score);
 		inputMap.put(GeolocalizedComputedHappiness.RELEVANCE_KEY, relevance);
 		inputMap.put(GeolocalizedComputedHappiness.LATITUDE_KEY, lat);
@@ -34,7 +34,7 @@ public class GeolocalizedComputedHappinessTest {
 	@Test
 	public void shouldInitializeFromMapWork() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(GeolocalizedComputedHappiness.SCORE_KEY, score);
 		inputMap.put(GeolocalizedComputedHappiness.RELEVANCE_KEY, relevance);
 		inputMap.put(GeolocalizedComputedHappiness.LATITUDE_KEY, lat);
@@ -52,14 +52,14 @@ public class GeolocalizedComputedHappinessTest {
 	public void shouldToMapReturnValidMap() throws IOException {
 		// given
 		GeolocalizedComputedHappiness geoHappiness = new GeolocalizedComputedHappiness(score, relevance, lat, lng);
-		Map<String, Double> expectedMap = new HashMap<String, Double>();
+		Map<String, Object> expectedMap = new HashMap<String, Object>();
 		expectedMap.put(ComputedHappiness.SCORE_KEY, score);
 		expectedMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
 		expectedMap.put(GeolocalizedComputedHappiness.LATITUDE_KEY, lat);
 		expectedMap.put(GeolocalizedComputedHappiness.LONGITUDE_KEY, lng);
 
 		// when
-		Map<String, Double> map = geoHappiness.toMap();
+		Map<String, Object> map = geoHappiness.toMap();
 
 		// then
 		assertThat(map).isNotNull();

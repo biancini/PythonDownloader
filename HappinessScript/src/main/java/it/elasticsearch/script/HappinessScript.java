@@ -60,4 +60,5 @@ public class HappinessScript extends AbstractSearchScript {
 		logger.trace("Computed happiness: {}.", happiness);
 		return happiness.toMap();
 	}
+
 }

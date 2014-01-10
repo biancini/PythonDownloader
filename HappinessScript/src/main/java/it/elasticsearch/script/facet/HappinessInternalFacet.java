@@ -73,8 +73,14 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 
 		for (Facet facet : reduceContext.facets()) {
 			HappinessInternalFacet mapReduceFacet = (HappinessInternalFacet) facet;
-			Map<String, Double> curFacet = (Map<String, Double>) mapReduceFacet.facet();
-			facetObjects.add(new ReduceComputedHappiness(curFacet));
+
+			if (mapReduceFacet.facet() instanceof ReduceComputedHappiness) {
+				ReduceComputedHappiness curFacet = (ReduceComputedHappiness) mapReduceFacet.facet();
+				facetObjects.add(curFacet);
+			} else {
+				List<ReduceComputedHappiness> curFacet = (List<ReduceComputedHappiness>) mapReduceFacet.facet();
+				facetObjects.addAll(curFacet);
+			}
 		}
 
 		HappinessInternalFacet firstFacet = ((HappinessInternalFacet) reduceContext.facets().get(0));

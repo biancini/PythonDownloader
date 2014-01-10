@@ -37,7 +37,7 @@ public class GeolocalizedHappinessScript extends HappinessScript {
 		GeoPoint coordinates = getCoordinates();
 
 		if (coordinates != null) {
-			Map<String, Double> happiness = (Map<String, Double>) super.run();
+			Map<String, Object> happiness = (Map<String, Object>) super.run();
 
 			GeolocalizedComputedHappiness geoHappiness = new GeolocalizedComputedHappiness(happiness, coordinates);
 			return geoHappiness.toMap();

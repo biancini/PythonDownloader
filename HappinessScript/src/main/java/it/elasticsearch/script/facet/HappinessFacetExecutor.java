@@ -19,6 +19,10 @@ import org.elasticsearch.search.internal.SearchContext;
 
 public class HappinessFacetExecutor extends FacetExecutor {
 
+	public static final String FACET_TYPE = "facet";
+	public static final String TYPE_CONTEXT = "_ctx";
+	public static final String CLIENT_PARAM = "_client";
+
 	private ESLogger logger = Loggers.getLogger("happiness.script");
 
 	private SearchContext context = null;
@@ -37,8 +41,8 @@ public class HappinessFacetExecutor extends FacetExecutor {
 		this.searchResults = new ArrayList<ComputedHappiness>();
 
 		Map<String, Object> additionalParams = new HashMap<String, Object>();
-		additionalParams.put("_ctx", this.context);
-		additionalParams.put("_client", this.client);
+		additionalParams.put(TYPE_CONTEXT, this.context);
+		additionalParams.put(CLIENT_PARAM, this.client);
 
 		this.mapScript = FacetParamsManager.getSearchScript(mapScript, additionalParams, context);
 		this.combineScript = combineScript;
@@ -51,15 +55,15 @@ public class HappinessFacetExecutor extends FacetExecutor {
 		Object facet = null;
 
 		Map<String, Object> additionalParams = new HashMap<String, Object>();
-		additionalParams.put("_ctx", this.context);
-		additionalParams.put("_client", this.client);
-		additionalParams.put("facet", this.searchResults);
+		additionalParams.put(TYPE_CONTEXT, this.context);
+		additionalParams.put(CLIENT_PARAM, this.client);
+		additionalParams.put(FACET_TYPE, this.searchResults);
 
 		ExecutableScript combineScript = FacetParamsManager.getExecutableScript(this.combineScript,
 				additionalParams, context.scriptService());
 		facet = combineScript.run();
 
-		logger.debug("Computed combine facet: {}.", facet);
+		logger.trace("Computed combine facet: {}.", facet);
 		return new HappinessInternalFacet(facetName, facet, reduceScript, context.scriptService(), client);
 	}
 

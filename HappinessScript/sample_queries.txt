@@ -1,0 +1,144 @@
+# Query to show all USA states in Elasticsearch
+POST twitter/usa_states/_search
+{
+   "query": {
+      "match_all" : { }
+   }
+}
+
+# Query to search for all tweets within two dates
+POST twitter/tweets/_search
+{
+   "query": {
+      "range" : {
+            "created_at" : {
+                "from" : "2013-12-20 00:00:00",
+                "to" : "2013-12-20 23:59:59"
+            }
+        }
+   }
+}
+
+# Query to evaluate hedonometer on all tweets within two dates
+POST twitter/tweets/_search
+{
+   "query": {
+      "range" : {
+            "created_at" : {
+                "from" : "2013-12-20 00:00:00",
+                "to" : "2013-12-20 00:00:01"
+            }
+        }
+   },
+   "fields": [
+      "created_at",
+      "userid",
+      "coordinates",
+      "location",
+      "num_friends",
+      "text"
+   ], 
+   "script_fields": {
+      "happiness": {
+         "script": "hedonometer",
+         "lang": "native"
+      }
+   }
+}
+
+# Query to compute an overall happiness of queried tweets
+POST twitter/tweets/_search
+{
+   "query": {
+      "range" : {
+            "created_at" : {
+                "from" : "2013-12-20 00:00:00",
+                "to" : "2013-12-20 00:15:00"
+            }
+        }
+   },
+   "size": 0, 
+   "facets": {
+      "average": {
+         "happiness": {
+            "map_script": {
+                "script": "hedonometer",
+                "lang": "native"
+            },
+            "combine_script": {
+                "script": "happy-combiner",
+                "lang": "native"
+            },
+            "reduce_script" : {
+                "script": "happy-reducer",
+                "lang": "native"
+            }
+         }
+      }
+   }
+}
+
+# Query that computes hedonometer and shows geolocalization of queried tweets
+POST twitter/tweets/_search
+{
+   "query": {
+      "range" : {
+            "created_at" : {
+                "from" : "2013-12-20 00:00:00",
+                "to" : "2013-12-20 00:00:01"
+            }
+        }
+   },
+   "filter" : {
+        "exists" : { "field" : "coordinates" }
+    },
+   "fields": [
+      "created_at",
+      "userid",
+      "coordinates",
+      "location",
+      "num_friends",
+      "text"
+   ], 
+   "script_fields": {
+      "happiness": {
+         "script": "geo-hedonometer",
+         "lang": "native"
+      }
+   }
+}
+
+# Query to compute the happiness State by State within the US
+POST twitter/tweets/_search
+{
+   "query": {
+      "range" : {
+            "created_at" : {
+                "from" : "2013-12-20 00:00:00",
+                "to" : "2013-12-20 00:00:01"
+            }
+        }
+   },
+   "size": 0, 
+   "filter" : {
+        "exists" : { "field" : "coordinates" }
+    },
+   "facets": {
+      "average": {
+         "happiness": {
+            "map_script": {
+                "script": "geo-hedonometer",
+                "lang": "native"
+            },
+            "combine_script": {
+                "script": "happy-bystate-combiner",
+                "lang": "native"
+            },
+            "reduce_script" : {
+                "script": "happy-bystate-reducer",
+                "lang": "native"
+            }
+         }
+      }
+   }
+}

@@ -18,22 +18,23 @@ public class GeolocalizedComputedHappiness extends ComputedHappiness {
 		this.lng = lng;
 	}
 
-	public GeolocalizedComputedHappiness(Map<String, Double> happiness, GeoPoint point) {
+	public GeolocalizedComputedHappiness(Map<String, Object> happiness, GeoPoint point) {
 		super(happiness);
 
 		this.lat = point.getLat();
 		this.lng = point.getLon();
 	}
 
-	public GeolocalizedComputedHappiness(Map<String, Double> vals) {
+	public GeolocalizedComputedHappiness(Map<String, Object> vals) {
 		super(vals);
 
-		this.lat = vals.get(LATITUDE_KEY);
-		this.lng = vals.get(LONGITUDE_KEY);
+		this.lat = (Double) vals.get(LATITUDE_KEY);
+		this.lng = (Double) vals.get(LONGITUDE_KEY);
 	}
 
-	public Map<String, Double> toMap() {
-		Map<String, Double> returnVal = super.toMap();
+	@Override
+	public Map<String, Object> toMap() {
+		Map<String, Object> returnVal = super.toMap();
 
 		returnVal.put(LATITUDE_KEY, lat);
 		returnVal.put(LONGITUDE_KEY, lng);

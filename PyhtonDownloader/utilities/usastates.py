@@ -47,6 +47,7 @@ if __name__ == "__main__":
   result_set = json.loads(response)
   geometry_row = 2
 
+  print "{"
   for row in result_set['rows']:
     if 'geometry' in row[geometry_row]:
       coords = row[geometry_row]['geometry']['coordinates'][0]
@@ -73,5 +74,7 @@ if __name__ == "__main__":
             row[1].replace('\'', '\\\''),
             row[2].replace('\'', '\\\''))
 
+    print "\"" + row[2].replace('"', "\\\"") + "\", "
     # print vals
-    backend.InsertUSAStates(vals)
+    #backend.InsertUSAStates(vals)
+  print "}"

@@ -17,10 +17,10 @@ public class ReduceComputedHappinessTest {
 	@Test
 	public void shouldToStringProduceNicePrint() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(ReduceComputedHappiness.SCORE_KEY, score);
 		inputMap.put(ReduceComputedHappiness.RELEVANCE_KEY, relevance);
-		inputMap.put(ReduceComputedHappiness.NUMELEMS_KEY, new Double(numelems));
+		inputMap.put(ReduceComputedHappiness.NUMELEMS_KEY, new Integer(numelems));
 
 		// when
 		ReduceComputedHappiness happiness = new ReduceComputedHappiness(score, relevance, numelems);
@@ -32,10 +32,10 @@ public class ReduceComputedHappinessTest {
 	@Test
 	public void shouldInitializeFromMapWork() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(ComputedHappiness.SCORE_KEY, score);
 		inputMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
-		inputMap.put(ReduceComputedHappiness.NUMELEMS_KEY, new Double(numelems));
+		inputMap.put(ReduceComputedHappiness.NUMELEMS_KEY, new Integer(numelems));
 
 		// when
 		ReduceComputedHappiness happiness = new ReduceComputedHappiness(inputMap);
@@ -50,13 +50,13 @@ public class ReduceComputedHappinessTest {
 	public void shouldToMapReturnValidMap() throws IOException {
 		// given
 		ReduceComputedHappiness happiness = new ReduceComputedHappiness(score, relevance, numelems);
-		Map<String, Double> expectedMap = new HashMap<String, Double>();
+		Map<String, Object> expectedMap = new HashMap<String, Object>();
 		expectedMap.put(ComputedHappiness.SCORE_KEY, score);
 		expectedMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
-		expectedMap.put(ReduceComputedHappiness.NUMELEMS_KEY, new Double(numelems));
+		expectedMap.put(ReduceComputedHappiness.NUMELEMS_KEY, new Integer(numelems));
 
 		// when
-		Map<String, Double> map = happiness.toMap();
+		Map<String, Object> map = happiness.toMap();
 
 		// then
 		assertThat(map).isNotNull();

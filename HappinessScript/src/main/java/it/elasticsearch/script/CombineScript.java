@@ -43,6 +43,6 @@ public class CombineScript extends AbstractExecutableScript {
 		relevance /= elems;
 
 		ReduceComputedHappiness combined = new ReduceComputedHappiness(score, relevance, elems);
-		return combined.toMap();
+		return combined;
 	}
 }

@@ -31,17 +31,16 @@ public class ReduceScriptTest {
 		params.put(HappinessInternalFacet.FACETS_TYPE, listFacets);
 		ReduceScript reduceScript = new ReduceScript(params);
 
-		Map<String, Double> expectedResult = new HashMap<String, Double>();
+		Map<String, Object> expectedResult = new HashMap<String, Object>();
 		expectedResult.put(ReduceComputedHappiness.SCORE_KEY, score1);
 		expectedResult.put(ReduceComputedHappiness.RELEVANCE_KEY, relevance1);
-		expectedResult.put(ReduceComputedHappiness.NUMELEMS_KEY, new Double(numelems1));
+		expectedResult.put(ReduceComputedHappiness.NUMELEMS_KEY, new Integer(numelems1));
 
 		// when
 		Object combineResult = reduceScript.run();
 
 		// then
 		assertThat(combineResult).isNotNull();
-		assertThat(combineResult instanceof Map<?, ?>).isTrue();
 		assertThat(combineResult).isEqualTo(expectedResult);
 	}
 
@@ -56,19 +55,18 @@ public class ReduceScriptTest {
 		params.put(HappinessInternalFacet.FACETS_TYPE, listFacets);
 		ReduceScript reduceScript = new ReduceScript(params);
 
-		Map<String, Double> expectedResult = new HashMap<String, Double>();
+		Map<String, Object> expectedResult = new HashMap<String, Object>();
 		expectedResult.put(ReduceComputedHappiness.SCORE_KEY, (score1 * numelems1 + score2 * numelems2)
 				/ (numelems1 + numelems2));
 		expectedResult.put(ReduceComputedHappiness.RELEVANCE_KEY,
 				(relevance1 * numelems1 + relevance2 * numelems2) / (numelems1 + numelems2));
-		expectedResult.put(ReduceComputedHappiness.NUMELEMS_KEY, new Double(numelems1 + numelems2));
+		expectedResult.put(ReduceComputedHappiness.NUMELEMS_KEY, new Integer(numelems1 + numelems2));
 
 		// when
 		Object combineResult = reduceScript.run();
 
 		// then
 		assertThat(combineResult).isNotNull();
-		assertThat(combineResult instanceof Map<?, ?>).isTrue();
 		assertThat(combineResult).isEqualTo(expectedResult);
 	}
 
