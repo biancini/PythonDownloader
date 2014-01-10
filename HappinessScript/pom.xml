@@ -193,6 +193,11 @@
 			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mapfish.geo</groupId>
+			<artifactId>java-geojson</artifactId>
+			<version>1.2-ABSNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
