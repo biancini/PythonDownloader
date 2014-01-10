@@ -76,40 +76,6 @@
 					</plugin>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>findbugs-maven-plugin</artifactId>
-						<version>2.3.2</version>
-						<configuration>
-							<xmlOutput>true</xmlOutput>
-							<findbugsXmlOutput>true</findbugsXmlOutput>
-							<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-							<fork>false</fork>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>findbugs</goal>
-								</goals>
-								<phase>verify</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-checkstyle-plugin</artifactId>
-						<executions>
-							<execution>
-								<goals>
-									<goal>checkstyle</goal>
-								</goals>
-								<phase>verify</phase>
-							</execution>
-						</executions>
-						<configuration>
-							<configLocation>https://forge.geant.net/forge/download/attachments/65561/chckstyle_configuration_simplified.xml</configLocation>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>cobertura-maven-plugin</artifactId>
 						<version>2.5.1</version>
 						<configuration>
