@@ -1,7 +1,7 @@
 package it.elasticsearch.script.facet;
 
 import static org.elasticsearch.common.collect.Lists.newArrayList;
-import it.elasticsearch.models.ReduceComputedHappiness;
+import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.utilities.FacetParamsManager;
 
 import java.io.IOException;
@@ -27,7 +27,6 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 	public static final String CLIENT_PARAM = "_client";
 
 	public static final String FACET_TYPE = "facet";
-	public static final String FACETS_TYPE = "facets";
 
 	private static final BytesReference STREAM_TYPE = new HashedBytesArray(
 			Strings.toUTF8Bytes(HappinessFacet.TYPE));
@@ -74,11 +73,11 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 		for (Facet facet : reduceContext.facets()) {
 			HappinessInternalFacet mapReduceFacet = (HappinessInternalFacet) facet;
 
-			if (mapReduceFacet.facet() instanceof ReduceComputedHappiness) {
-				ReduceComputedHappiness curFacet = (ReduceComputedHappiness) mapReduceFacet.facet();
+			if (mapReduceFacet.facet() instanceof ComputedHappiness) {
+				ComputedHappiness curFacet = (ComputedHappiness) mapReduceFacet.facet();
 				facetObjects.add(curFacet);
 			} else {
-				List<ReduceComputedHappiness> curFacet = (List<ReduceComputedHappiness>) mapReduceFacet.facet();
+				List<ComputedHappiness> curFacet = (List<ComputedHappiness>) mapReduceFacet.facet();
 				facetObjects.addAll(curFacet);
 			}
 		}
@@ -88,12 +87,12 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 		Object facet = null;
 		if (firstFacet.reduceScript != null) {
 			Map<String, Object> additionalParams = new HashMap<String, Object>();
-			additionalParams.put(FACETS_TYPE, facetObjects);
+			additionalParams.put(FACET_TYPE, facetObjects);
 			additionalParams.put(CLIENT_PARAM, client);
 
 			ExecutableScript execScript = FacetParamsManager.getExecutableScript(firstFacet.reduceScript,
 					additionalParams, scriptService);
-			facet = execScript.run();
+			facet = execScript.unwrap(execScript.run());
 		} else {
 			facet = facetObjects;
 		}

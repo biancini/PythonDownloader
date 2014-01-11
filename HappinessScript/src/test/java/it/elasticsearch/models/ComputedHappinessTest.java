@@ -28,21 +28,6 @@ public class ComputedHappinessTest {
 	}
 
 	@Test
-	public void shouldInitializeFromMapWork() {
-		// given
-		Map<String, Object> inputMap = new HashMap<String, Object>();
-		inputMap.put(ComputedHappiness.SCORE_KEY, score);
-		inputMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
-
-		// when
-		ComputedHappiness happiness = new ComputedHappiness(inputMap);
-
-		// then
-		assertThat(happiness.getScore()).isEqualTo(score);
-		assertThat(happiness.getRelevance()).isEqualTo(relevance);
-	}
-
-	@Test
 	public void shouldToMapReturnValidMap() throws IOException {
 		// given
 		ComputedHappiness happiness = new ComputedHappiness(score, relevance);

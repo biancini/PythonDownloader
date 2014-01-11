@@ -1,9 +1,9 @@
 package it.elasticsearch.script;
 
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.models.ReduceComputedHappiness;
 import it.elasticsearch.script.facet.HappinessInternalFacet;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,35 +14,48 @@ import org.elasticsearch.script.AbstractExecutableScript;
 public class CombineScript extends AbstractExecutableScript {
 
 	protected ESLogger logger = Loggers.getLogger("happiness.script");
-	private Map<String, Object> params = null;
+	protected Map<String, Object> params = null;
 
 	public CombineScript(Map<String, Object> params) {
-		super();
-		logger.trace("Initializing combine script with params: {}.", params);
 		this.params = params;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object run() {
-		List<ComputedHappiness> searchResults = (List<ComputedHappiness>) params
+		List<ComputedHappiness> combineResults = (List<ComputedHappiness>) params
 				.get(HappinessInternalFacet.FACET_TYPE);
 
-		double score = 0.;
-		double relevance = 0.;
-		int elems = searchResults.size();
+		logger.debug("Number of elements in combine results: {}.", combineResults.size());
+		ComputedHappiness reducedHappiness = null;
 
-		logger.debug("Number of elements in search results: {}.", elems);
-
-		for (ComputedHappiness curHappiness : searchResults) {
-			score += curHappiness.getScore();
-			relevance += curHappiness.getRelevance();
+		for (ComputedHappiness curHappiness : combineResults) {
+			if (reducedHappiness == null) {
+				reducedHappiness = curHappiness;
+			} else {
+				reducedHappiness.addScoreAndRelevanceElements(curHappiness);
+			}
 		}
 
-		score /= elems;
-		relevance /= elems;
+		List<ComputedHappiness> reduced = new ArrayList<ComputedHappiness>();
+		reduced.add(reducedHappiness);
+		return reduced;
+	}
 
-		ReduceComputedHappiness combined = new ReduceComputedHappiness(score, relevance, elems);
-		return combined;
+	@Override
+	@SuppressWarnings("unchecked")
+	public Object unwrap(Object value) {
+		if (value instanceof List) {
+			List<Map<String, Object>> unwrapped = new ArrayList<Map<String, Object>>();
+			List<ComputedHappiness> list = (List<ComputedHappiness>) value;
+
+			for (ComputedHappiness curHappiness : list) {
+				unwrapped.add(curHappiness.toMap());
+			}
+
+			return unwrapped;
+		}
+
+		return super.unwrap(value);
 	}
 }

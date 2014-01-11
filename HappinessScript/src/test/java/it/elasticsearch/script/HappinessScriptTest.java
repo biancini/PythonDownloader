@@ -2,7 +2,6 @@ package it.elasticsearch.script;
 
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.script.factory.HappinessScriptFactory;
 import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.HappinessWords;
 
@@ -137,7 +136,9 @@ public class HappinessScriptTest {
 		String tweetText = firstWord + " " + secondWord;
 		Properties properties = new Properties();
 		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
-		properties.put(HappinessScriptFactory.PARAM_GEOLOCALIZED, "true");
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put(HappinessScript.PARAM_GEOLOCALIZED, "true");
 
 		GeoPoint coordinates = new GeoPoint(lat, lng);
 
@@ -160,6 +161,7 @@ public class HappinessScriptTest {
 		Mockito.when(mockGeoHappinessScript.run()).thenCallRealMethod();
 
 		mockGeoHappinessScript.properties = properties;
+		mockGeoHappinessScript.params = params;
 		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
 		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
 		// when
@@ -178,7 +180,9 @@ public class HappinessScriptTest {
 		String tweetText = firstWord + " " + secondWord;
 		Properties properties = new Properties();
 		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
-		properties.put(HappinessScriptFactory.PARAM_GEOLOCALIZED, "true");
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put(HappinessScript.PARAM_GEOLOCALIZED, "true");
 
 		ComputedHappiness computedHappiness = new ComputedHappiness(5.0, 1.0);
 
@@ -191,6 +195,7 @@ public class HappinessScriptTest {
 				.thenReturn(computedHappiness);
 
 		mockGeoHappinessScript.properties = properties;
+		mockGeoHappinessScript.params = params;
 		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
 		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
 

@@ -2,10 +2,8 @@ package it.elasticsearch.plugin;
 
 import it.elasticsearch.script.facet.HappinessFacetParser;
 import it.elasticsearch.script.factory.ByStateCombineScriptFactory;
-import it.elasticsearch.script.factory.ByStateReduceScriptFactory;
 import it.elasticsearch.script.factory.CombineScriptFactory;
 import it.elasticsearch.script.factory.HappinessScriptFactory;
-import it.elasticsearch.script.factory.ReduceScriptFactory;
 
 import org.elasticsearch.plugins.AbstractPlugin;
 import org.elasticsearch.script.ScriptModule;
@@ -17,11 +15,8 @@ public class HappinessPlugin extends AbstractPlugin {
 	public static final String PLUGIN_DESCRIPTION = "Happiness plugin";
 
 	public static final String HAPPINESS_SCRIPT = "hedonometer";
-
 	public static final String COMBINE_SCRIPT = "happy-combiner";
-	public static final String BYSTATE_COMBINE_SCRIPT = "happy-bystate-combiner";
-	public static final String REDUCE_SCRIPT = "happy-reducer";
-	public static final String BYSTATE_REDUCE_SCRIPT = "happy-bystate-reducer";
+	public static final String COMBINE_BYSTATE_SCRIPT = "happy-bystate-combiner";
 
 	@Override
 	public String name() {
@@ -35,11 +30,8 @@ public class HappinessPlugin extends AbstractPlugin {
 
 	public void onModule(ScriptModule module) {
 		module.registerScript(HAPPINESS_SCRIPT, HappinessScriptFactory.class);
-
 		module.registerScript(COMBINE_SCRIPT, CombineScriptFactory.class);
-		module.registerScript(BYSTATE_COMBINE_SCRIPT, ByStateCombineScriptFactory.class);
-		module.registerScript(REDUCE_SCRIPT, ReduceScriptFactory.class);
-		module.registerScript(BYSTATE_REDUCE_SCRIPT, ByStateReduceScriptFactory.class);
+		module.registerScript(COMBINE_BYSTATE_SCRIPT, ByStateCombineScriptFactory.class);
 	}
 
 	public void onModule(FacetModule module) {

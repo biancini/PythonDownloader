@@ -1,13 +1,17 @@
 package it.elasticsearch.script;
 
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.script.factory.HappinessScriptFactory;
+import it.elasticsearch.models.USAState;
 import it.elasticsearch.utilities.Analyzer;
 import it.elasticsearch.utilities.HappinessAnalyzer;
+import it.elasticsearch.utilities.KmlUtilities;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -18,12 +22,17 @@ public class HappinessScript extends AbstractSearchScript {
 	public static final String TEXT_FIELDNAME = "text";
 	public static final String COORDINATES_FIELDNAME = "coordinates";
 
+	public static final String PARAM_GEOLOCALIZED = "geolocalized";
+	public static final String PARAM_USASTATE = "usa-state";
+
 	protected ESLogger logger = Loggers.getLogger("happiness.script");
+	protected Map<String, Object> params = null;
 	protected Properties properties = null;
 	protected Analyzer analyzer = null;
 
-	public HappinessScript(Properties properties) throws IOException {
+	public HappinessScript(@Nullable Map<String, Object> params, Properties properties) throws IOException {
 		logger.debug("Initializing happiness script.");
+		this.params = params;
 		this.properties = properties;
 		this.analyzer = new HappinessAnalyzer();
 	}
@@ -75,10 +84,20 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
-		if ("true".equalsIgnoreCase(properties.getProperty(HappinessScriptFactory.PARAM_GEOLOCALIZED))) {
+		if (params != null && "true".equalsIgnoreCase((String) params.get(PARAM_GEOLOCALIZED))) {
 			GeoPoint coordinates = getCoordinates();
+
 			if (coordinates != null) {
 				happiness.setCoordinates(coordinates);
+
+				if ("true".equalsIgnoreCase((String) params.get(PARAM_USASTATE))) {
+					List<USAState> usaStates = KmlUtilities.getUsaStates();
+					for (USAState curState : usaStates) {
+						if (KmlUtilities.isPointIntoRegion(curState, coordinates.getLat(), coordinates.getLon())) {
+							happiness.setState(curState);
+						}
+					}
+				}
 			}
 		}
 

@@ -2,7 +2,6 @@ package it.elasticsearch.script;
 
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.models.ReduceComputedHappiness;
 import it.elasticsearch.script.facet.HappinessInternalFacet;
 
 import java.io.IOException;
@@ -31,7 +30,8 @@ public class CombineScriptTest {
 		params.put(HappinessInternalFacet.FACET_TYPE, listFacets);
 		CombineScript combineScript = new CombineScript(params);
 
-		ReduceComputedHappiness expectedResult = new ReduceComputedHappiness(score1, relevance1, numelems);
+		List<ComputedHappiness> expectedResult = new ArrayList<ComputedHappiness>();
+		expectedResult.add(new ComputedHappiness(score1, relevance1, numelems));
 
 		// when
 		Object combineResult = combineScript.run();
@@ -55,7 +55,8 @@ public class CombineScriptTest {
 
 		double score = (score1 + score2) / 2;
 		double relevance = (relevance1 + relevance2) / 2;
-		ReduceComputedHappiness expectedResult = new ReduceComputedHappiness(score, relevance, numelems);
+		List<ComputedHappiness> expectedResult = new ArrayList<ComputedHappiness>();
+		expectedResult.add(new ComputedHappiness(score, relevance, numelems));
 
 		// when
 		Object combineResult = combineScript.run();

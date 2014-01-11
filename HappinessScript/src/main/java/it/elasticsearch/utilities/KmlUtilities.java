@@ -1,16 +1,12 @@
 package it.elasticsearch.utilities;
 
-import it.elasticsearch.models.ByStateReduceComputedHappiness;
+import it.elasticsearch.models.USAState;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -34,25 +30,44 @@ public class KmlUtilities {
 	private static final String POINT_PRE = "{ \"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [";
 	private static final String POINT_POST = "] }, \"properties\": { } }";
 
-	public static List<ByStateReduceComputedHappiness> getUsaStates(Client esClient) {
-		List<ByStateReduceComputedHappiness> usaStates = new ArrayList<ByStateReduceComputedHappiness>();
+	public static List<USAState> getUsaStates() {
+		List<USAState> usaStates = new ArrayList<USAState>();
 
-		SearchResponse response = esClient.prepareSearch(TWITTER_INDEX).setTypes(USASTATES_TYPE)
-				.setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute().actionGet();
-
-		for (SearchHit curHit : response.getHits()) {
-			String stateName = (String) curHit.getSource().get("name");
-			String stateGeometry = (String) curHit.getSource().get("geometry");
+		for (int i = 0; i < USAStatesList.USA_STATES_IDS.length; ++i) {
+			String stateId = USAStatesList.USA_STATES_IDS[i];
+			String stateName = USAStatesList.USA_STATES_NAMES[i];
+			String stateGeometry = USAStatesList.USA_STATES_GEOMS[i];
 
 			if (stateName == null || stateGeometry == null) {
 				logger.warn("State name or geometry null, ignoring this state.");
 			} else {
-				usaStates.add(new ByStateReduceComputedHappiness(stateName, stateGeometry));
+				usaStates.add(new USAState(stateId, stateName, stateGeometry));
 			}
+
 		}
 
 		return usaStates;
 	}
+
+	/*
+	 * public static List<USAState> getUsaStates(Client esClient) {
+	 * List<USAState> usaStates = new ArrayList<USAState>();
+	 * 
+	 * SearchResponse response =
+	 * esClient.prepareSearch(TWITTER_INDEX).setTypes(USASTATES_TYPE)
+	 * .setQuery(QueryBuilders
+	 * .matchAllQuery()).setSize(100).execute().actionGet();
+	 * 
+	 * for (SearchHit curHit : response.getHits()) { String stateName = (String)
+	 * curHit.getSource().get("name"); String stateGeometry = (String)
+	 * curHit.getSource().get("geometry");
+	 * 
+	 * if (stateName == null || stateGeometry == null) {
+	 * logger.warn("State name or geometry null, ignoring this state."); } else
+	 * { usaStates.add(new USAState(stateName, stateGeometry)); } }
+	 * 
+	 * return usaStates; }
+	 */
 
 	private static Geometry getPoint(MfGeoJSONReaderForGoogle mfReader, double lat, double lng)
 			throws JSONException {
@@ -67,7 +82,9 @@ public class KmlUtilities {
 		throw new JSONException("Error while decoding point geometry.");
 	}
 
-	public static boolean isPointIntoRegion(String geometry, double lat, double lng) {
+	public static boolean isPointIntoRegion(USAState state, double lat, double lng) {
+		String geometry = state.getStateGeometry();
+
 		try {
 			MfGeoFactory mfFactory = new MfGeoFactory() {
 				public MfFeature createFeature(String id, MfGeometry geometry, JSONObject properties) {
@@ -104,7 +121,7 @@ public class KmlUtilities {
 			return false;
 		} catch (JSONException e) {
 			logger.error("Error while decoding geometry.", e);
-			logger.debug("Current geometry: {}", geometry);
+			logger.trace("Current geometry: {}", geometry);
 			throw e;
 		}
 	}

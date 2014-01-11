@@ -1,14 +1,13 @@
 package it.elasticsearch.script;
 
-import it.elasticsearch.models.ByStateReduceComputedHappiness;
 import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.script.facet.HappinessInternalFacet;
-import it.elasticsearch.utilities.KmlUtilities;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.script.AbstractExecutableScript;
@@ -16,38 +15,55 @@ import org.elasticsearch.script.AbstractExecutableScript;
 public class ByStateCombineScript extends AbstractExecutableScript {
 
 	protected ESLogger logger = Loggers.getLogger("happiness.script");
-	private Map<String, Object> params = null;
+	protected Map<String, Object> params = null;
 
 	public ByStateCombineScript(Map<String, Object> params) {
-		super();
-		logger.trace("Initializing bystate combine script with params: {}.", params);
 		this.params = params;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object run() {
-		List<ComputedHappiness> searchResults = (List<ComputedHappiness>) params
+		List<ComputedHappiness> combineResults = (List<ComputedHappiness>) params
 				.get(HappinessInternalFacet.FACET_TYPE);
 
-		Client esClient = (Client) params.get("_client");
-		List<ByStateReduceComputedHappiness> usaStates = KmlUtilities.getUsaStates(esClient);
+		logger.debug("Number of elements in combine results: {}.", combineResults.size());
 
-		for (ComputedHappiness curHappiness : searchResults) {
-			if (!curHappiness.isGeolocalized()) {
+		logger.debug("Constructing map by State for curHappiness.");
+		Map<String, ComputedHappiness> map = new HashMap<String, ComputedHappiness>();
+		for (ComputedHappiness curHappiness : combineResults) {
+			if (curHappiness.getState().getStateId() == null) {
 				continue;
 			}
 
-			double curLat = curHappiness.getLatitude();
-			double curLng = curHappiness.getLongitude();
-
-			for (ByStateReduceComputedHappiness curState : usaStates) {
-				if (KmlUtilities.isPointIntoRegion(curState.getStateGeometry(), curLat, curLng)) {
-					curState.addScoreAndRelevance(curHappiness.getScore(), curHappiness.getRelevance());
-				}
+			if (map.containsKey(curHappiness.getState().getStateId())) {
+				ComputedHappiness happiness = map.get(curHappiness.getState().getStateId());
+				happiness.addScoreAndRelevanceElements(happiness);
+			} else {
+				map.put(curHappiness.getState().getStateId(), curHappiness);
 			}
 		}
 
-		return usaStates;
+		logger.debug("Building reduced list to output.");
+		List<ComputedHappiness> reduced = new ArrayList<ComputedHappiness>();
+		reduced.addAll(map.values());
+		return reduced;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Object unwrap(Object value) {
+		if (value instanceof List) {
+			List<Map<String, Object>> unwrapped = new ArrayList<Map<String, Object>>();
+			List<ComputedHappiness> list = (List<ComputedHappiness>) value;
+
+			for (ComputedHappiness curHappiness : list) {
+				unwrapped.add(curHappiness.toMap());
+			}
+
+			return unwrapped;
+		}
+
+		return super.unwrap(value);
 	}
 }
