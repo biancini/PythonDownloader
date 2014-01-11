@@ -32,7 +32,7 @@ public class ByStateCombineScript extends AbstractExecutableScript {
 		logger.debug("Constructing map by State for curHappiness.");
 		Map<String, ComputedHappiness> map = new HashMap<String, ComputedHappiness>();
 		for (ComputedHappiness curHappiness : combineResults) {
-			if (curHappiness.getState().getStateId() == null) {
+			if (curHappiness.getState() == null || curHappiness.getState().getStateId() == null) {
 				continue;
 			}
 
@@ -58,7 +58,10 @@ public class ByStateCombineScript extends AbstractExecutableScript {
 			List<ComputedHappiness> list = (List<ComputedHappiness>) value;
 
 			for (ComputedHappiness curHappiness : list) {
-				unwrapped.add(curHappiness.toMap());
+				Map<String, Object> curMap = curHappiness.toMap();
+				curMap.remove(ComputedHappiness.LATITUDE_KEY);
+				curMap.remove(ComputedHappiness.LONGITUDE_KEY);
+				unwrapped.add(curMap);
 			}
 
 			return unwrapped;
