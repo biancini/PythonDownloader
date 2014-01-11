@@ -38,7 +38,6 @@ class TwitterApiCall(object):
   
   api = None
   backend = None
-  analyzer = None
   auth_type = None
   initial_apiid = -1
   apiid = -1
@@ -52,7 +51,6 @@ class TwitterApiCall(object):
     self.filters = engine_config['filters']
     self.auth_type = auth_type
     self.logger = logging.getLogger('engine-%s' % engine_config['name'])
-    # self.analyzer = HappyAnalyzer(self.language)
     
     self.InitializeTwitterApi()
     
@@ -182,9 +180,5 @@ class TwitterApiCall(object):
     ret_vals['latitude'] = coordinates[0]
     ret_vals['longitude'] = coordinates[1]
     ret_vals['num_friends'] = tweet['user']['friends_count']
-
-    # happy = self.analyzer.ScoreTweetHappiness(text)
-    # ret_vals['happiness'] = happy[0]
-    # ret_vals['relevance'] = happy[1]
 
     return ret_vals

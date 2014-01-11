@@ -74,7 +74,7 @@ if __name__ == "__main__":
             row[1].replace('\'', '\\\''),
             row[2].replace('\'', '\\\''))
 
-    print "\"" + row[2].replace('"', "\\\"") + "\", "
+    print "\"" + row[0].replace('"', "\\\"") + "\", "
     # print vals
     #backend.InsertUSAStates(vals)
   print "}"

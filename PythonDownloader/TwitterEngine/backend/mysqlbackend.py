@@ -52,11 +52,9 @@ class MySQLBackend(Backend):
                   vals['location'].replace('\\', '\\\\').replace('\'', '\\\''),
                   vals['latitude'],
                   vals['longitude'],
-                  vals['num_friends'],
-                  vals['happiness'],
-                  vals['relevance'])
+                  vals['num_friends'])
 
-      sql = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`, `num_friends`, `happiness`, `relevance`) '
+      sql = 'INSERT INTO tweets (`tweetid`, `timestamp`, `text`, `userid`, `user_location`, `latitude`, `longitude`, `num_friends`) '
       sql += 'VALUES (%s, \'%s\', \'%s\', \'%s\', \'%s\', %s, %s, %s, %s, %s)' % sql_vals
 
       self.cur.execute(sql)

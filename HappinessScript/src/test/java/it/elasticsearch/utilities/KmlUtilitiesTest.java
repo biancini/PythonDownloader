@@ -17,7 +17,7 @@ public class KmlUtilitiesTest {
 		double lng = -74.0;
 
 		// when
-		for (String curStateGeometry : USAStatesList.USA_STATES) {
+		for (String curStateGeometry : USAStatesList.USA_STATES_GEOMS) {
 			KmlUtilities.isPointIntoRegion(curStateGeometry, lat, lng);
 		}
 

@@ -35,8 +35,6 @@ class ElasticSearchBackend(Backend):
         # data['hashtags'] = val['hashtags']
         data['location'] = val['location']
         data['num_friends'] = val['num_friends']
-        # data['happiness'] = val['happiness']
-        # data['relevance'] = val['relevance']
   
         if val['latitude'] == 'NULL' or val['longitude'] == 'NULL':
           data['coordinates'] = None
@@ -86,8 +84,6 @@ class ElasticSearchBackend(Backend):
       # data['hashtags'] = vals['hashtags']
       data['location'] = vals['location']
       data['num_friends'] = vals['num_friends']
-      # data['happiness'] = vals['happiness']
-      # data['relevance'] = vals['relevance']
 
       if vals['latitude'] == 'NULL' or vals['longitude'] == 'NULL':
         data['coordinates'] = None
