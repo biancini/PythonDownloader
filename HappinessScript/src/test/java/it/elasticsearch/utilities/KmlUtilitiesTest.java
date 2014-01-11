@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public class KmlUtilitiesTest {
 
 	private static final int NYSTATE_ARRAYINDEX = 20;
@@ -21,7 +23,7 @@ public class KmlUtilitiesTest {
 		for (int i = 0; i < USAStatesList.USA_STATES_IDS.length; ++i) {
 			String stateId = USAStatesList.USA_STATES_IDS[i];
 			String stateName = USAStatesList.USA_STATES_NAMES[i];
-			String stateGeometry = USAStatesList.USA_STATES_GEOMS[i];
+			Geometry stateGeometry = KmlUtilities.fromStringToGeometry(USAStatesList.USA_STATES_GEOMS[i]);
 			USAState state = new USAState(stateId, stateName, stateGeometry);
 
 			KmlUtilities.isPointIntoRegion(state, lat, lng);
@@ -38,7 +40,8 @@ public class KmlUtilitiesTest {
 
 		String nyStateId = USAStatesList.USA_STATES_IDS[NYSTATE_ARRAYINDEX];
 		String nyStateName = USAStatesList.USA_STATES_NAMES[NYSTATE_ARRAYINDEX];
-		String nyStateGeometry = USAStatesList.USA_STATES_GEOMS[NYSTATE_ARRAYINDEX];
+		Geometry nyStateGeometry = KmlUtilities
+				.fromStringToGeometry(USAStatesList.USA_STATES_GEOMS[NYSTATE_ARRAYINDEX]);
 		USAState nyState = new USAState(nyStateId, nyStateName, nyStateGeometry);
 
 		// when
@@ -56,7 +59,8 @@ public class KmlUtilitiesTest {
 
 		String nyStateId = USAStatesList.USA_STATES_IDS[NYSTATE_ARRAYINDEX];
 		String nyStateName = USAStatesList.USA_STATES_NAMES[NYSTATE_ARRAYINDEX];
-		String nyStateGeometry = USAStatesList.USA_STATES_GEOMS[NYSTATE_ARRAYINDEX];
+		Geometry nyStateGeometry = KmlUtilities
+				.fromStringToGeometry(USAStatesList.USA_STATES_GEOMS[NYSTATE_ARRAYINDEX]);
 		USAState nyState = new USAState(nyStateId, nyStateName, nyStateGeometry);
 
 		// when

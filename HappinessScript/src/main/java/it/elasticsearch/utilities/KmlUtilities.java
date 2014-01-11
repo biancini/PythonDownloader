@@ -17,8 +17,12 @@ import org.mapfish.geo.MfGeoJSONReaderForGoogle;
 import org.mapfish.geo.MfGeometry;
 import org.mapfish.geo.MfGeometryCollection;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 public class KmlUtilities {
 
@@ -26,9 +30,6 @@ public class KmlUtilities {
 
 	public static final String TWITTER_INDEX = "twitter";
 	public static final String USASTATES_TYPE = "usa_states";
-
-	private static final String POINT_PRE = "{ \"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [";
-	private static final String POINT_POST = "] }, \"properties\": { } }";
 
 	public static List<USAState> getUsaStates() {
 		List<USAState> usaStates = new ArrayList<USAState>();
@@ -41,9 +42,9 @@ public class KmlUtilities {
 			if (stateName == null || stateGeometry == null) {
 				logger.warn("State name or geometry null, ignoring this state.");
 			} else {
-				usaStates.add(new USAState(stateId, stateName, stateGeometry));
+				Geometry geometry = fromStringToGeometry(stateGeometry);
+				usaStates.add(new USAState(stateId, stateName, geometry));
 			}
-
 		}
 
 		return usaStates;
@@ -69,61 +70,55 @@ public class KmlUtilities {
 	 * return usaStates; }
 	 */
 
-	private static Geometry getPoint(MfGeoJSONReaderForGoogle mfReader, double lat, double lng)
-			throws JSONException {
-		String pointJson = POINT_PRE + lng + "," + lat + POINT_POST;
+	private static Geometry getPoint(double lat, double lng) throws JSONException {
+		GeometryFactory factory = new GeometryFactory();
 
-		MfGeo mfGeo = mfReader.decode(pointJson);
-		if (mfGeo.getGeoType().equals(MfGeo.GeoType.FEATURE)) {
-			MfFeature mfFeature = (MfFeature) mfGeo;
-			return mfFeature.getMfGeometry().getInternalGeometry();
+		Coordinate[] coord = new Coordinate[] { new Coordinate(lng, lat) };
+		CoordinateSequence coordinates = new CoordinateArraySequence(coord);
+
+		Point point = new Point(coordinates, factory);
+		return point;
+	}
+
+	public static Geometry fromStringToGeometry(String geometry) {
+		MfGeoFactory mfFactory = new MfGeoFactory() {
+			public MfFeature createFeature(String id, MfGeometry geometry, JSONObject properties) {
+				return new MyFeature(id, geometry, properties);
+			}
+		};
+
+		MfGeoJSONReaderForGoogle mfReader = new MfGeoJSONReaderForGoogle(mfFactory);
+
+		JSONObject json = new JSONObject(geometry);
+		if (json.has("geometry")) {
+			json = json.getJSONObject("geometry");
 		}
 
-		throw new JSONException("Error while decoding point geometry.");
+		MfGeo mfGeo = mfReader.decode(json);
+
+		if (mfGeo.getGeoType().equals(MfGeo.GeoType.GEOMETRYCOLLECTION)) {
+			Geometry geo = ((MfGeometryCollection) mfGeo).getInternalGeometry();
+			return geo;
+		} else if (mfGeo.getGeoType().equals(MfGeo.GeoType.GEOMETRY)) {
+			Geometry geo = ((MfGeometry) mfGeo).getInternalGeometry();
+			return geo;
+		}
+
+		throw new IllegalArgumentException("State geometry is not valid.");
 	}
 
 	public static boolean isPointIntoRegion(USAState state, double lat, double lng) {
-		String geometry = state.getStateGeometry();
+		Geometry geometry = state.getStateGeometry();
+		Geometry point = getPoint(lat, lng);
 
-		try {
-			MfGeoFactory mfFactory = new MfGeoFactory() {
-				public MfFeature createFeature(String id, MfGeometry geometry, JSONObject properties) {
-					return new MyFeature(id, geometry, properties);
-				}
-			};
-
-			MfGeoJSONReaderForGoogle mfReader = new MfGeoJSONReaderForGoogle(mfFactory);
-			Geometry point = getPoint(mfReader, lat, lng);
-
-			JSONObject json = new JSONObject(geometry);
-			if (json.has("geometry")) {
-				json = json.getJSONObject("geometry");
+		for (int i = 0; i < geometry.getNumGeometries(); ++i) {
+			Geometry stateGeometry = geometry.getGeometryN(i);
+			if (stateGeometry.contains(point)) {
+				return true;
 			}
-			MfGeo mfGeo = mfReader.decode(json);
-
-			if (mfGeo.getGeoType().equals(MfGeo.GeoType.GEOMETRYCOLLECTION)) {
-				Geometry stateGC = ((MfGeometryCollection) mfGeo).getInternalGeometry();
-				GeometryCollection stateGeometryCollection = (GeometryCollection) stateGC;
-
-				for (int i = 0; i < stateGeometryCollection.getNumGeometries(); ++i) {
-					Geometry stateGeometry = stateGeometryCollection.getGeometryN(i);
-					if (stateGeometry.contains(point)) {
-						return true;
-					}
-				}
-			} else if (mfGeo.getGeoType().equals(MfGeo.GeoType.GEOMETRY)) {
-				Geometry stateGeometry = ((MfGeometry) mfGeo).getInternalGeometry();
-				if (stateGeometry.contains(point)) {
-					return true;
-				}
-			}
-
-			return false;
-		} catch (JSONException e) {
-			logger.error("Error while decoding geometry.", e);
-			logger.trace("Current geometry: {}", geometry);
-			throw e;
 		}
+
+		return false;
 	}
 
 	private static class MyFeature extends MfFeature {
