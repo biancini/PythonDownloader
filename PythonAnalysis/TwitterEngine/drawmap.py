@@ -6,10 +6,10 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 # from backend import  TwitterApiCall,MySQLBackend
-from backend import TwitterApiCall, ElasticSearchBackend
+from backend import ElasticSearchBackend
 
 
-class DrawMap(TwitterApiCall):
+class DrawMap():
   color = (255, 0, 0)
   lower_left = [41.0, -5.5]
   top_right = [51.6, 10.0]

@@ -10,7 +10,6 @@ import urllib2
 import json
 
 from TwitterEngine import BackendChooser
-from TwitterEngine.instances import INSTANCES
 from TwitterEngine.secrets import google_refresh_token, google_client_id, google_client_secret
 
 def getGoogleAccessToken():
@@ -38,7 +37,7 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 if __name__ == "__main__":
-  backend = BackendChooser.GetBackend(INSTANCES[0])
+  backend = BackendChooser.GetBackend()
 
   access_token = getGoogleAccessToken()
   tablename = '1KU0yvyS5glqa5NmHHl9j9_v-12s_b5YA90qUn9Y'
@@ -47,7 +46,6 @@ if __name__ == "__main__":
   result_set = json.loads(response)
   geometry_row = 2
 
-  print "{"
   for row in result_set['rows']:
     if 'geometry' in row[geometry_row]:
       coords = row[geometry_row]['geometry']['coordinates'][0]
@@ -74,7 +72,5 @@ if __name__ == "__main__":
             row[1].replace('\'', '\\\''),
             row[2].replace('\'', '\\\''))
 
-    print "\"" + row[0].replace('"', "\\\"") + "\", "
     # print vals
-    #backend.InsertUSAStates(vals)
-  print "}"
+    backend.InsertUSAStates(vals)

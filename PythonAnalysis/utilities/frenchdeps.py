@@ -10,7 +10,6 @@ import urllib2
 import json
 
 from TwitterEngine import BackendChooser
-from TwitterEngine.instances import INSTANCES
 from TwitterEngine.secrets import google_refresh_token, google_client_id, google_client_secret
 
 def getGoogleAccessToken():
@@ -38,7 +37,7 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 if __name__ == "__main__":
-  backend = BackendChooser.GetBackend(INSTANCES[0])
+  backend = BackendChooser.GetBackend()
 
   access_token = getGoogleAccessToken()
   tablename = '1_r_DC9mlrFCJB93hNfzD9P8murmI4_2tmgaQcZ4'
