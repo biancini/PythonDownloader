@@ -102,8 +102,11 @@ POST twitter/tweets/_search
    ], 
    "script_fields": {
       "happiness": {
-         "script": "geo-hedonometer",
-         "lang": "native"
+         "script": "hedonometer",
+         "lang": "native",
+         "params": {
+             "geolocalized": "true"
+         }
       }
    }
 }
@@ -128,7 +131,10 @@ POST twitter/tweets/_search
          "happiness": {
             "map_script": {
                 "script": "geo-hedonometer",
-                "lang": "native"
+                "lang": "native",
+                "params": {
+                    "geolocalized": "true"
+                }
             },
             "combine_script": {
                 "script": "happy-bystate-combiner",

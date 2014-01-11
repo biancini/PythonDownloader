@@ -1,12 +1,14 @@
 package it.elasticsearch.script;
 
 import it.elasticsearch.models.ComputedHappiness;
+import it.elasticsearch.script.factory.HappinessScriptFactory;
 import it.elasticsearch.utilities.Analyzer;
 import it.elasticsearch.utilities.HappinessAnalyzer;
 
 import java.io.IOException;
 import java.util.Properties;
 
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.script.AbstractSearchScript;
@@ -14,6 +16,7 @@ import org.elasticsearch.script.AbstractSearchScript;
 public class HappinessScript extends AbstractSearchScript {
 
 	public static final String TEXT_FIELDNAME = "text";
+	public static final String COORDINATES_FIELDNAME = "coordinates";
 
 	protected ESLogger logger = Loggers.getLogger("happiness.script");
 	protected Properties properties = null;
@@ -28,6 +31,21 @@ public class HappinessScript extends AbstractSearchScript {
 	protected String getTweetText() {
 		String tweetText = (String) source().get(TEXT_FIELDNAME);
 		return tweetText;
+	}
+
+	// protected GeoPoint getCoordinates() {
+	// GeoPoints coordinates = (GeoPoints) doc().get(COORDINATES_FIELDNAME);
+	// return (coordinates != null) ? coordinates.getValue() : null;
+	// }
+
+	protected GeoPoint getCoordinates() {
+		String strCoords = (String) source().get(COORDINATES_FIELDNAME);
+		if (strCoords == null || strCoords.indexOf(',') < 0) {
+			return null;
+		}
+		String[] coords = strCoords.split(",");
+		GeoPoint geopoint = new GeoPoint(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]));
+		return geopoint;
 	}
 
 	// protected String getTweetId() {
@@ -57,8 +75,23 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
+		if ("true".equalsIgnoreCase(properties.getProperty(HappinessScriptFactory.PARAM_GEOLOCALIZED))) {
+			GeoPoint coordinates = getCoordinates();
+			if (coordinates != null) {
+				happiness.setCoordinates(coordinates);
+			}
+		}
+
 		logger.trace("Computed happiness: {}.", happiness);
-		return happiness.toMap();
+		return happiness;
+	}
+
+	@Override
+	public Object unwrap(Object value) {
+		if (value instanceof ComputedHappiness) {
+			return ((ComputedHappiness) value).toMap();
+		}
+		return super.unwrap(value);
 	}
 
 }

@@ -2,6 +2,7 @@ package it.elasticsearch.script;
 
 import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.ComputedHappiness;
+import it.elasticsearch.script.factory.HappinessScriptFactory;
 import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.HappinessWords;
 
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.logging.Loggers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +32,9 @@ public class HappinessScriptTest {
 	private String secondWord = "world";
 	private double firstHappiness = 7.0;
 	private double secondHappiness = 2.0;
+
+	private double lat = -100;
+	private double lng = 40;
 
 	@Before
 	public void createTestData() throws IOException {
@@ -93,7 +98,8 @@ public class HappinessScriptTest {
 
 		// then
 		assertThat(objHappiness).isNotNull();
-		assertThat(objHappiness).isEqualTo(expectedHappiness);
+		assertThat(objHappiness).isInstanceOf(ComputedHappiness.class);
+		assertThat(((ComputedHappiness) objHappiness).toMap()).isEqualTo(expectedHappiness);
 	}
 
 	@Test
@@ -118,6 +124,78 @@ public class HappinessScriptTest {
 
 		// when
 		Object objHappiness = mockHappinessScript.run();
+
+		// then
+		assertThat(objHappiness).isNull();
+	}
+
+	@Test
+	public void shouldRunWorksWithGeolocalizedScript() throws IOException {
+		// given
+		assertThat(happinessFile.exists()).isTrue();
+
+		String tweetText = firstWord + " " + secondWord;
+		Properties properties = new Properties();
+		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
+		properties.put(HappinessScriptFactory.PARAM_GEOLOCALIZED, "true");
+
+		GeoPoint coordinates = new GeoPoint(lat, lng);
+
+		ComputedHappiness computedHappiness = new ComputedHappiness(5.0, 1.0, lat, lng);
+
+		Map<String, Double> expectedHappiness = new HashMap<String, Double>();
+		expectedHappiness.put(ComputedHappiness.SCORE_KEY, 5.0);
+		expectedHappiness.put(ComputedHappiness.RELEVANCE_KEY, 1.0);
+		expectedHappiness.put(ComputedHappiness.LATITUDE_KEY, lat);
+		expectedHappiness.put(ComputedHappiness.LONGITUDE_KEY, lng);
+
+		HappinessScript mockGeoHappinessScript = Mockito.mock(HappinessScript.class);
+
+		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
+				.thenReturn(computedHappiness);
+
+		Mockito.when(mockGeoHappinessScript.getTweetText()).thenReturn(tweetText);
+		Mockito.when(mockGeoHappinessScript.getCoordinates()).thenReturn(coordinates);
+		Mockito.when(mockGeoHappinessScript.run()).thenCallRealMethod();
+
+		mockGeoHappinessScript.properties = properties;
+		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
+		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
+		// when
+		Object objHappiness = mockGeoHappinessScript.run();
+
+		// then
+		assertThat(objHappiness).isNotNull();
+		assertThat(objHappiness).isInstanceOf(ComputedHappiness.class);
+		assertThat(((ComputedHappiness) objHappiness).toMap()).isEqualTo(expectedHappiness);
+	}
+
+	public void shouldRunReturnNullIfGeolocalizedAndNoCoordinates() throws IOException {
+		// given
+		assertThat(happinessFile.exists()).isTrue();
+
+		String tweetText = firstWord + " " + secondWord;
+		Properties properties = new Properties();
+		properties.put(HappinessWords.PARAM_FILENAME, happinessFile.getAbsolutePath());
+		properties.put(HappinessScriptFactory.PARAM_GEOLOCALIZED, "true");
+
+		ComputedHappiness computedHappiness = new ComputedHappiness(5.0, 1.0);
+
+		HappinessScript mockGeoHappinessScript = Mockito.mock(HappinessScript.class);
+		Mockito.when(mockGeoHappinessScript.getTweetText()).thenReturn(tweetText);
+		Mockito.when(mockGeoHappinessScript.run()).thenCallRealMethod();
+
+		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
+				.thenReturn(computedHappiness);
+
+		mockGeoHappinessScript.properties = properties;
+		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
+		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
+
+		// when
+		Object objHappiness = mockGeoHappinessScript.run();
 
 		// then
 		assertThat(objHappiness).isNull();

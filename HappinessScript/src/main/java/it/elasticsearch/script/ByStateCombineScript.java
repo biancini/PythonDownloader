@@ -1,7 +1,7 @@
 package it.elasticsearch.script;
 
 import it.elasticsearch.models.ByStateReduceComputedHappiness;
-import it.elasticsearch.models.GeolocalizedComputedHappiness;
+import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.script.facet.HappinessInternalFacet;
 import it.elasticsearch.utilities.KmlUtilities;
 
@@ -27,13 +27,17 @@ public class ByStateCombineScript extends AbstractExecutableScript {
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object run() {
-		List<GeolocalizedComputedHappiness> searchResults = (List<GeolocalizedComputedHappiness>) params
+		List<ComputedHappiness> searchResults = (List<ComputedHappiness>) params
 				.get(HappinessInternalFacet.FACET_TYPE);
 
 		Client esClient = (Client) params.get("_client");
 		List<ByStateReduceComputedHappiness> usaStates = KmlUtilities.getUsaStates(esClient);
 
-		for (GeolocalizedComputedHappiness curHappiness : searchResults) {
+		for (ComputedHappiness curHappiness : searchResults) {
+			if (!curHappiness.isGeolocalized()) {
+				continue;
+			}
+
 			double curLat = curHappiness.getLatitude();
 			double curLng = curHappiness.getLongitude();
 

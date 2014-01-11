@@ -5,9 +5,7 @@ import it.elasticsearch.models.ComputedHappiness;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.elasticsearch.script.SearchScript;
 import org.junit.Test;
@@ -18,9 +16,7 @@ public class HappinessFacetCollectorTest {
 	@Test
 	public void shouldCollectAddComputedHappinessToResults() throws IOException {
 		// given
-		Map<String, Double> mapHappiness = new HashMap<String, Double>();
-		mapHappiness.put(ComputedHappiness.SCORE_KEY, 1.);
-		mapHappiness.put(ComputedHappiness.RELEVANCE_KEY, .5);
+		ComputedHappiness mapHappiness = new ComputedHappiness(1., 5.);
 
 		SearchScript mapScript = Mockito.mock(SearchScript.class);
 		Mockito.doNothing().when(mapScript).setNextDocId(Mockito.anyInt());

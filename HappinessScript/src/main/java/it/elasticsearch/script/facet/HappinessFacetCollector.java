@@ -1,11 +1,9 @@
 package it.elasticsearch.script.facet;
 
 import it.elasticsearch.models.ComputedHappiness;
-import it.elasticsearch.models.HappinessInstantiator;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.lucene.index.AtomicReaderContext;
 import org.elasticsearch.common.logging.ESLogger;
@@ -30,14 +28,13 @@ public class HappinessFacetCollector extends Collector {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void collect(int doc) throws IOException {
 		logger.trace("Executing collect on id = {}.", doc);
 
 		mapScript.setNextDocId(doc);
-		Map<String, Object> scriptResult = (Map<String, Object>) mapScript.run();
+		ComputedHappiness scriptResult = (ComputedHappiness) mapScript.run();
 		if (scriptResult != null) {
-			searchResults.add(HappinessInstantiator.instantiate(scriptResult));
+			searchResults.add(scriptResult);
 		}
 	}
 

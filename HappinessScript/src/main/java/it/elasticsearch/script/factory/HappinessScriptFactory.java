@@ -19,19 +19,28 @@ public class HappinessScriptFactory implements NativeScriptFactory {
 	protected final ESLogger logger = Loggers.getLogger("happiness.script");
 	public static final String PROPERTIES_FILENAME = "/etc/elasticsearch/happiness.properties";
 	public static final String PARAM_PROPERTIES = "properties";
+	public static final String PARAM_GEOLOCALIZED = "geolocalized";
 
 	public Properties getScriptProperties(@Nullable Map<String, Object> params) throws IOException {
 		String fileName = PROPERTIES_FILENAME;
+		String geolocalized = "false";
 
 		if (params != null) {
-			String paramsFilename = (String) params.get(PARAM_PROPERTIES);
-			if (paramsFilename != null) {
-				fileName = paramsFilename;
+			if (params.containsKey(PARAM_PROPERTIES)) {
+				String paramsFilename = (String) params.get(PARAM_PROPERTIES);
+				if (paramsFilename != null) {
+					fileName = paramsFilename;
+				}
+			}
+
+			if (params.containsKey(PARAM_GEOLOCALIZED)) {
+				geolocalized = (String) params.get(PARAM_GEOLOCALIZED);
 			}
 		}
 
 		Properties properties = new Properties();
 		properties.load(new FileInputStream(fileName));
+		properties.setProperty(PARAM_GEOLOCALIZED, geolocalized);
 		return properties;
 	}
 

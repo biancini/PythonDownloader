@@ -4,7 +4,6 @@ import it.elasticsearch.script.facet.HappinessFacetParser;
 import it.elasticsearch.script.factory.ByStateCombineScriptFactory;
 import it.elasticsearch.script.factory.ByStateReduceScriptFactory;
 import it.elasticsearch.script.factory.CombineScriptFactory;
-import it.elasticsearch.script.factory.GeolocalizedHappinessScriptFactory;
 import it.elasticsearch.script.factory.HappinessScriptFactory;
 import it.elasticsearch.script.factory.ReduceScriptFactory;
 
@@ -18,7 +17,6 @@ public class HappinessPlugin extends AbstractPlugin {
 	public static final String PLUGIN_DESCRIPTION = "Happiness plugin";
 
 	public static final String HAPPINESS_SCRIPT = "hedonometer";
-	public static final String GEO_HAPPINESS_SCRIPT = "geo-hedonometer";
 
 	public static final String COMBINE_SCRIPT = "happy-combiner";
 	public static final String BYSTATE_COMBINE_SCRIPT = "happy-bystate-combiner";
@@ -37,7 +35,6 @@ public class HappinessPlugin extends AbstractPlugin {
 
 	public void onModule(ScriptModule module) {
 		module.registerScript(HAPPINESS_SCRIPT, HappinessScriptFactory.class);
-		module.registerScript(GEO_HAPPINESS_SCRIPT, GeolocalizedHappinessScriptFactory.class);
 
 		module.registerScript(COMBINE_SCRIPT, CombineScriptFactory.class);
 		module.registerScript(BYSTATE_COMBINE_SCRIPT, ByStateCombineScriptFactory.class);
