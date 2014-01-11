@@ -6,11 +6,11 @@ public class ReduceComputedHappiness extends ComputedHappiness {
 
 	public static final String NUMELEMS_KEY = "elements";
 
-	private double numelements = -1;
+	protected int numelements = -1;
 
-	public ReduceComputedHappiness(Map<String, Double> vals) {
+	public ReduceComputedHappiness(Map<String, Object> vals) {
 		super(vals);
-		this.numelements = vals.get(NUMELEMS_KEY);
+		this.numelements = (Integer) vals.get(NUMELEMS_KEY);
 	}
 
 	public ReduceComputedHappiness(double score, double relevance, int numelements) {
@@ -18,12 +18,13 @@ public class ReduceComputedHappiness extends ComputedHappiness {
 		this.numelements = numelements;
 	}
 
-	public double getNumelements() {
+	public int getNumelements() {
 		return numelements;
 	}
 
-	public Map<String, Double> toMap() {
-		Map<String, Double> returnVal = super.toMap();
+	@Override
+	public Map<String, Object> toMap() {
+		Map<String, Object> returnVal = super.toMap();
 		returnVal.put(NUMELEMS_KEY, numelements);
 		return returnVal;
 	}

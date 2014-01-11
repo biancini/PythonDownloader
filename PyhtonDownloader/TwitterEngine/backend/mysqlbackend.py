@@ -73,7 +73,20 @@ class MySQLBackend(Backend):
       self.con.rollback()
       return 0
 
-  def GetKmls(self):
+  def GetUSAKmls(self):
+    try:
+      self.cur.execute("SELECT name, geometry FROM usa_states")
+      rows = self.cur.fetchall()
+
+      kmls = []
+      for row in rows:
+        kmls.append((row[0], row[1]));
+
+      return kmls
+    except Exception as e:
+      raise BackendError("Error while retrieving USA kmls from DB: %s" % e)
+
+  def GetFrenchKmls(self):
     try:
       self.cur.execute("SELECT NOM_REG, KML FROM french_deps")
       rows = self.cur.fetchall()
@@ -84,7 +97,7 @@ class MySQLBackend(Backend):
 
       return kmls
     except Exception as e:
-      raise BackendError("Error while retrieving kmls from DB: %s" % e)
+      raise BackendError("Error while retrieving French kmls from DB: %s" % e)
 
   def GetMaxId(self):
     self.logger.info("Retrieving max tweet id from database.")
@@ -130,6 +143,19 @@ class MySQLBackend(Backend):
       self.con.commit()
     except Exception as e:
       raise BackendError("Error while updating coordinates for location into DB: %s" % e)
+
+  def InsertUSAStates(self, vals):
+    self.logger.info("Inserting row for %s (%s)." % (vals[0], vals[1]))
+    field_list = 'id, name, geometry'
+    try:
+      sql = "INSERT INTO usa_states (%s) " % field_list
+      sql += "VALUES ('%s','%s','%s')" % vals
+      self.logger.debug(sql)
+
+      self.cur.execute(sql)
+      self.con.commit()
+    except Exception as e:
+      raise BackendError("Error while inserting USA State into DB: %s" % e)
 
   def InsertFrenchDepartments(self, vals):
     self.logger.info("Inserting row for %s, %s." % (vals[2], vals[4]))

@@ -16,7 +16,7 @@ import org.elasticsearch.script.NativeScriptFactory;
 
 public class HappinessScriptFactory implements NativeScriptFactory {
 
-	private final ESLogger logger = Loggers.getLogger("happiness.script");
+	protected final ESLogger logger = Loggers.getLogger("happiness.script");
 	public static final String PROPERTIES_FILENAME = "/etc/elasticsearch/happiness.properties";
 	public static final String PARAM_PROPERTIES = "properties";
 

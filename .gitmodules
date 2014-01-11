@@ -10,3 +10,6 @@
 [submodule "elasticsearch-hadoop"]
 	path = elasticsearch-hadoop
 	url = git@github.com:biancini/elasticsearch-hadoop.git
+[submodule "java-geojson"]
+	path = java-geojson
+	url = git@github.com:biancini/java-geojson.git

@@ -50,11 +50,17 @@ public class FacetParamsManager {
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> initializeParams(Map<String, Object> scriptMap,
 			Map<String, Object> additionalParams) {
-		Map<String, Object> params = newHashMap();
+
+		Map<String, Object> params = null;
+
 		if (scriptMap.containsKey(PARAMS_PARAM)) {
 			if (scriptMap.get(PARAMS_PARAM) != null) {
 				params = (Map<String, Object>) scriptMap.get(PARAMS_PARAM);
 			}
+		}
+
+		if (params == null) {
+			params = newHashMap();
 		}
 
 		if (additionalParams != null) {

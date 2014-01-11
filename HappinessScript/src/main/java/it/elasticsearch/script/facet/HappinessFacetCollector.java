@@ -1,6 +1,7 @@
 package it.elasticsearch.script.facet;
 
 import it.elasticsearch.models.ComputedHappiness;
+import it.elasticsearch.models.HappinessInstantiator;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,8 +35,10 @@ public class HappinessFacetCollector extends Collector {
 		logger.trace("Executing collect on id = {}.", doc);
 
 		mapScript.setNextDocId(doc);
-		Map<String, Double> scriptResult = (Map<String, Double>) mapScript.run();
-		searchResults.add(new ComputedHappiness(scriptResult));
+		Map<String, Object> scriptResult = (Map<String, Object>) mapScript.run();
+		if (scriptResult != null) {
+			searchResults.add(HappinessInstantiator.instantiate(scriptResult));
+		}
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class ComputedHappinessTest {
 	@Test
 	public void shouldToStringProduceNicePrint() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(ComputedHappiness.SCORE_KEY, score);
 		inputMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
 
@@ -30,7 +30,7 @@ public class ComputedHappinessTest {
 	@Test
 	public void shouldInitializeFromMapWork() {
 		// given
-		Map<String, Double> inputMap = new HashMap<String, Double>();
+		Map<String, Object> inputMap = new HashMap<String, Object>();
 		inputMap.put(ComputedHappiness.SCORE_KEY, score);
 		inputMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
 
@@ -46,12 +46,12 @@ public class ComputedHappinessTest {
 	public void shouldToMapReturnValidMap() throws IOException {
 		// given
 		ComputedHappiness happiness = new ComputedHappiness(score, relevance);
-		Map<String, Double> expectedMap = new HashMap<String, Double>();
+		Map<String, Object> expectedMap = new HashMap<String, Object>();
 		expectedMap.put(ComputedHappiness.SCORE_KEY, score);
 		expectedMap.put(ComputedHappiness.RELEVANCE_KEY, relevance);
 
 		// when
-		Map<String, Double> map = happiness.toMap();
+		Map<String, Object> map = happiness.toMap();
 
 		// then
 		assertThat(map).isNotNull();

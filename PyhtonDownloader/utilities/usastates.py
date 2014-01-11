@@ -41,41 +41,40 @@ if __name__ == "__main__":
   backend = BackendChooser.GetBackend(INSTANCES[0])
 
   access_token = getGoogleAccessToken()
-  tablename = '1_r_DC9mlrFCJB93hNfzD9P8murmI4_2tmgaQcZ4'
-  field_list = 'ID_GEOFLA,CODE_DEPT,NOM_DEPT,CODE_CHF,NOM_CHF,CODE_REG,NOM_REG,KML'
+  tablename = '1KU0yvyS5glqa5NmHHl9j9_v-12s_b5YA90qUn9Y'
+  field_list = 'name,id,geometry'
   response = sqlGetFusionTable(access_token, 'SELECT %s FROM %s' % (field_list, tablename))
   result_set = json.loads(response)
+  geometry_row = 2
 
+  print "{"
   for row in result_set['rows']:
-    if 'geometry' in row[7]:
-      coords = row[7]['geometry']['coordinates'][0]
+    if 'geometry' in row[geometry_row]:
+      coords = row[geometry_row]['geometry']['coordinates'][0]
       newcoords = []
       for coord in coords:
         newcoords.append(coord[::-1])
 
-      row[7]['geometry']['coordinates'][0] = newcoords
-      row[7] = json.dumps(row[7])
-    elif 'type' in row[7] and row[7]['type'] == 'GeometryCollection':
-      polygons = row[7]['geometries']
+      row[geometry_row]['geometry']['coordinates'][0] = newcoords
+      row[geometry_row] = json.dumps(row[geometry_row])
+    elif 'type' in row[geometry_row] and row[geometry_row]['type'] == 'GeometryCollection':
+      polygons = row[geometry_row]['geometries']
       for polygon in polygons:
         coords = polygon['coordinates'][0]
         newcoords = []
         for coord in coords:
           newcoords.append(coord[::-1])
         polygon['coordinates'][0] = newcoords
-      row[7] = json.dumps(row[7])
+      row[geometry_row] = json.dumps(row[geometry_row])
     else:
       print "Wrong type in fusion table KML field."
       break
 
-    vals = (int(row[0]),
+    vals = (row[0].replace('\'', '\\\''),
             row[1].replace('\'', '\\\''),
-            row[2].replace('\'', '\\\''),
-            row[3].replace('\'', '\\\''),
-            row[4].replace('\'', '\\\''),
-            row[5].replace('\'', '\\\''),
-            row[6].replace('\'', '\\\''),
-            row[7].replace('\'', '\\\''))
+            row[2].replace('\'', '\\\''))
 
-    #print vals
-    backend.InsertFrenchDepartments(vals)
+    print "\"" + row[2].replace('"', "\\\"") + "\", "
+    # print vals
+    #backend.InsertUSAStates(vals)
+  print "}"

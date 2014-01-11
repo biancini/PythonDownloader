@@ -36,6 +36,21 @@ CREATE TABLE `french_deps` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `french_deps`
+--
+
+DROP TABLE IF EXISTS `usa_states`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usa_states` (
+  `id` varchar(3) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `geometry` text,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `lastcall`
 --
 
