@@ -18,11 +18,9 @@ import org.mapfish.geo.MfGeometry;
 import org.mapfish.geo.MfGeometryCollection;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 public class KmlUtilities {
 
@@ -72,11 +70,7 @@ public class KmlUtilities {
 
 	private static Geometry getPoint(double lat, double lng) throws JSONException {
 		GeometryFactory factory = new GeometryFactory();
-
-		Coordinate[] coord = new Coordinate[] { new Coordinate(lng, lat) };
-		CoordinateSequence coordinates = new CoordinateArraySequence(coord);
-
-		Point point = new Point(coordinates, factory);
+		Point point = factory.createPoint(new Coordinate(lng, lat));
 		return point;
 	}
 
@@ -113,7 +107,7 @@ public class KmlUtilities {
 
 		for (int i = 0; i < geometry.getNumGeometries(); ++i) {
 			Geometry stateGeometry = geometry.getGeometryN(i);
-			if (stateGeometry.contains(point)) {
+			if (point.within(stateGeometry)) {
 				return true;
 			}
 		}
