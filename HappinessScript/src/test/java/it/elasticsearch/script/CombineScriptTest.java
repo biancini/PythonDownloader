@@ -66,4 +66,28 @@ public class CombineScriptTest {
 		assertThat(combineResult).isEqualTo(expectedResult);
 	}
 
+	@Test
+	public void shouldUnwrapWorkForGoodInput() throws IOException {
+		// given
+		ComputedHappiness happiness1 = new ComputedHappiness(score1, relevance1);
+		ComputedHappiness happiness2 = new ComputedHappiness(score2, relevance2);
+
+		List<ComputedHappiness> listFacets = new ArrayList<ComputedHappiness>();
+		listFacets.add(happiness1);
+		listFacets.add(happiness2);
+
+		List<Map<String, Object>> expectedResult = new ArrayList<Map<String, Object>>();
+		expectedResult.add(happiness1.toMap());
+		expectedResult.add(happiness2.toMap());
+
+		CombineScript combineScript = new CombineScript(null);
+
+		// when
+		Object unwrapResult = combineScript.unwrap(listFacets);
+
+		// then
+		assertThat(unwrapResult).isNotNull();
+		assertThat(unwrapResult).isEqualTo(expectedResult);
+	}
+
 }

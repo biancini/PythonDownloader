@@ -43,4 +43,9 @@ public class USAState {
 
 		return returnVal;
 	}
+
+	@Override
+	public String toString() {
+		return toMap().toString();
+	}
 }

@@ -29,20 +29,26 @@ public class KmlUtilities {
 	public static final String TWITTER_INDEX = "twitter";
 	public static final String USASTATES_TYPE = "usa_states";
 
-	public static List<USAState> getUsaStates() {
-		List<USAState> usaStates = new ArrayList<USAState>();
+	private static List<USAState> usaStates = null;
 
-		for (int i = 0; i < USAStatesList.USA_STATES_IDS.length; ++i) {
-			String stateId = USAStatesList.USA_STATES_IDS[i];
-			String stateName = USAStatesList.USA_STATES_NAMES[i];
-			String stateGeometry = USAStatesList.USA_STATES_GEOMS[i];
+	public synchronized static List<USAState> getUsaStates() {
+		if (usaStates == null) {
+			List<USAState> newUsaStates = new ArrayList<USAState>();
 
-			if (stateName == null || stateGeometry == null) {
-				logger.warn("State name or geometry null, ignoring this state.");
-			} else {
-				Geometry geometry = fromStringToGeometry(stateGeometry);
-				usaStates.add(new USAState(stateId, stateName, geometry));
+			for (int i = 0; i < USAStatesList.USA_STATES_IDS.length; ++i) {
+				String stateId = USAStatesList.USA_STATES_IDS[i];
+				String stateName = USAStatesList.USA_STATES_NAMES[i];
+				String stateGeometry = USAStatesList.USA_STATES_GEOMS[i];
+
+				if (stateName == null || stateGeometry == null) {
+					logger.warn("State name or geometry null, ignoring this state.");
+				} else {
+					Geometry geometry = fromStringToGeometry(stateGeometry);
+					newUsaStates.add(new USAState(stateId, stateName, geometry));
+				}
 			}
+
+			usaStates = newUsaStates;
 		}
 
 		return usaStates;

@@ -4,6 +4,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import it.elasticsearch.models.USAState;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -12,6 +13,18 @@ import com.vividsolutions.jts.geom.Geometry;
 public class KmlUtilitiesTest {
 
 	private static final int NYSTATE_ARRAYINDEX = 20;
+
+	@Test
+	public void shouldGetUsaStateWork() throws IOException {
+		// given
+		int numStates = USAStatesList.USA_STATES_IDS.length;
+
+		// when
+		List<USAState> usaStates = KmlUtilities.getUsaStates();
+
+		// then
+		assertThat(usaStates.size()).isEqualTo(numStates);
+	}
 
 	@Test
 	public void shouldIsPointIntoRegionWorkForEveryState() throws IOException {
