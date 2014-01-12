@@ -38,7 +38,7 @@ public class ByStateCombineScript extends AbstractExecutableScript {
 
 			if (map.containsKey(curHappiness.getState().getStateId())) {
 				ComputedHappiness happiness = map.get(curHappiness.getState().getStateId());
-				happiness.addScoreAndRelevanceElements(happiness);
+				happiness.addScoreAndRelevanceElements(curHappiness);
 			} else {
 				map.put(curHappiness.getState().getStateId(), curHappiness);
 			}

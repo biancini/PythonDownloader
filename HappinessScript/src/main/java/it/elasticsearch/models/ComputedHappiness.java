@@ -136,7 +136,7 @@ public class ComputedHappiness {
 				}
 			}
 
-			if (state != null && state.equals(happ.getState())) {
+			if (state != null && !state.equals(happ.getState())) {
 				return false;
 			}
 

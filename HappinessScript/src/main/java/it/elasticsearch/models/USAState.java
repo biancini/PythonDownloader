@@ -48,4 +48,24 @@ public class USAState {
 	public String toString() {
 		return toMap().toString();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof USAState) {
+			USAState state = (USAState) obj;
+
+			if (!stateId.equals(state.getStateId())) {
+				return false;
+			}
+
+			if (!stateName.equals(state.getStateName())) {
+				return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 }
