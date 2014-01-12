@@ -104,14 +104,20 @@ public class ByStateCombineScriptTest {
 		USAState state1 = new USAState(stateId1, stateName1);
 		USAState state2 = new USAState(stateId2, stateName2);
 
-		ComputedHappiness happiness1 = new ComputedHappiness(score1, relevance1, 10., 10.);
+		int elems1 = 10;
+		int elems2 = 5;
+
+		ComputedHappiness happiness1 = new ComputedHappiness(score1, relevance1, elems1);
 		happiness1.setState(state1);
+		happiness1.setCoordinates(new GeoPoint(10., 10.));
 
-		ComputedHappiness happiness2 = new ComputedHappiness(score2, relevance2, 10., 10.);
+		ComputedHappiness happiness2 = new ComputedHappiness(score2, relevance2, elems2);
 		happiness2.setState(state1);
+		happiness2.setCoordinates(new GeoPoint(10., 10.));
 
-		ComputedHappiness happiness3 = new ComputedHappiness(score3, relevance3, 10., 10.);
+		ComputedHappiness happiness3 = new ComputedHappiness(score3, relevance3, 1);
 		happiness3.setState(state2);
+		happiness3.setCoordinates(new GeoPoint(10., 10.));
 
 		List<ComputedHappiness> listFacets = new ArrayList<ComputedHappiness>();
 		listFacets.add(happiness1);
@@ -122,9 +128,9 @@ public class ByStateCombineScriptTest {
 		params.put(HappinessInternalFacet.FACET_TYPE, listFacets);
 		ByStateCombineScript combineScript = new ByStateCombineScript(params);
 
-		double expectedScore = (score1 + score2) / 2;
-		double expectedRelevance = (relevance1 + relevance2) / 2;
-		int expectedNumelems = 2;
+		int expectedNumelems = elems1 + elems2;
+		double expectedScore = (score1 * elems1 + score2 * elems2) / expectedNumelems;
+		double expectedRelevance = (relevance1 * elems1 + relevance2 * elems2) / expectedNumelems;
 		ComputedHappiness expectedHappiness = new ComputedHappiness(expectedScore, expectedRelevance,
 				expectedNumelems);
 		expectedHappiness.setCoordinates(new GeoPoint(10., 10.));
