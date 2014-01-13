@@ -50,7 +50,12 @@ def sqlPostFusionTable(access_token, sql):
 if __name__ == "__main__":
   access_token = getGoogleAccessToken()
   tablename = '1KU0yvyS5glqa5NmHHl9j9_v-12s_b5YA90qUn9Y'
-  field_list = 'name,id,geometry'
-  response = sqlPostFusionTable(access_token, 'UPDATE %s SET happiness = 1 WHERE id = "%s"' % (tablename, 'AS'))
+
+  happiness = 0.555
+  relevance = 1
+  stateid = 'AS'
+  query = 'UPDATE %s SET happiness = %f, relevance = %f WHERE id = "%s"' % (tablename, happiness, relevance, stateid)
+
+  response = sqlPostFusionTable(access_token, query)
   result = json.loads(response)
   print result
