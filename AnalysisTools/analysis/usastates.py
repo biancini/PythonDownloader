@@ -37,7 +37,6 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 def sqlPostFusionTable(access_token, sql):
-    print access_token + " " + sql
     data = urllib.urlencode({'sql': sql})
     request = urllib2.Request(url='https://www.googleapis.com/fusiontables/v1/query',
                               data=data)
@@ -83,5 +82,5 @@ if __name__ == "__main__":
             row[1].replace('\'', '\\\''),
             row[2].replace('\'', '\\\''))
 
-    # print vals
-    backend.InsertUSAStates(vals)
+    print vals
+    #backend.InsertUSAStates(vals)

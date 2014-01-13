@@ -37,7 +37,6 @@ def sqlGetFusionTable(access_token, sql):
   return response
 
 def sqlPostFusionTable(access_token, sql):
-    print access_token + " " + sql
     data = urllib.urlencode({'sql': sql})
     request = urllib2.Request(url='https://www.googleapis.com/fusiontables/v1/query',
                               data=data)
@@ -47,15 +46,32 @@ def sqlPostFusionTable(access_token, sql):
     request_open.close()
     return response
 
+def getUsaStates(access_token, tablename):
+  response = sqlGetFusionTable(access_token, 'SELECT id,ROWID FROM %s' % tablename)
+  result_set = json.loads(response)
+
+  states = {}
+  for row in result_set['rows']:
+    states[row[0]] = row[1]
+
+  return states
+
 if __name__ == "__main__":
   access_token = getGoogleAccessToken()
   tablename = '1KU0yvyS5glqa5NmHHl9j9_v-12s_b5YA90qUn9Y'
 
-  happiness = 0.555
-  relevance = 1
-  stateid = 'AS'
-  query = 'UPDATE %s SET happiness = %f, relevance = %f WHERE id = "%s"' % (tablename, happiness, relevance, stateid)
+  states = getUsaStates(access_token, tablename)
 
-  response = sqlPostFusionTable(access_token, query)
-  result = json.loads(response)
-  print result
+  json_data = open('bystate_sample.json').read()
+  data = json.loads(json_data)
+
+  for facet in data['facets']['average']['facet']:
+    stateid = facet['state']['id']
+    happiness = facet['score']
+    relevance = facet['relevance']
+
+    print "Updating State %s with happines = %f and relevance = %f." % (stateid, happiness, relevance)
+
+    query = 'UPDATE %s SET happiness = %f, relevance = %f WHERE ROWID = \'%s\'' % (tablename, happiness, relevance, states[stateid])
+    response = sqlPostFusionTable(access_token, query)
+    result = json.loads(response)
