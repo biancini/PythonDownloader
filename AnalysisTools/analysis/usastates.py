@@ -36,6 +36,17 @@ def sqlGetFusionTable(access_token, sql):
   request_open.close()
   return response
 
+def sqlPostFusionTable(access_token, sql):
+    print access_token + " " + sql
+    data = urllib.urlencode({'sql': sql})
+    request = urllib2.Request(url='https://www.googleapis.com/fusiontables/v1/query',
+                              data=data)
+    request.add_header('Authorization', 'Bearer %s' % access_token)
+    request_open = urllib2.urlopen(request)
+    response = request_open.read()
+    request_open.close()
+    return response
+
 if __name__ == "__main__":
   backend = BackendChooser.GetBackend()
 
