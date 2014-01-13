@@ -4,7 +4,7 @@ TwitterAnalyzer
 Implementation of a module to download and analyze tweets from Twitter REST and Stream API.
 This project consists of different parts each executing a specific task, as described in the following.
 
-PyhtonDownloader
+TwitterDownloader
 ----------------
 
 This is the engine which is able to download tweets from Twitter API as by its configuration.
@@ -26,6 +26,13 @@ HappinessScript
 This project contains classes used to implement the scripts to compute happiness on individual or faceted tweets.
 
 This project uses Maven and is itself a Maven module.
+
+AnalysisTools
+-------------
+
+This project contains scripts and sources to analyze tweets based on happiness computed data.
+
+This project scripts are mostly written in Python.
 
 Elasticsearch-Exporter
 ----------------------

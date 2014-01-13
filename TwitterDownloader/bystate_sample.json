@@ -1,0 +1,489 @@
+{
+   "took": 520882,
+   "timed_out": false,
+   "_shards": {
+      "total": 5,
+      "successful": 5,
+      "failed": 0
+   },
+   "hits": {
+      "total": 2461999,
+      "max_score": 1,
+      "hits": []
+   },
+   "facets": {
+      "average": {
+         "_type": "happiness",
+         "facet": [
+            {
+               "state": {
+                  "id": "RI",
+                  "name": "Rhode Island"
+               },
+               "relevance": 0.5730368200872635,
+               "score": 5.266607506198569,
+               "elements": 11445
+            },
+            {
+               "state": {
+                  "id": "VT",
+                  "name": "Vermont"
+               },
+               "relevance": 0.5558082306956353,
+               "score": 5.272339638357587,
+               "elements": 2992
+            },
+            {
+               "state": {
+                  "id": "HI",
+                  "name": "Hawaii"
+               },
+               "relevance": 0.609556655582272,
+               "score": 5.3554835015007605,
+               "elements": 18
+            },
+            {
+               "state": {
+                  "id": "ME",
+                  "name": "Maine"
+               },
+               "relevance": 0.5713134637963146,
+               "score": 5.2719921635923415,
+               "elements": 6507
+            },
+            {
+               "state": {
+                  "id": "VA",
+                  "name": "Virginia"
+               },
+               "relevance": 0.5574904209566671,
+               "score": 5.257230356915016,
+               "elements": 63931
+            },
+            {
+               "state": {
+                  "id": "MI",
+                  "name": "Michigan"
+               },
+               "relevance": 0.5691094466910113,
+               "score": 5.264494242898627,
+               "elements": 101599
+            },
+            {
+               "state": {
+                  "id": "DE",
+                  "name": "Delaware"
+               },
+               "relevance": 0.5632789660880485,
+               "score": 5.2477033143995,
+               "elements": 10173
+            },
+            {
+               "state": {
+                  "id": "ID",
+                  "name": "Idaho"
+               },
+               "relevance": 0.5604208748189637,
+               "score": 5.255044560111471,
+               "elements": 6081
+            },
+            {
+               "state": {
+                  "id": "IA",
+                  "name": "Iowa"
+               },
+               "relevance": 0.5608631378008685,
+               "score": 5.261369253515469,
+               "elements": 27990
+            },
+            {
+               "state": {
+                  "id": "MD",
+                  "name": "Maryland"
+               },
+               "relevance": 0.5515258650530528,
+               "score": 5.247413640144176,
+               "elements": 56373
+            },
+            {
+               "state": {
+                  "id": "MA",
+                  "name": "Massachusetts"
+               },
+               "relevance": 0.5706278288812958,
+               "score": 5.267124501670403,
+               "elements": 63968
+            },
+            {
+               "state": {
+                  "id": "AR",
+                  "name": "Arkansas"
+               },
+               "relevance": 0.5246083126392753,
+               "score": 5.240384105976922,
+               "elements": 19748
+            },
+            {
+               "state": {
+                  "id": "UT",
+                  "name": "Utah"
+               },
+               "relevance": 0.5413605190940082,
+               "score": 5.268638617609852,
+               "elements": 1281
+            },
+            {
+               "state": {
+                  "id": "IL",
+                  "name": "Illinois"
+               },
+               "relevance": 0.5476333002724273,
+               "score": 5.250292499052486,
+               "elements": 109397
+            },
+            {
+               "state": {
+                  "id": "IN",
+                  "name": "Indiana"
+               },
+               "relevance": 0.5599876368205771,
+               "score": 5.258429517112191,
+               "elements": 53032
+            },
+            {
+               "state": {
+                  "id": "MN",
+                  "name": "Minnesota"
+               },
+               "relevance": 0.5409262730256965,
+               "score": 5.258551144584293,
+               "elements": 4120
+            },
+            {
+               "state": {
+                  "id": "AZ",
+                  "name": "Arizona"
+               },
+               "relevance": 0.5148935833437456,
+               "score": 5.253727501439598,
+               "elements": 1151
+            },
+            {
+               "state": {
+                  "id": "MO",
+                  "name": "Missouri"
+               },
+               "relevance": 0.5391057262852108,
+               "score": 5.251089670864305,
+               "elements": 37849
+            },
+            {
+               "state": {
+                  "id": "MT",
+                  "name": "Montana"
+               },
+               "relevance": 0.5378616528817568,
+               "score": 5.2804873525904,
+               "elements": 1647
+            },
+            {
+               "state": {
+                  "id": "MS",
+                  "name": "Mississippi"
+               },
+               "relevance": 0.54086975046471,
+               "score": 5.236918974561594,
+               "elements": 21031
+            },
+            {
+               "state": {
+                  "id": "NH",
+                  "name": "New Hampshire"
+               },
+               "relevance": 0.5865450595212346,
+               "score": 5.276322687049705,
+               "elements": 7908
+            },
+            {
+               "state": {
+                  "id": "NJ",
+                  "name": "New Jersey"
+               },
+               "relevance": 0.5678752828363166,
+               "score": 5.267182002632287,
+               "elements": 100223
+            },
+            {
+               "state": {
+                  "id": "PR",
+                  "name": "Puerto Rico"
+               },
+               "relevance": 0.6175601982558504,
+               "score": 5.191372842294582,
+               "elements": 15
+            },
+            {
+               "state": {
+                  "id": "NM",
+                  "name": "New Mexico"
+               },
+               "relevance": 0.5477709375210419,
+               "score": 5.254517973603286,
+               "elements": 10842
+            },
+            {
+               "state": {
+                  "id": "AK",
+                  "name": "Alaska"
+               },
+               "relevance": 0.5502024003956062,
+               "score": 5.260662895397667,
+               "elements": 46
+            },
+            {
+               "state": {
+                  "id": "AL",
+                  "name": "Alabama"
+               },
+               "relevance": 0.5475203176744423,
+               "score": 5.250213807055082,
+               "elements": 43825
+            },
+            {
+               "state": {
+                  "id": "TX",
+                  "name": "Texas"
+               },
+               "relevance": 0.54802114475597,
+               "score": 5.2522312494526755,
+               "elements": 278072
+            },
+            {
+               "state": {
+                  "id": "NC",
+                  "name": "North Carolina"
+               },
+               "relevance": 0.5585214121858704,
+               "score": 5.258201351148449,
+               "elements": 50311
+            },
+            {
+               "state": {
+                  "id": "ND",
+                  "name": "North Dakota"
+               },
+               "relevance": 0.5727362804474694,
+               "score": 5.270210553052637,
+               "elements": 433
+            },
+            {
+               "state": {
+                  "id": "NE",
+                  "name": "Nebraska"
+               },
+               "relevance": 0.5564548558025868,
+               "score": 5.265673221862332,
+               "elements": 12959
+            },
+            {
+               "state": {
+                  "id": "NY",
+                  "name": "New York"
+               },
+               "relevance": 0.5420180118185592,
+               "score": 5.256266888093195,
+               "elements": 146102
+            },
+            {
+               "state": {
+                  "id": "GA",
+                  "name": "Georgia"
+               },
+               "relevance": 0.544727247608703,
+               "score": 5.246014254886118,
+               "elements": 94548
+            },
+            {
+               "state": {
+                  "id": "NV",
+                  "name": "Nevada"
+               },
+               "relevance": 0.5488010198202563,
+               "score": 5.258956708343344,
+               "elements": 26986
+            },
+            {
+               "state": {
+                  "id": "TN",
+                  "name": "Tennessee"
+               },
+               "relevance": 0.5432336009250343,
+               "score": 5.256412943724663,
+               "elements": 48921
+            },
+            {
+               "state": {
+                  "id": "CA",
+                  "name": "California"
+               },
+               "relevance": 0.5443482644194056,
+               "score": 5.257356887481282,
+               "elements": 262495
+            },
+            {
+               "state": {
+                  "id": "OK",
+                  "name": "Oklahoma"
+               },
+               "relevance": 0.5471339521216702,
+               "score": 5.25943330678134,
+               "elements": 34152
+            },
+            {
+               "state": {
+                  "id": "OH",
+                  "name": "Ohio"
+               },
+               "relevance": 0.5683382945616853,
+               "score": 5.26328027417583,
+               "elements": 126052
+            },
+            {
+               "state": {
+                  "id": "WY",
+                  "name": "Wyoming"
+               },
+               "relevance": 0.5264825108408218,
+               "score": 5.260577209053828,
+               "elements": 929
+            },
+            {
+               "state": {
+                  "id": "FL",
+                  "name": "Florida"
+               },
+               "relevance": 0.5354700011357757,
+               "score": 5.254754977706458,
+               "elements": 150467
+            },
+            {
+               "state": {
+                  "id": "SD",
+                  "name": "South Dakota"
+               },
+               "relevance": 0.5453300733114189,
+               "score": 5.264272936407555,
+               "elements": 3820
+            },
+            {
+               "state": {
+                  "id": "SC",
+                  "name": "South Carolina"
+               },
+               "relevance": 0.556554515477886,
+               "score": 5.254489332808647,
+               "elements": 44411
+            },
+            {
+               "state": {
+                  "id": "CT",
+                  "name": "Connecticut"
+               },
+               "relevance": 0.5681154997698197,
+               "score": 5.267343296367314,
+               "elements": 33019
+            },
+            {
+               "state": {
+                  "id": "WV",
+                  "name": "West Virginia"
+               },
+               "relevance": 0.5546084070308934,
+               "score": 5.2622476860296,
+               "elements": 14805
+            },
+            {
+               "state": {
+                  "id": "DC",
+                  "name": "District of Columbia"
+               },
+               "relevance": 0.48348934294517604,
+               "score": 5.210031566289871,
+               "elements": 9072
+            },
+            {
+               "state": {
+                  "id": "WI",
+                  "name": "Wisconsin"
+               },
+               "relevance": 0.548365526975986,
+               "score": 5.251991831739425,
+               "elements": 34004
+            },
+            {
+               "state": {
+                  "id": "KY",
+                  "name": "Kentucky"
+               },
+               "relevance": 0.5570700780175507,
+               "score": 5.2602196240846935,
+               "elements": 39968
+            },
+            {
+               "state": {
+                  "id": "KS",
+                  "name": "Kansas"
+               },
+               "relevance": 0.5524355346823603,
+               "score": 5.26168056993008,
+               "elements": 24868
+            },
+            {
+               "state": {
+                  "id": "OR",
+                  "name": "Oregon"
+               },
+               "relevance": 0.527718650010709,
+               "score": 5.2492141228525675,
+               "elements": 28999
+            },
+            {
+               "state": {
+                  "id": "LA",
+                  "name": "Louisiana"
+               },
+               "relevance": 0.5508943498670679,
+               "score": 5.238002723513791,
+               "elements": 52463
+            },
+            {
+               "state": {
+                  "id": "WA",
+                  "name": "Washington"
+               },
+               "relevance": 0.5501556110005512,
+               "score": 5.262267308316924,
+               "elements": 12099
+            },
+            {
+               "state": {
+                  "id": "CO",
+                  "name": "Colorado"
+               },
+               "relevance": 0.5407731872599517,
+               "score": 5.253571716077654,
+               "elements": 26367
+            },
+            {
+               "state": {
+                  "id": "PA",
+                  "name": "Pennsylvania"
+               },
+               "relevance": 0.5636993780161792,
+               "score": 5.260875233508104,
+               "elements": 115186
+            }
+         ]
+      }
+   }
+}
