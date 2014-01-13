@@ -31,19 +31,12 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 	private static final BytesReference STREAM_TYPE = new HashedBytesArray(
 			Strings.toUTF8Bytes(HappinessFacet.TYPE));
 
-	private Object facet = null;
-	private Map<String, Object> reduceScript = null;
 	private ScriptService scriptService = null;
 	private Client client = null;
+	private Object facet = null;
+	private Map<String, Object> reduceScript = null;
 
 	private HappinessInternalFacet(ScriptService scriptService, Client client) {
-		this.scriptService = scriptService;
-		this.client = client;
-	}
-
-	private HappinessInternalFacet(String name, ScriptService scriptService, Client client) {
-		super(name);
-
 		this.scriptService = scriptService;
 		this.client = client;
 	}
@@ -51,7 +44,10 @@ public class HappinessInternalFacet extends InternalFacet implements HappinessFa
 	public HappinessInternalFacet(String name, Object facet, Map<String, Object> reduceScript,
 			ScriptService scriptService, Client client) {
 
-		this(name, scriptService, client);
+		super(name);
+
+		this.scriptService = scriptService;
+		this.client = client;
 		this.facet = facet;
 		this.reduceScript = reduceScript;
 	}

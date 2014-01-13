@@ -24,33 +24,33 @@ import com.vividsolutions.jts.geom.Point;
 
 public class KmlUtilities {
 
-	protected static ESLogger logger = Loggers.getLogger("happiness.script");
+	protected static final ESLogger logger = Loggers.getLogger("happiness.script");
 
 	public static final String TWITTER_INDEX = "twitter";
 	public static final String USASTATES_TYPE = "usa_states";
 
-	private static List<USAState> usaStates = null;
+	private static final List<USAState> usaStates = initializeUsaStates();
 
-	public synchronized static List<USAState> getUsaStates() {
-		if (usaStates == null) {
-			List<USAState> newUsaStates = new ArrayList<USAState>();
+	private static List<USAState> initializeUsaStates() {
+		List<USAState> newUsaStates = new ArrayList<USAState>();
 
-			for (int i = 0; i < USAStatesList.USA_STATES_IDS.length; ++i) {
-				String stateId = USAStatesList.USA_STATES_IDS[i];
-				String stateName = USAStatesList.USA_STATES_NAMES[i];
-				String stateGeometry = USAStatesList.USA_STATES_GEOMS[i];
+		for (int i = 0; i < USAStatesList.USA_STATES_IDS.length; ++i) {
+			String stateId = USAStatesList.USA_STATES_IDS[i];
+			String stateName = USAStatesList.USA_STATES_NAMES[i];
+			String stateGeometry = USAStatesList.USA_STATES_GEOMS[i];
 
-				if (stateName == null || stateGeometry == null) {
-					logger.warn("State name or geometry null, ignoring this state.");
-				} else {
-					Geometry geometry = fromStringToGeometry(stateGeometry);
-					newUsaStates.add(new USAState(stateId, stateName, geometry));
-				}
+			if (stateName == null || stateGeometry == null) {
+				logger.warn("State name or geometry null, ignoring this state.");
+			} else {
+				Geometry geometry = fromStringToGeometry(stateGeometry);
+				newUsaStates.add(new USAState(stateId, stateName, geometry));
 			}
-
-			usaStates = newUsaStates;
 		}
 
+		return newUsaStates;
+	}
+
+	public synchronized static List<USAState> getUsaStates() {
 		return usaStates;
 	}
 

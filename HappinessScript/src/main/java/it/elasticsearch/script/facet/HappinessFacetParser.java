@@ -18,7 +18,7 @@ import org.elasticsearch.search.internal.SearchContext;
 
 public class HappinessFacetParser extends AbstractComponent implements FacetParser {
 
-	protected ESLogger logger = Loggers.getLogger("happiness.script");
+	protected final ESLogger logger = Loggers.getLogger("happiness.script");
 	private Client client = null;
 
 	@Inject

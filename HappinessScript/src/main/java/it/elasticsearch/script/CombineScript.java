@@ -13,7 +13,7 @@ import org.elasticsearch.script.AbstractExecutableScript;
 
 public class CombineScript extends AbstractExecutableScript {
 
-	protected ESLogger logger = Loggers.getLogger("happiness.script");
+	protected final ESLogger logger = Loggers.getLogger("happiness.script");
 	protected Map<String, Object> params = null;
 
 	public CombineScript(Map<String, Object> params) {

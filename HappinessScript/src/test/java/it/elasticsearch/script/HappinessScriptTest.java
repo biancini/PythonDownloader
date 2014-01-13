@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.logging.Loggers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,7 +56,6 @@ public class HappinessScriptTest {
 		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
 		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(null);
-		mockHappinessScript.logger = Loggers.getLogger("happiness.script");
 
 		// when
 		Object happiness = mockHappinessScript.run();
@@ -91,7 +89,6 @@ public class HappinessScriptTest {
 
 		mockHappinessScript.properties = properties;
 		mockHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockHappinessScript.logger = Loggers.getLogger("happiness.script");
 
 		// when
 		Object objHappiness = mockHappinessScript.run();
@@ -120,7 +117,6 @@ public class HappinessScriptTest {
 		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
 		mockHappinessScript.properties = properties;
 		mockHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockHappinessScript.logger = Loggers.getLogger("happiness.script");
 
 		// when
 		Object objHappiness = mockHappinessScript.run();
@@ -164,7 +160,6 @@ public class HappinessScriptTest {
 		mockGeoHappinessScript.properties = properties;
 		mockGeoHappinessScript.params = params;
 		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
 		// when
 		Object objHappiness = mockGeoHappinessScript.run();
 
@@ -198,7 +193,6 @@ public class HappinessScriptTest {
 		mockGeoHappinessScript.properties = properties;
 		mockGeoHappinessScript.params = params;
 		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
 
 		// when
 		Object objHappiness = mockGeoHappinessScript.run();
@@ -253,7 +247,6 @@ public class HappinessScriptTest {
 		mockGeoHappinessScript.properties = properties;
 		mockGeoHappinessScript.params = params;
 		mockGeoHappinessScript.analyzer = mockHappinessAnalyzer;
-		mockGeoHappinessScript.logger = Loggers.getLogger("happiness.script");
 		// when
 		Object objHappiness = mockGeoHappinessScript.run();
 

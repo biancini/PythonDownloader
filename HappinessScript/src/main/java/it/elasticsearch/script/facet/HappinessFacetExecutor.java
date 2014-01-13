@@ -23,7 +23,7 @@ public class HappinessFacetExecutor extends FacetExecutor {
 	public static final String TYPE_CONTEXT = "_ctx";
 	public static final String CLIENT_PARAM = "_client";
 
-	private ESLogger logger = Loggers.getLogger("happiness.script");
+	private final ESLogger logger = Loggers.getLogger("happiness.script");
 
 	private SearchContext context = null;
 	private SearchScript mapScript = null;

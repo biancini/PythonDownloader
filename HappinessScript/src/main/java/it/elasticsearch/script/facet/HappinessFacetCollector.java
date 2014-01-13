@@ -13,7 +13,7 @@ import org.elasticsearch.search.facet.FacetExecutor.Collector;
 
 public class HappinessFacetCollector extends Collector {
 
-	private ESLogger logger = Loggers.getLogger("happiness.script");
+	private final ESLogger logger = Loggers.getLogger("happiness.script");
 	private SearchScript mapScript = null;
 	private List<ComputedHappiness> searchResults = null;
 

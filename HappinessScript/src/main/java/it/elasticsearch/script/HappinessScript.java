@@ -25,7 +25,7 @@ public class HappinessScript extends AbstractSearchScript {
 	public static final String PARAM_GEOLOCALIZED = "geolocalized";
 	public static final String PARAM_USASTATE = "usa-state";
 
-	protected ESLogger logger = Loggers.getLogger("happiness.script");
+	private final ESLogger logger = Loggers.getLogger("happiness.script");
 	protected Map<String, Object> params = null;
 	protected Properties properties = null;
 	protected Analyzer analyzer = null;
@@ -76,11 +76,16 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
-		logger.trace("Evaluating happiness on text: {}", tweetText);
+		if (logger != null) {
+			logger.trace("Evaluating happiness on text: {}", tweetText);
+		}
+
 		ComputedHappiness happiness = analyzer.computeHappiness(tweetText, properties);
 
 		if (happiness == null) {
-			logger.error("Returned null value from compute happiness.");
+			if (logger != null) {
+				logger.error("Returned null value from compute happiness.");
+			}
 			return null;
 		}
 
@@ -101,7 +106,10 @@ public class HappinessScript extends AbstractSearchScript {
 			}
 		}
 
-		logger.trace("Computed happiness: {}.", happiness);
+		if (logger != null) {
+			logger.trace("Computed happiness: {}.", happiness);
+		}
+
 		return happiness;
 	}
 
