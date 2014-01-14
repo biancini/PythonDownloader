@@ -5,6 +5,8 @@ import sys
 import os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
+from TwitterEngine.secrets import google_client_id, google_client_secret
+
 # Create AppEngine application
 # Enter Google APIs Console -> API Access
 # Create Oauth 2.0 Service Key -> (CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
@@ -15,8 +17,6 @@ import urllib2
 import json
 import webbrowser
  
-google_client_id = '537642957624-hh7do5nmvvhokporfls3psjqq76031vc.apps.googleusercontent.com'
-google_client_secret = 'GM-hCXaWJvtap29-C89_6d7Q'
 redirect_uri = 'http://localhost/oauth2callback'
  
 def generateInstallAppUrl(scope):
