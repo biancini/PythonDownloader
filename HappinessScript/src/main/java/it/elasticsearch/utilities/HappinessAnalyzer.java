@@ -27,8 +27,8 @@ public class HappinessAnalyzer implements Analyzer {
 		double relevantWords = 0.0;
 
 		for (String word : tweetWords) {
-			if (wordHappiness.containsKey(word)) {
-				happiness += wordHappiness.get(word);
+			if (wordHappiness.containsKey(word.toLowerCase())) {
+				happiness += wordHappiness.get(word.toLowerCase());
 				relevantWords++;
 			} else {
 				happiness += 5.0;
