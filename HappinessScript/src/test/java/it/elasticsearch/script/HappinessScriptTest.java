@@ -79,13 +79,13 @@ public class HappinessScriptTest {
 		expectedHappiness.put(ComputedHappiness.SCORE_KEY, 5.0);
 		expectedHappiness.put(ComputedHappiness.RELEVANCE_KEY, 1.0);
 
-		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
-		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
-
 		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
+
+		HappinessScript happinessScript = new HappinessScript(null, properties, mockHappinessAnalyzer);
+		HappinessScript mockHappinessScript = Mockito.spy(happinessScript);
+		Mockito.doReturn(tweetText).when(mockHappinessScript).getTweetText();
 
 		mockHappinessScript.properties = properties;
 		mockHappinessScript.analyzer = mockHappinessAnalyzer;
@@ -107,16 +107,13 @@ public class HappinessScriptTest {
 		String tweetText = firstWord + " " + secondWord;
 		Properties properties = new Properties();
 
-		HappinessScript mockHappinessScript = Mockito.mock(HappinessScript.class);
-		Mockito.when(mockHappinessScript.getTweetText()).thenReturn(tweetText);
-
 		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(null);
 
-		Mockito.when(mockHappinessScript.run()).thenCallRealMethod();
-		mockHappinessScript.properties = properties;
-		mockHappinessScript.analyzer = mockHappinessAnalyzer;
+		HappinessScript happinessScript = new HappinessScript(null, properties, mockHappinessAnalyzer);
+		HappinessScript mockHappinessScript = Mockito.spy(happinessScript);
+		Mockito.doReturn(tweetText).when(mockHappinessScript).getTweetText();
 
 		// when
 		Object objHappiness = mockHappinessScript.run();
@@ -147,15 +144,14 @@ public class HappinessScriptTest {
 		expectedHappiness.put(ComputedHappiness.LATITUDE_KEY, lat);
 		expectedHappiness.put(ComputedHappiness.LONGITUDE_KEY, lng);
 
-		HappinessScript mockGeoHappinessScript = Mockito.mock(HappinessScript.class);
-
 		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
-		Mockito.when(mockGeoHappinessScript.getTweetText()).thenReturn(tweetText);
-		Mockito.when(mockGeoHappinessScript.getCoordinates()).thenReturn(coordinates);
-		Mockito.when(mockGeoHappinessScript.run()).thenCallRealMethod();
+		HappinessScript happinessScript = new HappinessScript(null, properties, mockHappinessAnalyzer);
+		HappinessScript mockGeoHappinessScript = Mockito.spy(happinessScript);
+		Mockito.doReturn(tweetText).when(mockGeoHappinessScript).getTweetText();
+		Mockito.doReturn(coordinates).when(mockGeoHappinessScript).getCoordinates();
 
 		mockGeoHappinessScript.properties = properties;
 		mockGeoHappinessScript.params = params;
@@ -234,15 +230,14 @@ public class HappinessScriptTest {
 		expectedHappiness.put(ComputedHappiness.LONGITUDE_KEY, lng);
 		expectedHappiness.put(ComputedHappiness.STATE_KEY, expectedState);
 
-		HappinessScript mockGeoHappinessScript = Mockito.mock(HappinessScript.class);
-
 		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
-		Mockito.when(mockGeoHappinessScript.getTweetText()).thenReturn(tweetText);
-		Mockito.when(mockGeoHappinessScript.getCoordinates()).thenReturn(coordinates);
-		Mockito.when(mockGeoHappinessScript.run()).thenCallRealMethod();
+		HappinessScript happinessScript = new HappinessScript(null, properties, mockHappinessAnalyzer);
+		HappinessScript mockGeoHappinessScript = Mockito.spy(happinessScript);
+		Mockito.doReturn(tweetText).when(mockGeoHappinessScript).getTweetText();
+		Mockito.doReturn(coordinates).when(mockGeoHappinessScript).getCoordinates();
 
 		mockGeoHappinessScript.properties = properties;
 		mockGeoHappinessScript.params = params;

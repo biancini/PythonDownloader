@@ -25,16 +25,21 @@ public class HappinessScript extends AbstractSearchScript {
 	public static final String PARAM_GEOLOCALIZED = "geolocalized";
 	public static final String PARAM_USASTATE = "usa-state";
 
-	private final ESLogger logger = Loggers.getLogger("happiness.script");
+	protected final ESLogger logger = Loggers.getLogger("happiness.script");
 	protected Map<String, Object> params = null;
 	protected Properties properties = null;
 	protected Analyzer analyzer = null;
 
 	public HappinessScript(@Nullable Map<String, Object> params, Properties properties) throws IOException {
+		this(params, properties, new HappinessAnalyzer());
+	}
+
+	public HappinessScript(@Nullable Map<String, Object> params, Properties properties, Analyzer analyzer)
+			throws IOException {
 		logger.debug("Initializing happiness script.");
 		this.params = params;
 		this.properties = properties;
-		this.analyzer = new HappinessAnalyzer();
+		this.analyzer = analyzer;
 	}
 
 	protected String getTweetText() {
@@ -76,16 +81,12 @@ public class HappinessScript extends AbstractSearchScript {
 			return null;
 		}
 
-		if (logger != null) {
-			logger.trace("Evaluating happiness on text: {}", tweetText);
-		}
+		logger.trace("Evaluating happiness on text: {}", tweetText);
 
 		ComputedHappiness happiness = analyzer.computeHappiness(tweetText, properties);
 
 		if (happiness == null) {
-			if (logger != null) {
-				logger.error("Returned null value from compute happiness.");
-			}
+			logger.error("Returned null value from compute happiness.");
 			return null;
 		}
 
@@ -106,10 +107,7 @@ public class HappinessScript extends AbstractSearchScript {
 			}
 		}
 
-		if (logger != null) {
-			logger.trace("Computed happiness: {}.", happiness);
-		}
-
+		logger.trace("Computed happiness: {}.", happiness);
 		return happiness;
 	}
 
