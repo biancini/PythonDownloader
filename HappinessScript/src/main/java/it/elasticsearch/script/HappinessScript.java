@@ -47,11 +47,6 @@ public class HappinessScript extends AbstractSearchScript {
 		return tweetText;
 	}
 
-	// protected GeoPoint getCoordinates() {
-	// GeoPoints coordinates = (GeoPoints) doc().get(COORDINATES_FIELDNAME);
-	// return (coordinates != null) ? coordinates.getValue() : null;
-	// }
-
 	protected GeoPoint getCoordinates() {
 		String strCoords = (String) source().get(COORDINATES_FIELDNAME);
 		if (strCoords == null || strCoords.indexOf(',') < 0) {
@@ -61,17 +56,6 @@ public class HappinessScript extends AbstractSearchScript {
 		GeoPoint geopoint = new GeoPoint(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]));
 		return geopoint;
 	}
-
-	// protected String getTweetId() {
-	// ScriptDocValues.Strings fieldValue = (ScriptDocValues.Strings)
-	// doc().get(ID_FIELDNAME);
-	// if (fieldValue == null || fieldValue.getValues() == null) {
-	// return null;
-	// }
-	//
-	// String tweetId = fieldValue.getValue();
-	// return tweetId;
-	// }
 
 	@Override
 	public Object run() {
