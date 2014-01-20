@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class HedonometerAnalyzer implements Analyzer {
+public class HedonometerAnalyzer extends AbstractAnalyzer implements Analyzer {
 
 	public static final String PARAM_ONLYRELEVANT = "only_relevant";
 
@@ -28,10 +28,11 @@ public class HedonometerAnalyzer implements Analyzer {
 
 	@Override
 	public ComputedHappiness computeHappiness(String tweetText, Map<String, Double> wordHappiness) {
-		if (wordHappiness == null || (tweetText == null || tweetText.length() == 0)) {
+		if (wordHappiness == null) {
 			return null;
 		}
-		String[] tweetWords = tweetText.split(SPACE);
+
+		String[] tweetWords = splitWords(tweetText);
 
 		double happiness = 0.0;
 		double relevance = 0.0;

@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public interface Analyzer {
 
-	static final String SPACE = " ";
+	static final String WORD_REGEXP = "[\\W]+";
 
 	void initialize(Properties properties);
 
