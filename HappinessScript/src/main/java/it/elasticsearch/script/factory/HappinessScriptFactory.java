@@ -5,6 +5,7 @@ import it.elasticsearch.script.HappinessScript;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
@@ -35,6 +36,14 @@ public class HappinessScriptFactory implements NativeScriptFactory {
 
 		Properties properties = new Properties();
 		properties.load(new FileInputStream(fileName));
+
+		if (params != null) {
+			for (Entry<String, Object> property : params.entrySet()) {
+				if (!PARAM_PROPERTIES.equals(property.getKey())) {
+					properties.put(property.getKey(), property.getValue());
+				}
+			}
+		}
 
 		return properties;
 	}

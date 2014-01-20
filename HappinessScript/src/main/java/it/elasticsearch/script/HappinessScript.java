@@ -1,9 +1,9 @@
 package it.elasticsearch.script;
 
+import it.elasticsearch.analyzer.Analyzer;
+import it.elasticsearch.analyzer.HedonometerAnalyzer;
 import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.models.USAState;
-import it.elasticsearch.utilities.Analyzer;
-import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.KmlUtilities;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class HappinessScript extends AbstractSearchScript {
 	protected Analyzer analyzer = null;
 
 	public HappinessScript(@Nullable Map<String, Object> params, Properties properties) throws IOException {
-		this(params, properties, new HappinessAnalyzer());
+		this(params, properties, new HedonometerAnalyzer());
 	}
 
 	public HappinessScript(@Nullable Map<String, Object> params, Properties properties, Analyzer analyzer)
@@ -40,6 +40,8 @@ public class HappinessScript extends AbstractSearchScript {
 		this.params = params;
 		this.properties = properties;
 		this.analyzer = analyzer;
+
+		this.analyzer.initialize(properties);
 	}
 
 	protected String getTweetText() {

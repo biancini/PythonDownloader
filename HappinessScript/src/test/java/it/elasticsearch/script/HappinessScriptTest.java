@@ -1,9 +1,9 @@
 package it.elasticsearch.script;
 
 import static org.fest.assertions.Assertions.assertThat;
+import it.elasticsearch.analyzer.HedonometerAnalyzer;
 import it.elasticsearch.models.ComputedHappiness;
 import it.elasticsearch.models.USAState;
-import it.elasticsearch.utilities.HappinessAnalyzer;
 import it.elasticsearch.utilities.HappinessWords;
 
 import java.io.BufferedWriter;
@@ -79,7 +79,7 @@ public class HappinessScriptTest {
 		expectedHappiness.put(ComputedHappiness.SCORE_KEY, 5.0);
 		expectedHappiness.put(ComputedHappiness.RELEVANCE_KEY, 1.0);
 
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		HedonometerAnalyzer mockHappinessAnalyzer = Mockito.mock(HedonometerAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
@@ -107,7 +107,7 @@ public class HappinessScriptTest {
 		String tweetText = firstWord + " " + secondWord;
 		Properties properties = new Properties();
 
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		HedonometerAnalyzer mockHappinessAnalyzer = Mockito.mock(HedonometerAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(null);
 
@@ -144,7 +144,7 @@ public class HappinessScriptTest {
 		expectedHappiness.put(ComputedHappiness.LATITUDE_KEY, lat);
 		expectedHappiness.put(ComputedHappiness.LONGITUDE_KEY, lng);
 
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		HedonometerAnalyzer mockHappinessAnalyzer = Mockito.mock(HedonometerAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
@@ -182,7 +182,7 @@ public class HappinessScriptTest {
 		Mockito.when(mockGeoHappinessScript.getTweetText()).thenReturn(tweetText);
 		Mockito.when(mockGeoHappinessScript.run()).thenCallRealMethod();
 
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		HedonometerAnalyzer mockHappinessAnalyzer = Mockito.mock(HedonometerAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
@@ -230,7 +230,7 @@ public class HappinessScriptTest {
 		expectedHappiness.put(ComputedHappiness.LONGITUDE_KEY, lng);
 		expectedHappiness.put(ComputedHappiness.STATE_KEY, expectedState);
 
-		HappinessAnalyzer mockHappinessAnalyzer = Mockito.mock(HappinessAnalyzer.class);
+		HedonometerAnalyzer mockHappinessAnalyzer = Mockito.mock(HedonometerAnalyzer.class);
 		Mockito.when(mockHappinessAnalyzer.computeHappiness(Mockito.anyString(), Mockito.any(Properties.class)))
 				.thenReturn(computedHappiness);
 
