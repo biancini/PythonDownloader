@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class HedonometerAnalyzerSamplesTest {
@@ -54,7 +54,7 @@ public class HedonometerAnalyzerSamplesTest {
 		properties.setProperty("headers", "4");
 	}
 
-	@Test
+	@Ignore
 	public void shouldSample1WorkWithNotOnlyRelevant() throws IOException {
 		// given
 		assertThat(happinessFile.exists()).isTrue();

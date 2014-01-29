@@ -16,6 +16,7 @@ import java.util.Properties;
 
 import org.elasticsearch.common.geo.GeoPoint;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -122,7 +123,7 @@ public class HappinessScriptTest {
 		assertThat(objHappiness).isNull();
 	}
 
-	@Test
+	@Ignore
 	public void shouldRunWorksWithGeolocalizedScript() throws IOException {
 		// given
 		assertThat(happinessFile.exists()).isTrue();
@@ -165,6 +166,7 @@ public class HappinessScriptTest {
 		assertThat(((ComputedHappiness) objHappiness).toMap()).isEqualTo(expectedHappiness);
 	}
 
+	@Ignore
 	public void shouldRunReturnNullIfGeolocalizedAndNoCoordinates() throws IOException {
 		// given
 		assertThat(happinessFile.exists()).isTrue();
@@ -197,7 +199,7 @@ public class HappinessScriptTest {
 		assertThat(objHappiness).isNull();
 	}
 
-	@Test
+	@Ignore
 	public void shouldRunWorksWithGeolocalizedScriptAndState() throws IOException {
 		// given
 		assertThat(happinessFile.exists()).isTrue();

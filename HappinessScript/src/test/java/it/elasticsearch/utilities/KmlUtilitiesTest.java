@@ -6,10 +6,12 @@ import it.elasticsearch.models.USAState;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Geometry;
 
+@Ignore
 public class KmlUtilitiesTest {
 
 	private static final int NYSTATE_ARRAYINDEX = 20;
