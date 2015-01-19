@@ -1,15 +1,15 @@
 [submodule "Elasticsearch-Exporter"]
 	path = Elasticsearch-Exporter
-	url = git://github.com/mallocator/Elasticsearch-Exporter.git
+	url = https://github.com/mallocator/Elasticsearch-Exporter
 [submodule "TwitterAPI"]
 	path = TwitterAPI
-	url = git@github.com:biancini/TwitterAPI.git
+	url = https://github.com/biancini/TwitterAPI
 [submodule "geopy"]
 	path = geopy
-	url = git@github.com:biancini/geopy.git
+	url = https://github.com/biancini/geopy
 [submodule "elasticsearch-hadoop"]
 	path = elasticsearch-hadoop
-	url = git@github.com:biancini/elasticsearch-hadoop.git
+	url = https://github.com/biancini/elasticsearch-hadoop
 [submodule "java-geojson"]
 	path = java-geojson
-	url = git@github.com:biancini/java-geojson.git
+	url = https://github.com/biancini/java-geojson
